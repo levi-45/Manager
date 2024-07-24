@@ -81,7 +81,7 @@ else
 fi
 
 sleep 2
-wget --no-check-certificate --no-cache --no-dns-cache 'https://github.com/levi-45/Manager/archive/refs/heads/main.tar.gz'
+wget --no-check-certificate 'https://github.com/levi-45/Manager/archive/refs/heads/main.tar.gz'
 tar -xzf main.tar.gz
 cp -r 'Manager-main/usr' '/'
 ## cp -r 'Manager-main/etc' '/'
