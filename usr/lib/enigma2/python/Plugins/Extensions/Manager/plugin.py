@@ -882,7 +882,7 @@ class GetipkTv(Screen):
             if ".deb" in self.plug:
                 cmd2 = "dpkg -i '/tmp/" + self.plug + "'"
             if ".ipk" in self.plug:
-                cmd2 = "opkg install --force-overwrite '/tmp/" + self.plug + "'"
+                cmd2 = "opkg install --force-reinstall --force-overwrite '/tmp/" + self.plug + "'"
             elif ".zip" in self.plug:
                 cmd2 = "unzip -o -q '/tmp/" + self.plug + "' -d /"
 
@@ -956,7 +956,7 @@ class GetipkTv(Screen):
                     # cmd23 = 'opkg update && opkg install wget'
                 # popen(cmd23)
             # if self.com.find('.ipk') != -1:
-                # cmd = "opkg --force-reinstall --force-overwrite install %s > /dev/null" % down
+                # cmd = "opkg install --force-reinstall --force-overwrite %s > /dev/null" % down
                 # self.session.open(Console, _('Downloading-installing: %s') % self.dom, [cmd], closeOnSuccess=False)
 
             # if len(extensionlist) > 1:
