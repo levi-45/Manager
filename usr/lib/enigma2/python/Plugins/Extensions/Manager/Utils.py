@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# 30.03.2023
+# 25.07.2024
 # a common tips used from Lululla
 
 import sys
@@ -10,6 +10,7 @@ import os
 import re
 import ssl
 import base64
+import requests
 # import chardet
 from random import choice
 from Components.config import config
@@ -54,7 +55,6 @@ if PY2:
     from urllib2 import HTTPError, URLError
 
 
-import requests
 requests.packages.urllib3.disable_warnings(
     requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
@@ -163,6 +163,7 @@ if sslverify:
             if self.hostname:
                 ClientTLSOptions(self.hostname, ctx)
             return ctx
+
 
 def ssl_urlopen(url):
     if sslContext:
@@ -649,6 +650,7 @@ def checkRedirect(url):
         return str(url)
 
 
+'''
 # def checkRedirect2(url):
     # print("*** check redirect ***")
     # import requests
@@ -684,6 +686,7 @@ def checkRedirect(url):
     # session.mount('https://', TLSAdapter())
     # res = session.get(url)
     # return res
+'''
 
 
 def freespace():
@@ -916,6 +919,7 @@ def isExtEplayer3Available():
     return os.path.isfile(eEnv.resolve('$bindir/exteplayer3'))
 
 
+'''
 # def Controlexteplayer():
     # exteplayer = False
     # if os.path.exists('/usr/bin/exteplayer3') or os.path.exists('/bin/exteplayer3')  or os.path.exists('exteplayer3'):
@@ -953,6 +957,7 @@ def isExtEplayer3Available():
 # WHERE_AUDIOMENU = 13
 # WHERE_SOFTWAREMANAGER = 14
 # WHERE_CHANNEL_CONTEXT_MENU = 15
+'''
 
 
 def AdultUrl(url):
@@ -1259,6 +1264,7 @@ def decodeUrl(text):
     return text
 
 
+'''
 # import re
 # from six import ensure_str, unichr, iteritems
 # from six.moves import html_entities
@@ -1286,6 +1292,8 @@ def decodeUrl(text):
         # except ValueError:
             # return "&#%s;" % m.group(2)
     # return _UNICODE_MAP.get(m.group(2), "&%s;" % m.group(2))
+'''
+
 
 def normalize(title):
     try:
@@ -1303,7 +1311,8 @@ def normalize(title):
 def get_safe_filename(filename, fallback=''):
     '''Convert filename to safe filename'''
     import unicodedata
-    import six, re
+    import six
+    import re
     name = filename.replace(' ', '_').replace('/', '_')
     if isinstance(name, six.text_type):
         name = name.encode('utf-8')
@@ -1655,15 +1664,15 @@ def charRemove(text):
             '[',
             ']',
             ]
-    myreplace = text  # .lower()
-    for ch in char:  # .lower():
-        # ch= ch #.lower()
+    myreplace = text
+    for ch in char:
         if text == ch:
             myreplace = text.replace(ch, '').replace('  ', ' ').replace('   ', ' ').strip()
     print('myreplace: ', myreplace)
     return myreplace
 
 
+'''
 # def decodecs(data):
     # # codecs = [
         # # "ascii", "big5", "big5hkscs", "cp037", "cp273", "cp424", "cp437", "cp500", "cp720",
@@ -1695,6 +1704,7 @@ def charRemove(text):
     # except UnicodeDecodeError:
         # print('error')  # continue
     # return str(data)
+'''
 
 
 def clean_html(html):

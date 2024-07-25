@@ -1,5 +1,5 @@
 #!/bin/sh
-#DESCRIPTION=This script created by Levi45\nPublic Ip
+## DESCRIPTION=This script created by Levi45\nPublic Ip
 cd /tmp
 if [ -f tmp/ip.txt ] ; then
 	rm /tmp/ip.txt

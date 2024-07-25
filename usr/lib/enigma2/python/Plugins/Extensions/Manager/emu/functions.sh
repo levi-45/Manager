@@ -1,5 +1,5 @@
 #!/bin/sh
-#DESCRIPTION=This script created by Levi45\nInstall Update to /tmp
+## DESCRIPTION=This script created by Levi45\nInstall Update to /tmp
 #by acypaczom 2023
 
 download_file ()

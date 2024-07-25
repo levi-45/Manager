@@ -6,7 +6,7 @@
 #   skin by MMark    #
 #     update to      #
 #       Levi45       #
-#     18/04/2024     #
+#     25/07/2024     #
 #      No Coppy      #
 # -------------------#
 from . import _
@@ -28,7 +28,7 @@ import sys
 import codecs
 
 plugin_foo = os.path.dirname(sys.modules[__name__].__file__)
-currversion = 'V.10.1-r22'
+currversion = 'V.10.1-r23'
 emu_script = str(plugin_foo) + '/emu'
 name_plugemu = 'Levi45 Emu Keys %s' % currversion
 res_plugin_foo = os.path.join(plugin_foo, 'res/')
@@ -54,7 +54,7 @@ def ulistEntry(download):
         res.append(MultiContentEntryText(pos=(2, 0), size=(2000, 50), font=0, text=download, color=col, color_sel=white, backcolor_sel=blue))
     elif screenwidth.width() == 1920:
         res.append(MultiContentEntryText(pos=(2, 0), size=(900, 40), font=0, text=download, color=col, color_sel=white, backcolor_sel=blue))
-    
+    else:
         res.append(MultiContentEntryText(pos=(2, 0), size=(660, 40), font=0, text=download, color=col, color_sel=white, backcolor_sel=blue))
     return res
 
@@ -116,6 +116,7 @@ class Levi45EmuKeysUpdater(Screen):
         self['list'].index = 1
         self['list'].index = 0
 
+    '''
     # def loadScriptList(self):
         # self.names = []
         # self.urls = []
@@ -130,6 +131,7 @@ class Levi45EmuKeysUpdater(Screen):
                 # self.names.append(name)
                 # self.urls.append(url)
         # ulistx(self.names, self["list"])
+    '''
 
     def populateScript(self):
         try:

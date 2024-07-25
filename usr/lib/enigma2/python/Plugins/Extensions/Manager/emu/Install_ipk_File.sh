@@ -1,7 +1,6 @@
 #!/bin/sh
-#DESCRIPTION=This script created by Levi45\nInstall *.ipk from /tmp
-###############################################################################
-# Installin File
+## DESCRIPTION=This script created by Levi45\nInstall *.ipk from /tmp
+## Installin File
 cd /tmp 
 opkg install --force-overwrite --force-downgrade /tmp/*.ipk
 rm -f *.ipk

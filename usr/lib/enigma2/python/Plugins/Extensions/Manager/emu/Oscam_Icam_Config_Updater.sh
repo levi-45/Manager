@@ -1,9 +1,9 @@
 #!/bin/sh
-#DESCRIPTION=This script created by Levi45\nInstall Icam Config
+## DESCRIPTION=This script created by Levi45\nInstall Icam Config
 ###############################################################################
 rm -R /etc/tuxbox/config/Oscamicam
 ###############################################################################
-# Download and install Config
+## Download and install Config
 PLUGIN_FOLDER=/usr/lib/enigma2/python/Plugins/Extensions/Manager/emu
     . $PLUGIN_FOLDER/functions.sh
 download_file oscamicamconfig.tar.gz

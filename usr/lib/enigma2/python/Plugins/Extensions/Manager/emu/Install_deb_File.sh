@@ -1,7 +1,7 @@
 #!/bin/sh
-#DESCRIPTION=This script created by Levi45\nInstall *.deb from /tmp
+## DESCRIPTION=This script created by Levi45\nInstall *.deb from /tmp
 ###############################################################################
-# Installin File
+## Installin File
 cd /tmp 
 dpkg -i --force-overwrite --force-downgrade /tmp/*.deb
 rm -f *.deb

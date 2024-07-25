@@ -6,14 +6,36 @@ from Tools.Directories import resolveFilename, SCOPE_PLUGINS
 import gettext
 import os
 from os import environ as os_environ
-MYFTP = 'aHR0cDovL2+xldmk0NS5zcGRu+cy5ldS9-BZGRv+bnMvTXVsdGljYW+0vYW-Rkb25z+Ln-htbA=='
-plugin_path = '/usr/lib/enigma2/python/Plugins/Extensions/Manager/'
-PluginLanguageDomain = 'Manager'
-PluginLanguagePath = plugin_path + 'locale'
+
+
 global isDreamOS
 isDreamOS = False
 if os.path.exists("/var/lib/dpkg/status"):
     isDreamOS = True
+
+
+MYFTP = 'aHR0cDovL2+xldmk0NS5zcGRu+cy5ldS9-BZGRv+bnMvTXVsdGljYW+0vYW-Rkb25z+Ln-htbA=='
+plugin_path = '/usr/lib/enigma2/python/Plugins/Extensions/Manager/'
+
+PluginLanguageDomain = 'Manager'
+PluginLanguagePath = plugin_path + 'locale'
+
+
+def wgetsts():
+    wgetsts = False
+    cmd22 = 'find /usr/bin -name "wget"'
+    res = os.popen(cmd22).read()
+    if 'wget' not in res.lower():
+        if os.path.exists("/var/lib/dpkg/status"):
+            cmd23 = 'apt-get update && apt-get install wget'
+            os.popen(cmd23)
+            wgetsts = True
+        else:
+            cmd23 = 'opkg update && opkg install wget'
+            os.popen(cmd23)
+            wgetsts = True
+        return wgetsts
+
 
 def localeInit():
     if os.path.isfile('/var/lib/dpkg/status'):
