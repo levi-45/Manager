@@ -6,7 +6,7 @@
 #   skin by MMark    #
 #     update to      #
 #       Levi45       #
-#     25/07/2024     #
+#     18/04/2024     #
 #      No Coppy      #
 # -------------------#
 from . import _
@@ -28,7 +28,7 @@ import sys
 import codecs
 
 plugin_foo = os.path.dirname(sys.modules[__name__].__file__)
-currversion = 'V.10.1-r23'
+currversion = 'V.10.1-r22'
 emu_script = str(plugin_foo) + '/emu'
 name_plugemu = 'Levi45 Emu Keys %s' % currversion
 res_plugin_foo = os.path.join(plugin_foo, 'res/')

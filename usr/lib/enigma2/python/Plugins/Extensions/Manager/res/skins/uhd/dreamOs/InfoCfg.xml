@@ -1,8 +1,8 @@
 <!-- Skin InfoCFG 15/08/2020 -->
 <screen name="InfoCfg" position="0,0" size="2560,1440" title="..::Levi45 Multicam Manager::.." backgroundColor="transparent" flags="wfNoBorder">
 	<widget name="title" position="292,108" size="1372,87" font="Regular; 34" halign="left" valign="center" foregroundColor="#002a79b8" backgroundColor="black" transparent="1" zPosition="5" />
-	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/Manager/res/pics/main2.png" position="0,0" size="2560,1440" zPosition="1" />
-	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/Manager/res/pics/mcmaneger.png" position="1939,384" size="256,256" alphatest="blend" zPosition="5" />
+	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/Manager/res/pics/main2.png" position="0,0" size="2560,1440" scale="stretch" zPosition="1" />
+	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/Manager/res/pics/mcmaneger.png" position="1939,384" size="256,256" scale="stretch" alphatest="blend" zPosition="5" />
 	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/Manager/res/pics/sep.png" position="285,280" size="1370,8" alphatest="blend" zPosition="5" />
 	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/Manager/res/pics/sep.png" position="290,1080" size="1370,8" alphatest="blend" zPosition="5" />    
 	<!-- Menu List -->

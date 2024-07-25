@@ -12,7 +12,7 @@
     <ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/Manager/res/pics/hd/mcmaneger.png" transparent="1" position="3,5" size="190,193" alphatest="blend" zPosition="3"/>
     <widget name="labstatus" position="0,935" size="542,136" font="Regular; 26" halign="center" valign="center" foregroundColor="yellow" backgroundColor="#202020" transparent="0" zPosition="5"/>
     <!-- Menu List -->
-    <widget source="list" render="Listbox" position="0,200" size="544,735" scrollbarMode="showOnDemand" itemHeight="44" transparent="1" zPosition="5" foregroundColor="#00a0a0a0" foregroundColorSelected="#ffffff" backgroundColor="#20000000" backgroundColorSelected="#0b2049" selectionPixmap="/usr/lib/enigma2/python/Plugins/Extensions/Manager/res/pics/sliderb.png">
+    <widget source="list" render="Listbox" position="0,200" size="544,735" scrollbarMode="showOnDemand" itemHeight="44" transparent="1" zPosition="5" foregroundColor="#00a0a0a0" foregroundColorSelected="#ffffff" backgroundColor="#20000000" backgroundColorSelected="#0b2049">
         <convert type="StringList"/>
     </widget>
 </screen>

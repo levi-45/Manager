@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# 25.07.2024
+# 24.07.2024
 # a common tips used from Lululla
 
 import sys

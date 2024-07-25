@@ -13,7 +13,7 @@
     <widget name="labstatus" position="-1,609" size="457,110" font="Regular; 20" halign="center" valign="center" foregroundColor="yellow" backgroundColor="#202020" transparent="0" zPosition="5" />
     <!-- Menu List -->
     <!-- <widget name="list" position="5,202" size="535,775" zPosition="3" scrollbarMode="showOnDemand" /> -->
-    <widget source="list" render="Listbox" position="0,200" size="457,408" scrollbarMode="showOnDemand" itemHeight="38" transparent="1" zPosition="5" foregroundColor="#00a0a0a0" foregroundColorSelected="#ffffff" backgroundColor="#20000000" backgroundColorSelected="#0b2049" selectionPixmap="/usr/lib/enigma2/python/Plugins/Extensions/Manager/res/pics/sliderb.png">
+    <widget source="list" render="Listbox" position="0,200" size="457,408" scrollbarMode="showOnDemand" itemHeight="38" transparent="1" zPosition="5" foregroundColor="#00a0a0a0" foregroundColorSelected="#ffffff" backgroundColor="#20000000" backgroundColorSelected="#0b2049">
         <convert type="StringList" />
     </widget>
 </screen>
