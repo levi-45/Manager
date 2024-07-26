@@ -11,7 +11,6 @@
     <widget name="info" position="1249,1092" size="735,329" font="Regular; 28" halign="left" foregroundColor="yellow" backgroundColor="#20000000" transparent="1" zPosition="5" />
     <eLabel name="" position="2116,1095" size="50,50" backgroundColor="#003e4b53" halign="center" valign="center" transparent="0" cornerRadius="26" font="Regular; 30" zPosition="4" text="5" />
     <widget name="infocam" position="2200,1082" size="300,60" font="Regular;30" halign="left" valign="center" backgroundColor="black" zPosition="5" transparent="1" foregroundColor="#ffff00" />
-
     <widget source="list" render="Listbox" position="418,1090" size="819,323" scrollbarMode="showOnDemand" foregroundColor="#00a0a0a0" backgroundColorSelected="#00000000" enableWrapAround="1" transparent="1" zPosition="5">
         <convert type="TemplatedMultiContent">
             {"template": [

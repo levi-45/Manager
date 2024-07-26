@@ -9,7 +9,7 @@
     <ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/Manager/res/pics/hd/mcmaneger.png" scale="stretch" position="0,526" size="180,180" alphatest="blend" zPosition="5" />
     <widget name="description" position="2,484" size="640,28" font="Regular;20" halign="center" valign="center" foregroundColor="#002a79b8" backgroundColor="black" transparent="1" zPosition="5" />
     <widget name="info" position="721,515" size="308,197" font="Regular; 13" halign="left" foregroundColor="yellow" backgroundColor="#20000000" transparent="1" zPosition="5" />
-    <eLabel name="" position="1031,689" size="26,26" backgroundColor="#003e4b53" halign="center" valign="center" transparent="0" cornerRadius="26" font="Regular; 17" zPosition="4" text="5" />
+    <!-- <eLabel name="" position="1031,689" size="26,26" backgroundColor="#003e4b53" halign="center" valign="center" transparent="0" cornerRadius="26" font="Regular; 17" zPosition="4" text="5" /> -->
     <widget name="infocam" position="1060,689" size="200,26" font="Regular; 20" halign="left" valign="center" backgroundColor="black" zPosition="5" transparent="1" foregroundColor="#ffff00" />
 
     <widget source="list" render="Listbox" position="181,524" size="535,174" scrollbarMode="showOnDemand" foregroundColor="#00a0a0a0" backgroundColorSelected="#00000000" enableWrapAround="1" transparent="1" zPosition="5">

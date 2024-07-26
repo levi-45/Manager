@@ -21,13 +21,12 @@
     <ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/Manager/res/pics/key_green.png" position="1550,900" size="30,30" alphatest="blend" zPosition="5"/>
     <ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/Manager/res/pics/key_yellow.png" position="1550,950" size="30,30" alphatest="blend" zPosition="5"/>
     <ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/Manager/res/pics/key_blue.png" position="1550,1000" size="30,30" alphatest="blend" zPosition="5"/>
-    <eLabel name="" position="1810,794" size="60,52" backgroundColor="#003e4b53" halign="center" valign="center" transparent="0" cornerRadius="26" font="Regular; 17" zPosition="4" text="MENU"/>
-    <eLabel name="" position="1750,794" size="60,52" backgroundColor="#003e4b53" halign="center" valign="center" transparent="0" cornerRadius="26" font="Regular; 17" zPosition="4" text="INFO"/>
-    <eLabel name="" position="1550,794" size="50,50" backgroundColor="#003e4b53" halign="center" valign="center" transparent="0" cornerRadius="26" font="Regular; 17" zPosition="4" text="0"/>
-    <eLabel name="" position="1600,794" size="50,50" backgroundColor="#003e4b53" halign="center" valign="center" transparent="0" cornerRadius="26" font="Regular; 17" zPosition="4" text="1"/>
-    <eLabel name="" position="1650,794" size="55,50" backgroundColor="#003e4b53" halign="center" valign="center" transparent="0"  cornerRadius="26" font="Regular; 17" zPosition="4" text="2"/>
-    <eLabel name="" position="1700,794" size="50,50" backgroundColor="#003e4b53" halign="center" valign="center" transparent="0" cornerRadius="26" font="Regular; 17" zPosition="4" text="8"/>
-    <eLabel name="" position="1550,735" size="50,50" backgroundColor="#003e4b53" halign="center" valign="center" transparent="0" cornerRadius="26" font="Regular; 17" zPosition="4" text="5"/>
+    <eLabel name="" position="1815,794" size="60,52" backgroundColor="#003e4b53" halign="center" valign="center" transparent="0" cornerRadius="26" font="Regular; 17" zPosition="4" text="MENU" />
+    <eLabel name="" position="1754,794" size="60,52" backgroundColor="#003e4b53" halign="center" valign="center" transparent="0" cornerRadius="26" font="Regular; 17" zPosition="4" text="INFO" />
+    <eLabel name="" position="1550,794" size="50,50" backgroundColor="#003e4b53" halign="center" valign="center" transparent="0" cornerRadius="26" font="Regular; 17" zPosition="4" text="0" />
+    <eLabel name="" position="1600,794" size="50,50" backgroundColor="#003e4b53" halign="center" valign="center" transparent="0" cornerRadius="26" font="Regular; 17" zPosition="4" text="1" />
+    <eLabel name="" position="1650,794" size="55,50" backgroundColor="#003e4b53" halign="center" valign="center" transparent="0" cornerRadius="26" font="Regular; 17" zPosition="4" text="2" />
+    <eLabel name="" position="1705,794" size="50,50" backgroundColor="#003e4b53" halign="center" valign="center" transparent="0" cornerRadius="26" font="Regular; 17" zPosition="4" text="8" />
     <widget name="infocam" position="1600,735" size="300,50" backgroundColor="black" foregroundColor="#ffff00" halign="center" valign="center" transparent="1" cornerRadius="26" font="Regular;30" zPosition="5"/>
     <!-- Menu List -->
     <widget name="description" position="160,734" size="804,50" font="Regular; 32" halign="left" valign="center" foregroundColor="#002a79b8" backgroundColor="black" transparent="1" zPosition="5"/>

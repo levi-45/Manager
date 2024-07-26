@@ -275,7 +275,6 @@ class Manager(Screen):
                     BlueAction = 'CCCAMINFO'
                     self["infocam"].setText("CCCAMINFO")
 
-
             if 'movicam' in nim.lower():
                 runningcam = "movicam"
                 if os.path.exists(data_path + "/OscamInfo.pyo") or os.path.exists(data_path + '/OScamInfo.pyc'):
@@ -909,7 +908,7 @@ class InfoCfg(Screen):
             self.skin = f.read()
         Screen.__init__(self, session)
         self.list = []
-        self.setTitle(_(title_plug))                                    
+        self.setTitle(_(title_plug))
         self['text'] = Label()
         self['actions'] = ActionMap(['WizardActions',
                                      'OkCancelActions',
@@ -925,8 +924,6 @@ class InfoCfg(Screen):
         self['key_green'].hide()
         self['key_yellow'].hide()
         self['key_blue'].hide()
-
-
         self['title'] = Label(_(title_plug))
         self['description'] = Label(_('Path Configuration Folder'))
         self.onShown.append(self.updateList)
@@ -1064,7 +1061,6 @@ class Ipkremove(Screen):
     def keyNumberGlobal(self, number):
         print('pressed', number)
         self['text'].number(number)
-
 
 
 class AutoStartTimertvman:
