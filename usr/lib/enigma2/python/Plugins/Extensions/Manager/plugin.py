@@ -11,7 +11,7 @@
 # -------------------#
 from __future__ import print_function
 # local import
-from . import _, MYFTP, wgetsts
+from . import _, MYFTP, wgetsts, installer_url, developer_url
 from . import Utils
 from .Utils import RequestAgent
 from .data.GetEcmInfo import GetEcmInfo
@@ -20,19 +20,15 @@ from .data.Console import Console
 # enigma lib import
 from Components.ActionMap import ActionMap, NumberActionMap
 from Components.Button import Button
-from Components.FileList import FileList
 from Components.Label import Label
 from Components.MenuList import MenuList
 from Components.MultiContent import MultiContentEntryText
-from Components.Pixmap import Pixmap
 from Components.Sources.List import List
 from Plugins.Plugin import PluginDescriptor
-from Screens.ChoiceBox import ChoiceBox
-# from Screens.Console import Console
-from Screens.InputBox import Input
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
-from Tools.BoundFunction import boundFunction
+from Screens.Standby import TryQuitMainloop
+# from Tools.BoundFunction import boundFunction
 from Tools.Directories import (fileExists, resolveFilename, SCOPE_PLUGINS)
 from Tools.LoadPixmap import LoadPixmap
 from enigma import (
@@ -51,6 +47,9 @@ import os
 import re
 import sys
 import time
+import json
+from datetime import datetime
+
 
 global active, skin_path, local, runningcam
 active = False
@@ -63,13 +62,13 @@ if PY3:
     long = int
     PY3 = True
 
-currversion = 'V.10.1-r24'
-title_plug = 'Satellite-Forum.Com %s' % currversion
-title_emu = 'Levi45 Emu Keys %s' % currversion
+currversion = '10.1-r25'
+title_plug = 'Satellite-Forum.Com V.%s' % currversion
+title_emu = 'Levi45 Emu Keys V.%s' % currversion
 name_plug = 'Levi45 Cam Manager'
 name_plugemu = 'Levi45 Emu Keys'
 plugin_foo = os.path.dirname(sys.modules[__name__].__file__)
-res_plugin_foo = os.path.join(plugin_foo, 'res/')
+res_plugin_foo = os.path.join(plugin_foo, 'res')
 logo = 'logo.png'
 logoemu = 'logoemu.png'
 keys = '/usr/keys'
@@ -79,7 +78,7 @@ FILE_XML = os.path.join(plugin_foo, 'Manager.xml')
 ECM_INFO = '/tmp/ecm.info'
 ereral = MYFTP.replace('+', '').replace('-', '')
 FTPxx_XML = Utils.b64decoder(ereral)
-_firstStarttvsman = True
+# _firstStarttvsman = True
 local = True
 ECM_INFO = '/tmp/ecm.info'
 EMPTY_ECM_INFO = ('', '0', '0', '0')
@@ -89,11 +88,11 @@ ecm = ''
 SOFTCAM = 0
 CCCAMINFO = 1
 OSCAMINFO = 2
-global BlueAction
 AgentRequest = RequestAgent()
 runningcam = None
 
 
+'''
 try:
     from .data.NcamInfo import NcamInfoMenu
 except ImportError:
@@ -108,13 +107,15 @@ try:
     from .data.CCcamInfo import CCcamInfoMain
 except ImportError:
     pass
+'''
 
+'''
 try:
     if os.path.isfile(resolveFilename(SCOPE_PLUGINS, 'Extensions/CCcamInfo/plugin.pyc')):
         from Plugins.Extensions.CCcamInfo.plugin import CCcamInfoMain
 except ImportError:
     pass
-
+'''
 
 try:
     wgetsts()
@@ -133,14 +134,16 @@ def checkdir():
 
 checkdir()
 
-skin_path = os.path.join(res_plugin_foo, "skins/hd/")
 screenwidth = getDesktop(0).size()
 if screenwidth.width() == 2560:
-    skin_path = res_plugin_foo + 'skins/uhd/'
-if screenwidth.width() == 1920:
-    skin_path = res_plugin_foo + 'skins/fhd/'
+    skin_path = res_plugin_foo + '/skins/uhd/'
+elif screenwidth.width() == 1920:
+    skin_path = res_plugin_foo + '/skins/fhd/'
+else:
+    skin_path = res_plugin_foo + "skins/hd"
+
 if os.path.exists("/var/lib/dpkg/status"):
-    skin_path = skin_path + 'dreamOs/'
+    skin_path = skin_path + '/dreamOs/'
 if not os.path.exists('/etc/clist.list'):
     with open('/etc/clist.list', 'w'):
         print('/etc/clist.list as been create')
@@ -190,13 +193,14 @@ class Manager(Screen):
     def __init__(self, session):
         Screen.__init__(self, session)
         self.session = session
-        global _session, BlueAction, runningcam
+        global _session, runningcam
         _session = session
         skin = os.path.join(skin_path, 'Manager.xml')
         with codecs.open(skin, "r", encoding="utf-8") as f:
             self.skin = f.read()
         self.namelist = []
         self.softcamslist = []
+        self.oldService = ''
         try:
             self.oldService = self.session.nav.getCurrentlyPlayingServiceReference()
         except:
@@ -208,6 +212,8 @@ class Manager(Screen):
         self['actions'] = ActionMap(['OkCancelActions',
                                      'ColorActions',
                                      'EPGSelectActions',
+                                     'HotkeyActions',
+                                     'InfobarEPGActions',
                                      'MenuActions'], {'ok': self.action,
                                                       'cancel': self.close,
                                                       'menu': self.configtv,
@@ -215,24 +221,25 @@ class Manager(Screen):
                                                       # 'blue': self.Blue,
                                                       'yellow': self.download,
                                                       'green': self.action,
-                                                      'info': self.cccam,
-                                                      # 'info': self.CfgInfo,
+                                                      # 'info': self.cccam,
+                                                      'info': self.CfgInfo,
                                                       'red': self.stop}, -1)
         self.setTitle(_(title_plug))
         self['title'] = Label()
         self['key_green'] = Label(_('Start'))
-        self['key_yellow'] = Label(_('Addons Panel'))
+        self['key_yellow'] = Label(_('Cam Download'))
         self['key_red'] = Label(_('Stop'))
         self['key_blue'] = Label(_('Script Executor'))
         self['description'] = Label(_('Scanning and retrieval list softcam ...'))
         self['info'] = Label()
         self['infocam'] = Label()
+        self["infocam"].setText("Softcam")
         # self['list'] = m2list([])
         self["list"] = List([])
         self.curCam = None
         self.curCam = self.readCurrent()
         self.readScripts()
-        BlueAction = 'SOFTCAM'
+        self.BlueAction = 'SOFTCAM'
         runningcam = 'softcam'
         self.setBlueKey()
         self.timer = eTimer()
@@ -252,46 +259,54 @@ class Manager(Screen):
         self.onHide.append(self.stopEcmInfoPollTimer)
 
     def setBlueKey(self):
-        global BlueAction, runningcam
+        global runningcam
         self.curCam = self.readCurrent()
-        BlueAction = 'SOFTCAM'
-        # print('setBlueKey self.curCam=', self.curCam)
+        # self.BlueAction = 'SOFTCAM'
         self["infocam"].setText("Softcam")
-        if self.curCam and self.curCam is not None:
-            nim = str(self.curCam)
-            if 'oscam' in nim.lower():
+        # if self.curCam and self.curCam is not None:
+        if self.curCam is not None:
+            nim = str(self.curCam).lower()
+            print('nim lower=', nim)
+
+            if 'oscam' in str(self.curCam).lower():
+                print('oscam in nim')
                 runningcam = "oscam"
                 if os.path.exists(data_path + "/OscamInfo.pyo") or os.path.exists(data_path + '/OScamInfo.pyc'):
-                    BlueAction = 'OSCAMINFO'
+                    self.BlueAction = 'OSCAMINFO'
                     self["infocam"].setText("OSCAMINFO")
-
                 # elif os.path.exists(data_path + '/OScamInfo.pyc'):
-                    # BlueAction = 'OSCAMINFO'
+                    # self.BlueAction = 'OSCAMINFO'
                     # self["infocam"].setText("OSCAMINFO")
 
-            if 'cccam' in nim.lower():
+            if 'cccam' in str(self.curCam).lower():
                 runningcam = "cccam"
+                print('cccam in nim')
                 if os.path.exists(data_path + '/CCcamInfo.pyo') or os.path.exists(data_path + '/CCcamInfo.pyc'):
-                    BlueAction = 'CCCAMINFO'
+                    self.BlueAction = 'CCCAMINFO'
                     self["infocam"].setText("CCCAMINFO")
 
-            if 'movicam' in nim.lower():
+            if 'movicam' in str(self.curCam).lower():
                 runningcam = "movicam"
+                print('movicam in nim')
                 if os.path.exists(data_path + "/OscamInfo.pyo") or os.path.exists(data_path + '/OScamInfo.pyc'):
-                    BlueAction = 'MOVICAMINFO'
+                    self.BlueAction = 'MOVICAMINFO'
                     self["infocam"].setText("MOVICAMINFO")
 
-            if 'ncam' in nim.lower():
+            if 'ncam' in str(self.curCam).lower():
                 runningcam = "ncam"
+                print('ncam in nim')
                 if os.path.exists(data_path + "/NcamInfo.pyo") or os.path.exists(data_path + '/NcamInfo.pyc'):
-                    BlueAction = 'NCAMINFO'
+                    self.BlueAction = 'NCAMINFO'
                     self["infocam"].setText("NCAMINFO")
-
-        else:
-            BlueAction = 'SOFTCAM'
-            runningcam = "softcam"
-            self["infocam"].setText("Softcam")
-        print('Blue=', BlueAction)
+        '''
+        # else:
+            # self.BlueAction = 'SOFTCAM'
+            # runningcam = "softcam"
+            # self["infocam"].setText("Softcam")
+        '''
+        print('[setBlueKey] self.curCam= 11 ', self.curCam)
+        print('[setBlueKey] self.BlueAction= 11 ', self.BlueAction)
+        print('[setBlueKey] runningcam= 11 ', runningcam)
 
     def ShowSoftcamCallback(self):
         pass
@@ -301,36 +316,63 @@ class Manager(Screen):
         self.session.open(Levi45EmuKeysUpdater)
 
     def cccam(self):
-
-        if BlueAction == 'OSCAMINFO':
+        print('[cccam] self.BlueAction are:', self.BlueAction)
+        if 'oscam' in str(self.curCam).lower():
             try:
-                from .data.OScamInfo import OscamInfoMenu
-                self.session.open(OscamInfoMenu)
-            except ImportError:
+                try:
+                    from Screens.OScamInfo import OscamInfoMenu
+                    print('[cccam] OScamInfo')
+                    self.session.open(OscamInfoMenu)
+                except ImportError:
+                    from .data.OScamInfo import OscamInfoMenu
+                    self.session.open(OscamInfoMenu)
+                    pass
+            except Exception as e:
+                print('[cccam] OScamInfo e:', e)
                 pass
 
-        if BlueAction == 'CCCAMINFO':
+        elif 'cccam' in str(self.curCam).lower():
             try:
-                from .data.CCcamInfo import CCcamInfoMain
-                self.session.open(CCcamInfoMain)
-                # self.session.openWithCallback(self.ShowSoftcamCallback, CCcamInfoMain)
-            except ImportError:
+                try:
+                    from Screens.CCcamInfo import CCcamInfoMain
+                    print('[cccam] CCcamInfo')
+                    self.session.open(CCcamInfoMain)
+                except ImportError:
+                    from .data.CCcamInfo import CCcamInfoMain
+                    self.session.open(CCcamInfoMain)
+                    pass
+            except Exception as e:
+                print('[cccam] cccaminfo e:', e)
                 pass
 
-        if BlueAction == 'NCAMINFO':
+        elif 'ncam' in str(self.curCam).lower():
             try:
-                from .data.NcamInfo import NcamInfoMenu
-                self.session.open(NcamInfoMenu)
-            except ImportError:
+                try:
+                    from Screens.NcamInfo import NcamInfoMenu
+                    print('[cccam] NcamInfo')
+                    self.session.open(NcamInfoMenu)
+                except ImportError:
+                    from .data.NcamInfo import NcamInfoMenu
+                    self.session.open(NcamInfoMenu)
+                    pass
+            except Exception as e:
+                print('NcamInfo e:', e)
                 pass
 
-        if BlueAction == 'MOVICAMINFO':
+        elif 'movicam' in str(self.curCam).lower():
             try:
-                from .data.OScamInfo import OscamInfoMenu
-                self.session.open(OscamInfoMenu)
-            except ImportError:
-                pass
+                try:
+                    from Screens.OScamInfo import OscamInfoMenu
+                    print('[cccam] MOVICAMINFO')
+                    self.session.open(OscamInfoMenu)
+                except ImportError:
+                    from .data.OScamInfo import OscamInfoMenu
+                    self.session.open(OscamInfoMenu)
+                    pass
 
+            except Exception as e:
+                print('MOVICAMINFO e:', e)
+                pass
         else:
             return
 
@@ -341,12 +383,16 @@ class Manager(Screen):
     def keyNumberGlobal(self, number):
         print('pressed', number)
         if number == 0:
+            # button blue + 0
             self.openemu()
         elif number == 1:
+            # button info + 1
             self.CfgInfo()
         elif number == 2:
+            # button 2
             self.cccam()
         elif number == 8:
+            # button 8
             self.messagekd()
         else:
             return
@@ -384,13 +430,17 @@ class Manager(Screen):
 
     def keysdownload(self, result):
         if result:
-            script = ('%s/auto' % plugin_foo)
+            script = ('%s/auto.sh' % plugin_foo)
             from os import access, X_OK
             if not access(script, X_OK):
                 chmod(script, 493)
-            import subprocess
-            subprocess.check_output(['bash', script])
-            self.session.open(MessageBox, _('SoftcamKeys Updated!'), MessageBox.TYPE_INFO, timeout=5)
+            # import subprocess
+            # # subprocess.check_output(['bash', script])
+            # subprocess.Popen(script, shell=True, executable='/bin/bash')
+            # self.session.open(MessageBox, _('SoftcamKeys Updated!'), MessageBox.TYPE_INFO, timeout=5)
+            cmd = script
+            title = _("Installing Softcam Keys\nPlease Wait...")
+            self.session.open(Console, _(title), [cmd], closeOnSuccess=False)
 
     def CfgInfo(self):
         self.session.open(InfoCfg)
@@ -465,6 +515,10 @@ class Manager(Screen):
         i = len(self.softcamslist)
         if i < 1:
             return
+        try:
+            self.oldService = self.session.nav.getCurrentlyPlayingServiceReference()
+        except:
+            self.oldService = self.session.nav.getCurrentlyPlayingServiceOrGroup()
         self.session.nav.stopService()
         self.last = self.getLastIndex()
         if self['list'].getCurrent():
@@ -472,7 +526,7 @@ class Manager(Screen):
             '''
             # self.var = self['list'].getSelectedIndex()
             # # self.var = self['list'].getSelectionIndex()
-            # print('self var=== ', self.var)
+            print('self var=== ', self.var)
             '''
             cmdx = 'chmod 755 /usr/camscript/*.*'  # + self.softcamslist[self.var][0] + '.sh'
             os.system(cmdx)
@@ -486,7 +540,7 @@ class Manager(Screen):
                 except OSError:
                     pass
 
-            if self.last is not None:  # or self.last >= 1:
+            # if self.last is not None:  # or self.last >= 1:
                 if self.last == self.var:
                     self.cmd1 = '/usr/camscript/' + self.softcamslist[self.var][0] + '.sh' + ' cam_res &'
                     _session.open(MessageBox, _('Please wait..\nRESTART CAM'), MessageBox.TYPE_INFO, timeout=5)
@@ -513,9 +567,9 @@ class Manager(Screen):
                     self.writeFile()
                 except:
                     self.close()
-            self.session.nav.playService(self.oldService)
-            self.EcmInfoPollTimer.start(200)
-            self.readScripts()
+        self.session.nav.playService(self.oldService)
+        self.EcmInfoPollTimer.start(200)
+        self.readScripts()
 
     def writeFile(self):
         if self.curCam != '' or self.curCam is not None:
@@ -541,8 +595,12 @@ class Manager(Screen):
         i = len(self.softcamslist)
         if i < 1:
             return
-        global BlueAction, runningcam
-        print('Blue3=', BlueAction)
+        global runningcam
+        try:
+            self.oldService = self.session.nav.getCurrentlyPlayingServiceReference()
+        except:
+            self.oldService = self.session.nav.getCurrentlyPlayingServiceOrGroup()
+        self.session.nav.stopService()
         if self.curCam != 'None' or self.curCam is not None:
             self.EcmInfoPollTimer.stop()
             self.last = self.getLastIndex()
@@ -556,14 +614,10 @@ class Manager(Screen):
                     os.remove(ECM_INFO)
                 _session.open(MessageBox, _('Please wait..\nSTOP CAM'), MessageBox.TYPE_INFO, timeout=5)
                 self['info'].setText('CAM STOPPED')
-                try:
-                    self.oldService = self.session.nav.getCurrentlyPlayingServiceReference()
-                except:
-                    self.oldService = self.session.nav.getCurrentlyPlayingServiceOrGroup()
-                self.session.nav.stopService()
-                BlueAction = 'SOFTCAM'
+                self.BlueAction = 'SOFTCAM'
                 runningcam = 'softcam'
                 self.readScripts()
+        self.session.nav.playService(self.oldService)
 
     def readScripts(self):
         try:
@@ -610,8 +664,9 @@ class Manager(Screen):
                 self.softcamslist.sort(key=lambda i: i[2], reverse=True)
                 pliste.sort(key=lambda i: i[1], reverse=True)
                 self.namelist = pliste
+                print('self.namelist:', self.namelist)
                 self["list"].setList(self.softcamslist)
-                self.setBlueKey()
+            self.setBlueKey()
         except Exception as e:
             print('error scriptlist: ', e)
 
@@ -817,13 +872,17 @@ class GetipkTv(Screen):
         self['title'] = Label(_(title_plug))
         self['description'] = Label(_('Select and Install'))
         self['key_red'] = Button(_('Back'))
-        self['key_green'] = Button()
-        self['key_yellow'] = Button()
+        self['key_green'] = Button('Remove')
+        self['key_yellow'] = Button('Restart')
         self['key_blue'] = Button()
-        self['key_green'].hide()
-        self['key_yellow'].hide()
+        # self['key_green'].hide()
+        # self['key_yellow'].hide()
         self['key_blue'].hide()
-        self['actions'] = ActionMap(['OkCancelActions'], {'ok': self.message, 'cancel': self.close}, -1)
+        self['actions'] = ActionMap(['OkCancelActions', 'ColorActions'], {'ok': self.message,
+                                                                          'cancel': self.close,
+                                                                          'green': self.remove,
+                                                                          'yellow': self.restart,
+                                                                          }, -1)
         self.onLayoutFinish.append(self.start)
 
     def start(self):
@@ -899,6 +958,43 @@ class GetipkTv(Screen):
             title = (_("Installing %s\nPlease Wait...") % self.iname)
             self.session.open(Console, _(title), [cmd], closeOnSuccess=False)
 
+    def remove(self):
+        self.session.openWithCallback(self.removenow, MessageBox, _("Do you want to remove?"), MessageBox.TYPE_YESNO)
+
+    def removenow(self, answer=False):
+        if answer:
+            idx = self["text"].getSelectionIndex()
+            # name = self.names[idx]
+            url = self.urls[idx]
+            n1 = url.rfind("/")
+            self.plug = url[(n1 + 1):]
+            print('self.plug remove = ', self.plug)
+            if ".zip" in self.plug:
+                return
+            if ".deb" in self.plug and not os.path.exists('/var/lib/dpkg/info'):
+                self.session.open(MessageBox, _('Unknow Image!'), MessageBox.TYPE_INFO, timeout=5)
+                return
+            if ".ipk" in self.plug and os.path.exists('/var/lib/dpkg/info'):
+                self.session.open(MessageBox, _('Unknow Image!'), MessageBox.TYPE_INFO, timeout=5)
+                return
+
+            n2 = self.plug.find("_", 0)
+            iname = self.plug[:n2]
+            if ".deb" in self.plug:
+                cmd = "dpkg -r " + iname  # + "'"
+            if ".ipk" in self.plug:
+                cmd = "opkg remove " + iname
+            print('command:', cmd)
+            title = (_("Removing %s") % iname)
+            self.session.open(Console, _(title), [cmd])
+
+    def restart(self):
+        self.session.openWithCallback(self.restartnow, MessageBox, _("Do you want to restart Gui Interface?"), MessageBox.TYPE_YESNO)
+
+    def restartnow(self, answer=False):
+        if answer:
+            self.session.open(TryQuitMainloop, 3)
+
 
 class InfoCfg(Screen):
     def __init__(self, session):
@@ -910,23 +1006,101 @@ class InfoCfg(Screen):
         self.list = []
         self.setTitle(_(title_plug))
         self['text'] = Label()
-        self['actions'] = ActionMap(['WizardActions',
-                                     'OkCancelActions',
+        self['actions'] = ActionMap(['OkCancelActions',
+                                     'ColorActions',
                                      'DirectionActions',
-                                     'ColorActions'], {'ok': self.close,
-                                                       'back': self.close,
-                                                       'cancel': self.close,
-                                                       'red': self.close}, -1)
+                                     'HotkeyActions',
+                                     'InfobarEPGActions',
+                                     'ChannelSelectBaseActions'], {'ok': self.close,
+                                                                   'back': self.close,
+                                                                   'cancel': self.close,
+                                                                   'yellow': self.update_me,
+                                                                   'green': self.update_dev,
+                                                                   'yellow_long': self.update_dev,
+                                                                   'info_long': self.update_dev,
+                                                                   'infolong': self.update_dev,
+                                                                   'showEventInfoPlugin': self.update_dev,
+                                                                   'red': self.close}, -1)
+        self["paypal"] = Label()
         self['key_red'] = Button(_('Back'))
-        self['key_green'] = Button()
-        self['key_yellow'] = Button()
+        self['key_green'] = Button(_('Force Update'))
+        self['key_yellow'] = Button(_('Update'))
         self['key_blue'] = Button()
         self['key_green'].hide()
         self['key_yellow'].hide()
         self['key_blue'].hide()
+
+        self.Update = False
+        self.timer = eTimer()
+        if os.path.exists('/var/lib/dpkg/status'):
+            self.timer_conn = self.timer.timeout.connect(self.check_vers)
+        else:
+            self.timer.callback.append(self.check_vers)
+        self.timer.start(500, 1)
         self['title'] = Label(_(title_plug))
         self['description'] = Label(_('Path Configuration Folder'))
         self.onShown.append(self.updateList)
+
+    def check_vers(self):
+        remote_version = '0.0'
+        remote_changelog = ''
+        req = Utils.Request(Utils.b64decoder(installer_url), headers={'User-Agent': 'Mozilla/5.0'})
+        page = Utils.urlopen(req).read()
+        if PY3:
+            data = page.decode("utf-8")
+        else:
+            data = page.encode("utf-8")
+        if data:
+            lines = data.split("\n")
+            for line in lines:
+                if line.startswith("version"):
+                    remote_version = line.split("=")
+                    remote_version = line.split("'")[1]
+                if line.startswith("changelog"):
+                    remote_changelog = line.split("=")
+                    remote_changelog = line.split("'")[1]
+                    break
+        self.new_version = remote_version
+        self.new_changelog = remote_changelog
+        # if float(currversion) < float(remote_version):
+        if currversion < remote_version:
+            self.Update = True
+            # self.new_version = remote_version
+            # self.new_changelog = remote_changelog
+            # updatestr = title_plug
+            # cvrs = 'New version %s is available' % self.new_version
+            # cvrt = 'Changelog: %s\n\nPress yellow button to start updating' % self.new_changelog
+            # self['info'].setText(updatestr)
+            # self['pth'].setText(cvrs)
+            # self['pform'].setText(cvrt)
+            self['key_yellow'].show()
+            self.mbox = self.session.open(MessageBox, _('New version %s is available\n\nChangelog: %s\n\nPress yellow button to start updating') % (self.new_version, self.new_changelog), MessageBox.TYPE_INFO, timeout=5)
+        self['key_green'].show()
+
+    def update_me(self):
+        if self.Update is True:
+            self.session.openWithCallback(self.install_update, MessageBox, _("New version %s is available.\n\nChangelog: %s \n\nDo you want to install it now?") % (self.new_version, self.new_changelog), MessageBox.TYPE_YESNO)
+        else:
+            self.session.open(MessageBox, _("Congrats! You already have the latest version..."),  MessageBox.TYPE_INFO, timeout=4)
+
+    def update_dev(self):
+        req = Utils.Request(Utils.b64decoder(developer_url), headers={'User-Agent': 'Mozilla/5.0'})
+        page = Utils.urlopen(req).read()
+        data = json.loads(page)
+        remote_date = data['pushed_at']
+        strp_remote_date = datetime.strptime(remote_date, '%Y-%m-%dT%H:%M:%SZ')
+        remote_date = strp_remote_date.strftime('%Y-%m-%d')
+        self.session.openWithCallback(self.install_update, MessageBox, _("Do you want to install update ( %s ) now?") % (remote_date), MessageBox.TYPE_YESNO)
+
+    def install_update(self, answer=False):
+        if answer:
+            self.session.open(Console, 'Upgrading...', cmdlist=('wget -q "--no-check-certificate" ' + Utils.b64decoder(installer_url) + ' -O - | /bin/sh'), finishedCallback=self.myCallback, closeOnSuccess=False)
+        else:
+            self.session.open(MessageBox, _("Update Aborted!"),  MessageBox.TYPE_INFO, timeout=3)
+
+    def myCallback(self, result=None):
+        print('result:', result)
+        return
 
     def getcont(self):
         cont = " ---- Type Cam For Your Box--- \n"
@@ -939,6 +1113,7 @@ class InfoCfg(Screen):
         arkFull = ''
         libsssl = ''
         arcx = os.popen('uname -m').read().strip('\n\r')
+        python = os.popen('python -V').read().strip('\n\r')
         libs = os.popen('ls -l /usr/lib/libss*.*').read().strip('\n\r')
         if arcx:
             arc = arcx
@@ -949,7 +1124,7 @@ class InfoCfg(Screen):
         if libs:
             libsssl = libs
         cont += ' ------------------------------------------ \n'
-        cont += 'Cpu: %s\nArchitecture information: %s\nLibssl(oscam):\n%s\n' % (arc, arkFull, libsssl)
+        cont += 'Cpu: %s\nArchitecture info: %s\nPython V.%s\nLibssl(oscam):\n%s\n' % (arc, arkFull, python, libsssl)
         cont += ' ------------------------------------------ \n'
         return cont
 
@@ -974,119 +1149,23 @@ class InfoCfg(Screen):
         self['text'].pageUp()
 
 
-class Ipkremove(Screen):
-
-    def __init__(self, session, args=None):
-        Screen.__init__(self, session)
-        self['list'] = FileList('/', matchingPattern='^.*\\.(png|avi|mp3|mpeg|ts)')
-        self['pixmap'] = Pixmap()
-        self['text'] = Input('1234', maxSize=True, type=Input.NUMBER)
-        self['actions'] = NumberActionMap(['WizardActions', 'InputActions'], {'ok': self.ok,
-                                                                              'back': self.close,
-                                                                              'left': self.keyLeft,
-                                                                              'right': self.keyRight,
-                                                                              '1': self.keyNumberGlobal,
-                                                                              '2': self.keyNumberGlobal,
-                                                                              '3': self.keyNumberGlobal,
-                                                                              '4': self.keyNumberGlobal,
-                                                                              '5': self.keyNumberGlobal,
-                                                                              '6': self.keyNumberGlobal,
-                                                                              '7': self.keyNumberGlobal,
-                                                                              '8': self.keyNumberGlobal,
-                                                                              '9': self.keyNumberGlobal,
-                                                                              '0': self.keyNumberGlobal}, -1)
-        self.onShown.append(self.openTest)
-
-    def openTest(self):
-        try:
-            myfile = open('/var/lib/opkg/status', 'r+')
-            icount = 0
-            listc = []
-            ebuf = []
-            for line in myfile:
-                listc.append(icount)
-                listc[icount] = (line, '')
-                ebuf.append(listc[icount])
-                icount += 1
-            myfile.close()
-            self.session.openWithCallback(self.test2, ChoiceBox, title='Please select ipkg to remove', list=ebuf)
-            self.close()
-        except:
-            self.close()
-
-    def test2(self, returnValue):
-        if returnValue is None:
-            return
-        else:
-            print('returnValue', returnValue)
-            ipkname = returnValue[0]
-            cmd = 'opkg remove ' + ipkname[:-1] + ' >/var/volatile/tmp/ipk.log'
-            os.system(cmd)
-            cmd = 'touch /etc/tmpfile'
-            os.system(cmd)
-            myfile = open('/var/lib/opkg/status', 'r')
-            f = open('/etc/tmpfile', 'w')
-            for line in myfile:
-                if line != ipkname:
-                    f.write(line)
-            f.close()
-            f = open('/etc/tmpfile', 'r+')
-            f.close()
-            f = open('/var/lib/opkg/status', 'r+')
-            f.close()
-            cmd = 'rm /var/lib/opkg/status'
-            os.system(cmd)
-            cmd = 'mv /etc/tmpfile /var/lib/opkg/status'
-            os.system(cmd)
-            f = open('/var/lib/opkg/status', 'r+')
-            f.close()
-        return
-
-    def callback(self, answer):
-        print('answer:', answer)
-
-    def keyLeft(self):
-        self['text'].left()
-
-    def keyRight(self):
-        self['text'].right()
-
-    def ok(self):
-        selection = self['list'].getSelection()
-        if selection[1] is True:
-            self['list'].changeDir(selection[0])
-        else:
-            self['pixmap'].instance.setPixmapFromFile(selection[0])
-
-    def keyNumberGlobal(self, number):
-        print('pressed', number)
-        self['text'].number(number)
+def startConfig(session, **kwargs):
+    session.open(Manager)
 
 
-class AutoStartTimertvman:
-
-    def __init__(self, session):
-        self.session = session
-        print("*** running AutoStartTimertvman ***")
-        if _firstStarttvsman:
-            self.runUpdate()
-
-    def runUpdate(self):
-        print("*** running update ***")
-        try:
-            global _firstStarttvsman
-            from . import Update
-            Update.upd_done()
-            _firstStarttvsman = False
-        except Exception as e:
-            print('error manager', str(e))
+def mainmenu(menu_id):
+    if menu_id == "setup":
+        return [(_("Levi45 Softcam Manager"),
+                 startConfig,
+                 "Levi45 Softcam Manager",
+                 50)]
+    else:
+        return []
 
 
 def autostart(reason, session=None, **kwargs):
     """called with reason=1 to during shutdown, with reason=0 at startup?"""
     print('[Softcam] Started')
-    global autoStartTimertvsman
-    global _firstStarttvsman
     if reason == 0:
         print('reason 0')
         if session is not None:
@@ -1104,9 +1183,6 @@ def autostart(reason, session=None, **kwargs):
                 os.system('sleep 2')
                 os.system('/etc/startcam.sh &')
                 os.system('sleep 2')
-                print("*** running autostart ***")
-                _firstStarttvsman = True
-                autoStartTimertvsman = AutoStartTimertvman(session)
             except:
                 print('except autostart')
         else:
@@ -1114,22 +1190,14 @@ def autostart(reason, session=None, **kwargs):
     return
 
 
-def startConfig(session, **kwargs):
-    session.open(Manager)
-
-
-def mainmenu(menu_id):
-    if menu_id == "setup":
-        return [(_("Levi45 Softcam Manager"), startConfig, "Levi45 Softcam Manager", 50)]
-    else:
-        return []
-
-
 def menu(menu_id, **kwargs):
-    if menu_id == 'cam':
-        return [(_(name_plug), boundFunction(main, showExtentionMenuOption=True), 'Levi45 Softcam Manager', -1)]
-    else:
-        return []
+    return [(name_plug, main, 'Levi45 Softcam Manager', 44)] if menu_id == "cam" else []
+    '''
+    # if menu_id == 'cam':
+        # return [(_(name_plug), boundFunction(main, showExtentionMenuOption=True), 'Levi45 Softcam Manager', -1)]
+    # else:
+        # return []
+    '''
 
 
 def main(session, **kwargs):
@@ -1164,12 +1232,16 @@ logoemu = 'logoemu.png'
 if screenwidth.width() == 1920:
     logo = plugin_foo + '/res/pics/logo.png'
     logoemu = plugin_foo + '/res/pics/logoemu.png'
+
+
 # plugin
 mainDescriptor = PluginDescriptor(name=_(name_plug), where=[PluginDescriptor.WHERE_MENU], fnc=mainmenu)
 extDescriptor = PluginDescriptor(name=_(name_plug), description=_(title_plug), where=[PluginDescriptor.WHERE_EXTENSIONSMENU], icon=logo, fnc=main)
 plugDescriptor = PluginDescriptor(name=_(name_plug), description=_(title_plug), where=[PluginDescriptor.WHERE_PLUGINMENU], icon=logo, fnc=main)
 menuDescriptor = PluginDescriptor(name=_(name_plug), description=_(title_plug), where=[PluginDescriptor.WHERE_MENU], icon=logo, fnc=StartSetup)
 startDescriptor = PluginDescriptor(name=_(name_plug), description=_(title_plug), where=[PluginDescriptor.WHERE_AUTOSTART, PluginDescriptor.WHERE_SESSIONSTART], needsRestart=True, fnc=autostart)
+
+
 # emu
 mainemuDescriptor = PluginDescriptor(name=_(name_plugemu), description=_(title_emu), where=[PluginDescriptor.WHERE_MENU], icon=logoemu, fnc=menuemu)
 plugemuDescriptor = PluginDescriptor(name=_(name_plugemu), description=_(title_emu), where=[PluginDescriptor.WHERE_PLUGINMENU], icon=logoemu, fnc=main2)
