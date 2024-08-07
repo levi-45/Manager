@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Levi45SoftcamManager\n"
 "POT-Creation-Date: 2022-07-03 21:08+0200\n"
-"PO-Revision-Date: 2024-08-03 12:39+0100\n"
+"PO-Revision-Date: 2024-07-31 21:16+0100\n"
 "Last-Translator: \n"
 "Language-Team: lululla\n"
 "Language: tr_TR\n"
@@ -20,16 +20,16 @@ msgid "Start"
 msgstr "Başlat"
 
 #: plugin.py:256
-msgid "Cam Download"
-msgstr "Cam Yukle"
+msgid "Addons Panel"
+msgstr "Eklentiler Paneli"
 
 #: plugin.py:257
 msgid "Stop"
 msgstr "Durdur"
 
 #: plugin.py:258 plugin.py:305
-msgid "Script Executer"
-msgstr "Komut Dosyası Yürütücüsü"
+msgid "EmuKeys Updater"
+msgstr "EmuKeys Güncelleyici"
 
 #: plugin.py:260
 msgid "Scanning and retrieval list softcam ..."

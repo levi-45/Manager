@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-
 # from Components.About import about
+from .. import _
 from Components.ActionMap import ActionMap, NumberActionMap
 from Components.config import (
     config,

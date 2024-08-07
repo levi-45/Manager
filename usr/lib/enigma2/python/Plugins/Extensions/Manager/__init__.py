@@ -19,7 +19,7 @@ plugin_path = '/usr/lib/enigma2/python/Plugins/Extensions/Manager/'
 installer_url = 'aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2xldmktNDUvTWFuYWdlci9tYWluL2luc3RhbGxlci5zaA=='
 developer_url = 'aHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9sZXZpLTQ1L01hbmFnZXI='
 PluginLanguageDomain = 'Manager'
-PluginLanguagePath = plugin_path + 'locale'
+PluginLanguagePath = 'Extensions/Manager/locale'
 
 
 def wgetsts():

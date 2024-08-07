@@ -15,7 +15,7 @@ from . import _, MYFTP, wgetsts, installer_url, developer_url
 from . import Utils
 from .Utils import RequestAgent
 from .data.GetEcmInfo import GetEcmInfo
-from .data.Console import Console
+from .Console import Console
 
 # enigma lib import
 from Components.ActionMap import ActionMap, NumberActionMap
@@ -52,6 +52,8 @@ from datetime import datetime
 
 
 global active, skin_path, local, runningcam
+
+global _session
 active = False
 _session = None
 
@@ -140,7 +142,7 @@ if screenwidth.width() == 2560:
 elif screenwidth.width() == 1920:
     skin_path = res_plugin_foo + '/skins/fhd/'
 else:
-    skin_path = res_plugin_foo + "skins/hd"
+    skin_path = res_plugin_foo + "/skins/hd/"
 
 if os.path.exists("/var/lib/dpkg/status"):
     skin_path = skin_path + '/dreamOs/'
@@ -227,7 +229,7 @@ class Manager(Screen):
         self.setTitle(_(title_plug))
         self['title'] = Label()
         self['key_green'] = Label(_('Start'))
-        self['key_yellow'] = Label(_('Cam Download'))
+        self['key_yellow'] = Label(_('Addons Panel'))
         self['key_red'] = Label(_('Stop'))
         self['key_blue'] = Label(_('Script Executor'))
         self['description'] = Label(_('Scanning and retrieval list softcam ...'))
@@ -271,39 +273,47 @@ class Manager(Screen):
             if 'oscam' in str(self.curCam).lower():
                 print('oscam in nim')
                 runningcam = "oscam"
-                if os.path.exists(data_path + "/OscamInfo.pyo") or os.path.exists(data_path + '/OScamInfo.pyc'):
+                self["infocam"].setText("OSCAMINFO")
+                self.BlueAction = 'OSCAMINFO'
+                if os.path.exists(data_path + "/OScamInfo.pyo") or os.path.exists(data_path + '/OScamInfo.pyc'):
                     self.BlueAction = 'OSCAMINFO'
                     self["infocam"].setText("OSCAMINFO")
-                # elif os.path.exists(data_path + '/OScamInfo.pyc'):
-                    # self.BlueAction = 'OSCAMINFO'
-                    # self["infocam"].setText("OSCAMINFO")
+                    print('existe OScamInfo')
 
             if 'cccam' in str(self.curCam).lower():
                 runningcam = "cccam"
-                print('cccam in nim')
-                if os.path.exists(data_path + '/CCcamInfo.pyo') or os.path.exists(data_path + '/CCcamInfo.pyc'):
-                    self.BlueAction = 'CCCAMINFO'
-                    self["infocam"].setText("CCCAMINFO")
+                self.BlueAction = 'CCCAMINFO'
+                self["infocam"].setText("CCCAMINFO")
+                if os.path.exists('/usr/lib/enigma2/python/Plugins/PLi'):
+                    if os.path.exists(data_path + '/CCcamInfoPli.pyo') or os.path.exists(data_path + '/CCcamInfoPli.pyc'):
+                        print('existe CCcamInfo')
+                        # self.BlueAction = 'CCCAMINFO'
+                        # self["key_blue"].setText("CCCAMINFO")
+                elif os.path.exists(data_path + '/CCcamInfo.pyo') or os.path.exists(data_path + '/CCcamInfo.pyc'):
+                    print('existe CCcamInfo')
+                    # self.BlueAction = 'CCCAMINFO'
+                    # self["infocam"].setText("CCCAMINFO")
 
             if 'movicam' in str(self.curCam).lower():
-                runningcam = "movicam"
                 print('movicam in nim')
+                runningcam = "movicam"
+                self.BlueAction = 'MOVICAMINFO'
+                self["infocam"].setText("MOVICAMINFO")
                 if os.path.exists(data_path + "/OscamInfo.pyo") or os.path.exists(data_path + '/OScamInfo.pyc'):
-                    self.BlueAction = 'MOVICAMINFO'
-                    self["infocam"].setText("MOVICAMINFO")
+                    print('existe movicamInfo')
+                    # self.BlueAction = 'MOVICAMINFO'
+                    # self["infocam"].setText("MOVICAMINFO")
 
             if 'ncam' in str(self.curCam).lower():
                 runningcam = "ncam"
+                self.BlueAction = 'NCAMINFO'
+                self["infocam"].setText("NCAMINFO")
                 print('ncam in nim')
                 if os.path.exists(data_path + "/NcamInfo.pyo") or os.path.exists(data_path + '/NcamInfo.pyc'):
-                    self.BlueAction = 'NCAMINFO'
-                    self["infocam"].setText("NCAMINFO")
-        '''
-        # else:
-            # self.BlueAction = 'SOFTCAM'
-            # runningcam = "softcam"
-            # self["infocam"].setText("Softcam")
-        '''
+                    print('existe NcamInfo')
+                    # self.BlueAction = 'NCAMINFO'
+                    # self["infocam"].setText("NCAMINFO")
+
         print('[setBlueKey] self.curCam= 11 ', self.curCam)
         print('[setBlueKey] self.BlueAction= 11 ', self.BlueAction)
         print('[setBlueKey] runningcam= 11 ', runningcam)
@@ -317,46 +327,57 @@ class Manager(Screen):
 
     def cccam(self):
         print('[cccam] self.BlueAction are:', self.BlueAction)
+
         if 'oscam' in str(self.curCam).lower():
             try:
                 try:
                     from Screens.OScamInfo import OscamInfoMenu
                     print('[cccam] OScamInfo')
+                    # self.session.openWithCallback(self.callbackx, OscamInfoMenu)
                     self.session.open(OscamInfoMenu)
                 except ImportError:
                     from .data.OScamInfo import OscamInfoMenu
+                    print('[cccam] OScamInfo')
+                    # self.session.openWithCallback(self.callbackx, OscamInfoMenu)
                     self.session.open(OscamInfoMenu)
                     pass
             except Exception as e:
                 print('[cccam] OScamInfo e:', e)
                 pass
 
-        elif 'cccam' in str(self.curCam).lower():
+        elif 'ccam' in str(self.curCam).lower():
             try:
-                try:
+                if os.path.exists('/usr/lib/enigma2/python/Plugins/PLi'):
+                    from .data.CCcamInfoPli import CCcamInfoMain
+                    print('[cccam 1] CCcamInfo')
+                    # self.session.openWithCallback(self.callbackx, CCcamInfoMain)
+                    self.session.open(CCcamInfoMain)
+                else:
                     from Screens.CCcamInfo import CCcamInfoMain
-                    print('[cccam] CCcamInfo')
+                    print('[cccam 12] CCcamInfo')
+                    # self.session.openWithCallback(self.callbackx, CCcamInfoMain)
                     self.session.open(CCcamInfoMain)
-                except ImportError:
-                    from .data.CCcamInfo import CCcamInfoMain
-                    self.session.open(CCcamInfoMain)
-                    pass
-            except Exception as e:
-                print('[cccam] cccaminfo e:', e)
-                pass
+            except ImportError:
+                from .data.CCcamInfo import CCcamInfoMain
+                print('[cccam 2] CCcamInfo')
+                # self.session.openWithCallback(self.callbackx, CCcamInfoMain)
+                self.session.open(CCcamInfoMain)
 
         elif 'ncam' in str(self.curCam).lower():
             try:
                 try:
                     from Screens.NcamInfo import NcamInfoMenu
                     print('[cccam] NcamInfo')
+                    # self.session.openWithCallback(self.callbackx, NcamInfoMenu)
                     self.session.open(NcamInfoMenu)
                 except ImportError:
                     from .data.NcamInfo import NcamInfoMenu
+                    print('[cccam] NcamInfo')
+                    # self.session.openWithCallback(self.callbackx, NcamInfoMenu)
                     self.session.open(NcamInfoMenu)
                     pass
             except Exception as e:
-                print('NcamInfo e:', e)
+                print('[cccam] NcamInfo e:', e)
                 pass
 
         elif 'movicam' in str(self.curCam).lower():
@@ -364,17 +385,23 @@ class Manager(Screen):
                 try:
                     from Screens.OScamInfo import OscamInfoMenu
                     print('[cccam] MOVICAMINFO')
+                    # self.session.openWithCallback(self.callbackx, OscamInfoMenu)
                     self.session.open(OscamInfoMenu)
                 except ImportError:
                     from .data.OScamInfo import OscamInfoMenu
+                    print('[cccam] MOVICAMINFO')
+                    # self.session.openWithCallback(self.callbackx, OscamInfoMenu)
                     self.session.open(OscamInfoMenu)
                     pass
-
             except Exception as e:
-                print('MOVICAMINFO e:', e)
+                print('[cccam] MOVICAMINFO e:', e)
                 pass
         else:
             return
+
+    def callbackx(self, call=None):
+        print('call:', call)
+        pass
 
     def openemu(self):
         from Plugins.Extensions.Manager.levisemu import Levi45EmuKeysUpdater
@@ -434,6 +461,8 @@ class Manager(Screen):
             from os import access, X_OK
             if not access(script, X_OK):
                 chmod(script, 493)
+            if os.path.exists('/usr/keys/SoftCam.Key'):
+                os.system('rm -rf /usr/keys/SoftCam.Key')
             # import subprocess
             # # subprocess.check_output(['bash', script])
             # subprocess.Popen(script, shell=True, executable='/bin/bash')
@@ -461,6 +490,7 @@ class Manager(Screen):
         arc = ''
         arkFull = ''
         libsssl = ''
+        python = os.popen('python -V').read().strip('\n\r')
         arcx = os.popen('uname -m').read().strip('\n\r')
         libs = os.popen('ls -l /usr/lib/libss*.*').read().strip('\n\r')
         if arcx:
@@ -472,7 +502,7 @@ class Manager(Screen):
         if libs:
             libsssl = libs
         cont += ' ------------------------------------------ \n'
-        cont += 'Cpu: %s\nArchitecture information: %s\nLibssl(oscam):\n%s' % (arc, arkFull, libsssl)
+        cont += 'Cpu: %s\nArchitecture info: %s\nPython V.%s\nLibssl(oscam):\n%s' % (arc, arkFull, python, libsssl)
         cont += ' ------------------------------------------ \n'
         cont += 'Button Info for Other Info\n'
         return cont
@@ -1191,13 +1221,8 @@ def autostart(reason, session=None, **kwargs):
 
 
 def menu(menu_id, **kwargs):
+    print('here menu plugin')
     return [(name_plug, main, 'Levi45 Softcam Manager', 44)] if menu_id == "cam" else []
-    '''
-    # if menu_id == 'cam':
-        # return [(_(name_plug), boundFunction(main, showExtentionMenuOption=True), 'Levi45 Softcam Manager', -1)]
-    # else:
-        # return []
-    '''
 
 
 def main(session, **kwargs):

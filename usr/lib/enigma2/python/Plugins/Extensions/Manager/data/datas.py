@@ -316,10 +316,10 @@ class levi_config(Screen, ConfigListScreen):
                                                                   'red': self.closex,
                                                                   'cancel': self.closex,
                                                                   'back': self.closex}, -1)
-        self['key_red'] = Button(_('Back'))
-        self['key_green'] = Button(_('Force Emm Send'))
-        self['key_yellow'] = Button(_('Check Emm Send'))
-        self["key_blue"] = Button(_(''))
+        self['key_red'] = Label(_('Back'))
+        self['key_green'] = Label(_('Force Emm Send'))
+        self['key_yellow'] = Label(_('Check Emm Send'))
+        self["key_blue"] = Label(_(''))
         # self['key_green'].hide()
         # self['key_yellow'].hide()
         self['key_blue'].hide()
