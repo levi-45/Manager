@@ -50,10 +50,9 @@ import time
 import json
 from datetime import datetime
 
+global active, skin_path, local
+global _session, runningcam
 
-global active, skin_path, local, runningcam
-
-global _session
 active = False
 _session = None
 
@@ -64,7 +63,7 @@ if PY3:
     long = int
     PY3 = True
 
-currversion = '10.1-r25'
+currversion = '10.1-r26'
 title_plug = 'Satellite-Forum.Com V.%s' % currversion
 title_emu = 'Levi45 Emu Keys V.%s' % currversion
 name_plug = 'Levi45 Cam Manager'
@@ -284,12 +283,12 @@ class Manager(Screen):
                 runningcam = "cccam"
                 self.BlueAction = 'CCCAMINFO'
                 self["infocam"].setText("CCCAMINFO")
-                if os.path.exists('/usr/lib/enigma2/python/Plugins/PLi'):
-                    if os.path.exists(data_path + '/CCcamInfoPli.pyo') or os.path.exists(data_path + '/CCcamInfoPli.pyc'):
-                        print('existe CCcamInfo')
-                        # self.BlueAction = 'CCCAMINFO'
-                        # self["key_blue"].setText("CCCAMINFO")
-                elif os.path.exists(data_path + '/CCcamInfo.pyo') or os.path.exists(data_path + '/CCcamInfo.pyc'):
+                # if os.path.exists('/usr/lib/enigma2/python/Plugins/PLi'):
+                    # if os.path.exists(data_path + '/CCcamInfoPli.pyo') or os.path.exists(data_path + '/CCcamInfoPli.pyc'):
+                        # print('existe CCcamInfo')
+                        # # self.BlueAction = 'CCCAMINFO'
+                        # # self["key_blue"].setText("CCCAMINFO")
+                if os.path.exists(data_path + '/CCcamInfo.pyo') or os.path.exists(data_path + '/CCcamInfo.pyc'):
                     print('existe CCcamInfo')
                     # self.BlueAction = 'CCCAMINFO'
                     # self["infocam"].setText("CCCAMINFO")
@@ -347,12 +346,12 @@ class Manager(Screen):
 
         elif 'ccam' in str(self.curCam).lower():
             try:
-                if os.path.exists('/usr/lib/enigma2/python/Plugins/PLi'):
-                    from .data.CCcamInfoPli import CCcamInfoMain
-                    print('[cccam 1] CCcamInfo')
-                    # self.session.openWithCallback(self.callbackx, CCcamInfoMain)
-                    self.session.open(CCcamInfoMain)
-                else:
+                # if os.path.exists('/usr/lib/enigma2/python/Plugins/PLi'):
+                    # from .data.CCcamInfoPli import CCcamInfoMain
+                    # print('[cccam 1] CCcamInfo')
+                    # # self.session.openWithCallback(self.callbackx, CCcamInfoMain)
+                    # self.session.open(CCcamInfoMain)
+                # else:
                     from Screens.CCcamInfo import CCcamInfoMain
                     print('[cccam 12] CCcamInfo')
                     # self.session.openWithCallback(self.callbackx, CCcamInfoMain)

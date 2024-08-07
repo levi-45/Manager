@@ -319,10 +319,10 @@ class levi_config(Screen, ConfigListScreen):
         self['key_red'] = Label(_('Back'))
         self['key_green'] = Label(_('Force Emm Send'))
         self['key_yellow'] = Label(_('Check Emm Send'))
-        self["key_blue"] = Label(_(''))
+        self["key_blue"] = Label(_('Reset'))
         # self['key_green'].hide()
         # self['key_yellow'].hide()
-        self['key_blue'].hide()
+        # self['key_blue'].hide()
         self['info'] = Label('')
         self['description'] = Label(_('Wait please...'))
         self.createSetup()
@@ -447,17 +447,18 @@ class levi_config(Screen, ConfigListScreen):
     def showhide(self):
         if config.plugins.Manager.active.value is True:
             self['key_green'].setText(buttn)
-            self['key_green'].show()
+            # self['key_green'].show()
             self['key_yellow'].setText(_('Get Link'))
-            self['key_yellow'].show()
+            # self['key_yellow'].show()
             self['key_blue'].setText(_('Reset'))
-            self['key_blue'].show()
+            # self['key_blue'].show()
         else:
             self['key_green'].setText('Force Emm Send')
-            self['key_green'].show()
+            # self['key_green'].show()
             self['key_yellow'].setText('Check Emm Send')
+            # self['key_yellow'].show()
             self['key_blue'].setText('')
-            self['key_blue'].hide()
+            # self['key_blue'].hide()
         return
 
     def green(self):
@@ -475,7 +476,7 @@ class levi_config(Screen, ConfigListScreen):
             else:
                 return
         else:
-            if runningcam == 'oscam':                                     
+            if 'oscam' in str(runningcam):  #  or 'movicam' in str(self.runningcam):
                 msg = []
                 msg.append(_("\n....\n.....\n"))
                 self.cmd1 = data_path + 'emm_sender.sh'

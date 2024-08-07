@@ -8,7 +8,7 @@ print("Update.py")
 
 def upd_done():
     from os import popen
-    installUrl = 'https://raw.githubusercontent.com/levi-45/Manager/main/installer.shh'
+    installUrl = 'https://raw.githubusercontent.com/levi-45/Manager/main/installer.sh'
     cmd00 = 'wget -q "--no-check-certificate" ' + installUrl + ' -O - | /bin/sh'
     popen(cmd00)
     return
