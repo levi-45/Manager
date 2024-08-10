@@ -64,11 +64,11 @@ from errno import ENOENT
 from enigma import eGetEnigmaDebugLvl
 import requests
 import os
-from urllib.parse import urlparse, urlunparse
-# try:
-    # from urllib.parse import urlparse, urlunparse
-# except:
-    # from urlparse import urlparse, urlunparse
+# from urllib.parse import urlparse, urlunparse
+try:
+    from urllib.parse import urlparse, urlunparse
+except:
+    from urlparse import urlparse, urlunparse
 
 
 DEFAULT_MODULE_NAME = __name__.split(".")[-1]
@@ -561,14 +561,12 @@ class CCcamInfoMain(Screen):
         if not isfile(CFG):
             print("[CCcamInfo] %s not found" % CFG)
             searchConfig()
-        try:
-            if config.cccaminfo.profiles.value == "":
-                self.readConfig()
-            else:
-                self.url = config.cccaminfo.profiles.value
-        except Exception as e:
-            print(e)
-            pass
+
+        if config.cccaminfo.profiles.value == "":
+            self.readConfig()
+        else:
+            self.url = config.cccaminfo.profiles.value
+
         self["actions"] = NumberActionMap(["CCcamInfoActions"],
                                           {"1": self.keyNumberGlobal,
                                            "2": self.keyNumberGlobal,

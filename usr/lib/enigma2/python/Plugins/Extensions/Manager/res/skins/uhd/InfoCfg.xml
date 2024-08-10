@@ -6,7 +6,7 @@
 	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/Manager/res/pics/sep.png" position="285,280" size="1370,8" alphatest="blend" zPosition="5" />
 	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/Manager/res/pics/sep.png" position="290,1080" size="1370,8" alphatest="blend" zPosition="5" />    
 	<!-- Menu List -->
-	<widget name="text" position="292,292" size="1372,773" font="Regular; 34" halign="left" foregroundColor="#ffffff" backgroundColor="#20000000" transparent="1" zPosition="5" />
+	<widget name="list" position="292,292" size="1372,773" font="Regular; 34" halign="left" foregroundColor="#ffffff" backgroundColor="#20000000" transparent="1" zPosition="5" />
 	<widget name="description" position="290,200" size="1372,70" font="Regular; 32" halign="center" foregroundColor="yellow" backgroundColor="#20000000" transparent="1" zPosition="5" />
 	<!-- Colors 1220 -->
 	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/Manager/res/pics/key_red.png" position="300,1265" size="30,30" alphatest="blend" zPosition="5" />
