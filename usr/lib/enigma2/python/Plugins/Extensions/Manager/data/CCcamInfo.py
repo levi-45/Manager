@@ -561,12 +561,14 @@ class CCcamInfoMain(Screen):
         if not isfile(CFG):
             print("[CCcamInfo] %s not found" % CFG)
             searchConfig()
-
-        if config.cccaminfo.profiles.value == "":
-            self.readConfig()
-        else:
-            self.url = config.cccaminfo.profiles.value
-
+        try:
+            if config.cccaminfo.profiles.value == "":
+                self.readConfig()
+            else:
+                self.url = config.cccaminfo.profiles.value
+        except Exception as e:
+            print(e)
+            pass
         self["actions"] = NumberActionMap(["CCcamInfoActions"],
                                           {"1": self.keyNumberGlobal,
                                            "2": self.keyNumberGlobal,

@@ -39,7 +39,6 @@ from time import sleep
 from twisted.web.client import getPage
 import codecs
 import os
-# import re
 import sys
 import time
 import json
@@ -59,7 +58,7 @@ if PY3:
     long = int
     PY3 = True
 
-currversion = '10.1-r27'
+currversion = '10.1-r28'
 title_plug = 'Satellite-Forum.Com V.%s' % currversion
 title_emu = 'Levi45 Emu Keys V.%s' % currversion
 name_plug = 'Levi45 Cam Manager'
@@ -131,16 +130,18 @@ def checkdir():
 
 checkdir()
 
+
+                                     
 screenwidth = getDesktop(0).size()
 if screenwidth.width() == 2560:
     skin_path = res_plugin_foo + '/skins/uhd/'
 elif screenwidth.width() == 1920:
     skin_path = res_plugin_foo + '/skins/fhd/'
 else:
-    skin_path = res_plugin_foo + "/skins/hd/"
+    skin_path = res_plugin_foo + '/skins/hd/'
 
 if os.path.exists("/var/lib/dpkg/status"):
-    skin_path = skin_path + '/dreamOs/'
+    skin_path = skin_path + 'dreamOs/'
 if not os.path.exists('/etc/clist.list'):
     with open('/etc/clist.list', 'w'):
         print('/etc/clist.list as been create')
@@ -231,8 +232,6 @@ class Manager(Screen):
                 self["infocam"].setText("OSCAMINFO")
                 self.BlueAction = 'OSCAMINFO'
                 if os.path.exists(data_path + "/OScamInfo.pyo") or os.path.exists(data_path + '/OScamInfo.pyc'):
-                    self.BlueAction = 'OSCAMINFO'
-                    self["infocam"].setText("OSCAMINFO")
                     print('existe OScamInfo')
 
             if 'cccam' in str(self.curCam).lower():
@@ -247,7 +246,7 @@ class Manager(Screen):
                 runningcam = "movicam"
                 self.BlueAction = 'MOVICAMINFO'
                 self["infocam"].setText("MOVICAMINFO")
-                if os.path.exists(data_path + "/OscamInfo.pyo") or os.path.exists(data_path + '/OScamInfo.pyc'):
+                if os.path.exists(data_path + "/OScamInfo.pyo") or os.path.exists(data_path + '/OScamInfo.pyc'):
                     print('existe movicamInfo')
 
             if 'ncam' in str(self.curCam).lower():
@@ -697,7 +696,6 @@ class Manager(Screen):
             myfile2 = open('/etc/autocam2.txt', 'w')
         icount = 0
         for line in myfile.readlines():
-            print('We are in Manager line, self.oldService.toString() =', line, self.oldService.toString())
             if line[:-1] == self.oldService.toString():
                 delemu = 'yes'
                 icount = icount + 1
@@ -789,7 +787,6 @@ class GetipklistLv(Screen):
         global local
         if local is False:
             self.xml = Utils.checkGZIP(self.xml)
-
         self.list = []
         self.names = []
         try:
@@ -903,23 +900,23 @@ class GetipklistLv2(Screen):
 
     def prombt(self):
         self.plug = self.com.split("/")[-1]
+        dest = "/tmp"
+        if not os.path.exists(dest):
+            os.system('ln -sf  /var/volatile/tmp /tmp')
         self.folddest = '/tmp/' + self.plug
-
         if ".deb" in self.plug:
-            cmd2 = "dpkg -i '/tmp/" + self.plug + "'"
+            cmd2 = "dpkg -i /tmp/" + self.plug  # + "'"
         if ".ipk" in self.plug:
-            cmd2 = "opkg install --force-reinstall --force-overwrite '/tmp/" + self.plug + "'"
+            cmd2 = "opkg install --force-reinstall --force-overwrite /tmp/" + self.plug  # + "'"
         elif ".zip" in self.plug:
-            cmd2 = "unzip -o -q '/tmp/" + self.plug + "' -d /"
+            cmd2 = "unzip -o -q /tmp/" + self.plug  + " -d /"
         elif ".tar" in self.plug and "gz" in self.plug:
-            cmd2 = "tar -xvf '/tmp/" + self.plug + "' -C /"
+            cmd2 = "tar -xvf /tmp/" + self.plug + " -C /"
         elif ".bz2" in self.plug and "gz" in self.plug:
-            cmd2 = "tar -xjvf '/tmp/" + self.plug + "' -C /"
-        cmd3 = "rm '/tmp/" + self.plug + "'"
-        cmd = cmd2 + " && " + cmd3
-
+            cmd2 = "tar -xjvf /tmp/" + self.plug + " -C /"
+        # cmd3 = "rm /tmp/" + self.plug
+        cmd = cmd2 + " && "  # + cmd3
         cmd00 = "wget --no-check-certificate -U '%s' -c '%s' -O '%s';%s > /dev/null" % (AgentRequest, str(self.com), self.folddest, cmd)
-
         title = (_("Installing %s\nPlease Wait...") % self.dom)
         self.session.open(Console, _(title), [cmd00], closeOnSuccess=False)
 
@@ -954,7 +951,6 @@ class GetipklistLv2(Screen):
                                 self.dom = self.plug[:n2]
                                 cmd = "dpkg -r " + self.dom  #  + "'"
                                 print('cmd deb remove:', cmd)                                
-
                             if ".ipk" in self.com:
                                 if os.path.exists('/var/lib/dpkg/info'):
                                     self.session.open(MessageBox,
@@ -1089,7 +1085,11 @@ class InfoCfg(Screen):
         cont = " ---- Type Cam For Your Box--- \n"
         cont += "Config Softcam Manager(Oscam)':\n"
         cont += "Default folder:\n"
+                                                            
+                                                                          
         cont += "etc/tuxbox/config\n"
+                                                          
+                                                          
         cont += ' ------------------------------------------ \n'
         cont += ' ---- Type Oscam For Your Box--- \n'
         arc = ''
