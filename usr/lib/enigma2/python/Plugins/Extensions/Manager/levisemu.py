@@ -10,6 +10,7 @@
 #      No Coppy      #
 # -------------------#
 from . import _
+
 from Components.ActionMap import ActionMap
 from Components.Sources.List import List
 from Components.MenuList import MenuList
@@ -28,21 +29,25 @@ import sys
 import codecs
 
 plugin_foo = os.path.dirname(sys.modules[__name__].__file__)
-currversion = 'V.10.1-r28'
+currversion = 'V.10.1-r29'
 emu_script = str(plugin_foo) + '/emu'
 name_plugemu = 'Levi45 Emu Keys %s' % currversion
-res_plugin_foo = os.path.join(plugin_foo, 'res/')
 screenwidth = getDesktop(0).size()
-skin_path = os.path.join(res_plugin_foo, "skins/hd/")
 
-if screenwidth.width() == 1920:
-    skin_path = res_plugin_foo + 'skins/fhd/'
+screenwidth = getDesktop(0).size()
 if screenwidth.width() == 2560:
-    skin_path = res_plugin_foo + 'skins/uhd/'
-# else:
-    # skin_path = res_plugin_foo + 'skins/hd/'
+    skin_path = plugin_foo + '/res/skins/uhd/'
+elif screenwidth.width() == 1920:
+    skin_path = plugin_foo + '/res/skins/fhd/'
+else:
+    skin_path = plugin_foo + '/res/skins/hd/'
+
 if os.path.exists("/var/lib/dpkg/status"):
     skin_path = skin_path + 'dreamOs/'
+if not os.path.exists('/etc/clist.list'):
+    with open('/etc/clist.list', 'w'):
+        print('/etc/clist.list as been create')
+        os.system('chmod 755 /etc/clist.list &')
 
 
 def ulistEntry(download):
@@ -102,9 +107,7 @@ class Levi45EmuKeysUpdater(Screen):
         self['list'] = List(self.mlist)
         self['list'].onSelectionChanged.append(self.schanged)
 
-        # self['list'] = M3UList([])
         self['actions'] = ActionMap(['OkCancelActions'], {'ok': self.messagern, 'cancel': self.close}, -1)
-        # self.onLayoutFinish.append(self.loadScriptList)
 
         self.onLayoutFinish.append(self.script_sel)
         self.onShown.append(self.setWindowTitle)
@@ -115,23 +118,6 @@ class Levi45EmuKeysUpdater(Screen):
     def script_sel(self):
         self['list'].index = 1
         self['list'].index = 0
-
-    '''
-    # def loadScriptList(self):
-        # self.names = []
-        # self.urls = []
-        # for root, dirs, files in os.walk(emu_plugin):
-            # files.sort()
-            # for name in files:
-                # if ".sh" not in name:
-                    # continue
-                # url = emu_plugin + name
-                # # name = name.replace('.sh', '').replace('_', ' ').upper()
-                # name = name[:-3].replace('_', ' ').upper()
-                # self.names.append(name)
-                # self.urls.append(url)
-        # ulistx(self.names, self["list"])
-    '''
 
     def populateScript(self):
         try:

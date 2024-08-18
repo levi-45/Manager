@@ -15,7 +15,7 @@ from . import _, MYFTP, wgetsts, installer_url, developer_url
 from . import Utils
 from .Utils import RequestAgent
 from .data.GetEcmInfo import GetEcmInfo
-from .Console import Console
+from .Console import Console as lsConsole
 
 # enigma lib import
 from Components.ActionMap import ActionMap, NumberActionMap
@@ -26,12 +26,17 @@ from Components.Sources.List import List
 from Plugins.Plugin import PluginDescriptor
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
+# from Screens.Console import Console
 from Screens.Standby import TryQuitMainloop
 # from Tools.BoundFunction import boundFunction
 from Tools.Directories import (fileExists, resolveFilename, SCOPE_PLUGINS)
 from Tools.LoadPixmap import LoadPixmap
 from enigma import (
+    RT_HALIGN_LEFT,
+    RT_VALIGN_CENTER,
+    eListboxPythonMultiContent,
     eTimer,
+    gFont,
     getDesktop,
 )
 from os import (mkdir, chmod)
@@ -58,15 +63,12 @@ if PY3:
     long = int
     PY3 = True
 
-currversion = '10.1-r28'
+currversion = '10.1-r29'
 title_plug = 'Satellite-Forum.Com V.%s' % currversion
 title_emu = 'Levi45 Emu Keys V.%s' % currversion
 name_plug = 'Levi45 Cam Manager'
 name_plugemu = 'Levi45 Emu Keys'
 plugin_foo = os.path.dirname(sys.modules[__name__].__file__)
-res_plugin_foo = os.path.join(plugin_foo, 'res')
-logo = 'logo.png'
-logoemu = 'logoemu.png'
 keys = '/usr/keys'
 camscript = '/usr/camscript'
 data_path = os.path.join(plugin_foo, 'data')
@@ -74,7 +76,6 @@ FILE_XML = os.path.join(plugin_foo, 'Manager.xml')
 ECM_INFO = '/tmp/ecm.info'
 ereral = MYFTP.replace('+', '').replace('-', '')
 FTPxx_XML = Utils.b64decoder(ereral)
-# _firstStarttvsman = True
 local = True
 ECM_INFO = '/tmp/ecm.info'
 EMPTY_ECM_INFO = ('', '0', '0', '0')
@@ -87,31 +88,6 @@ OSCAMINFO = 2
 AgentRequest = RequestAgent()
 runningcam = None
 
-
-'''
-try:
-    from .data.NcamInfo import NcamInfoMenu
-except ImportError:
-    pass
-
-try:
-    from .data.OScamInfo import OscamInfoMenu
-except ImportError:
-    pass
-
-try:
-    from .data.CCcamInfo import CCcamInfoMain
-except ImportError:
-    pass
-'''
-
-'''
-try:
-    if os.path.isfile(resolveFilename(SCOPE_PLUGINS, 'Extensions/CCcamInfo/plugin.pyc')):
-        from Plugins.Extensions.CCcamInfo.plugin import CCcamInfoMain
-except ImportError:
-    pass
-'''
 
 try:
     wgetsts()
@@ -129,16 +105,13 @@ def checkdir():
 
 
 checkdir()
-
-
-                                     
 screenwidth = getDesktop(0).size()
 if screenwidth.width() == 2560:
-    skin_path = res_plugin_foo + '/skins/uhd/'
+    skin_path = plugin_foo + '/res/skins/uhd/'
 elif screenwidth.width() == 1920:
-    skin_path = res_plugin_foo + '/skins/fhd/'
+    skin_path = plugin_foo + '/res/skins/fhd/'
 else:
-    skin_path = res_plugin_foo + '/skins/hd/'
+    skin_path = plugin_foo + '/res/skins/hd/'
 
 if os.path.exists("/var/lib/dpkg/status"):
     skin_path = skin_path + 'dreamOs/'
@@ -395,7 +368,7 @@ class Manager(Screen):
             # self.session.open(MessageBox, _('SoftcamKeys Updated!'), MessageBox.TYPE_INFO, timeout=5)
             cmd = script
             title = _("Installing Softcam Keys\nPlease Wait...")
-            self.session.open(Console, _(title), [cmd], closeOnSuccess=False)
+            self.session.open(lsConsole, _(title), [cmd], closeOnSuccess=False)
 
     def CfgInfo(self):
         self.session.open(InfoCfg)
@@ -905,20 +878,21 @@ class GetipklistLv2(Screen):
             os.system('ln -sf  /var/volatile/tmp /tmp')
         self.folddest = '/tmp/' + self.plug
         if ".deb" in self.plug:
-            cmd2 = "dpkg -i /tmp/" + self.plug  # + "'"
+            cmd2 = "dpkg -i '/tmp/" + self.plug  + "'"
         if ".ipk" in self.plug:
-            cmd2 = "opkg install --force-reinstall --force-overwrite /tmp/" + self.plug  # + "'"
+            cmd2 = "opkg install --force-reinstall --force-overwrite '/tmp/" + self.plug + "'"
         elif ".zip" in self.plug:
-            cmd2 = "unzip -o -q /tmp/" + self.plug  + " -d /"
+            cmd2 = "unzip -o -q '/tmp/" + self.plug + "' -d /"
         elif ".tar" in self.plug and "gz" in self.plug:
-            cmd2 = "tar -xvf /tmp/" + self.plug + " -C /"
+            cmd2 = "tar -xvf '/tmp/" + self.plug + "' -C /"
         elif ".bz2" in self.plug and "gz" in self.plug:
-            cmd2 = "tar -xjvf /tmp/" + self.plug + " -C /"
+            cmd2 = "tar -xjvf '/tmp/" + self.plug + "' -C /"
         # cmd3 = "rm /tmp/" + self.plug
-        cmd = cmd2 + " && "  # + cmd3
+        cmd = cmd2  # + " && "  # + cmd3
         cmd00 = "wget --no-check-certificate -U '%s' -c '%s' -O '%s';%s > /dev/null" % (AgentRequest, str(self.com), self.folddest, cmd)
+        print('cmd00:', cmd00)
         title = (_("Installing %s\nPlease Wait...") % self.dom)
-        self.session.open(Console, _(title), [cmd00], closeOnSuccess=False)
+        self.session.open(lsConsole, _(title), [cmd00], closeOnSuccess=False)
 
     def remove(self):
         self.session.openWithCallback(self.removenow,
@@ -949,8 +923,8 @@ class GetipklistLv2(Screen):
                                 self.plug = self.com.split("/")[-1]
                                 n2 = self.plug.find("_", 0)
                                 self.dom = self.plug[:n2]
-                                cmd = "dpkg -r " + self.dom  #  + "'"
-                                print('cmd deb remove:', cmd)                                
+                                cmd = "dpkg -r " + self.dom  # + "'"
+                                print('cmd deb remove:', cmd)
                             if ".ipk" in self.com:
                                 if os.path.exists('/var/lib/dpkg/info'):
                                     self.session.open(MessageBox,
@@ -961,11 +935,11 @@ class GetipklistLv2(Screen):
                                 self.plug = self.com.split("/")[-1]
                                 n2 = self.plug.find("_", 0)
                                 self.dom = self.plug[:n2]
-                                cmd = "opkg remove " + self.dom  #  + "'"
+                                cmd = "opkg remove " + self.dom  # + "'"
                                 print('cmd ipk remove:', cmd)
 
                             title = (_("Removing %s") % self.dom)
-                            self.session.open(Console, _(title), [cmd])
+                            self.session.open(lsConsole, _(title), [cmd])
 
     def restart(self):
         self.session.openWithCallback(self.restartnow, MessageBox, _("Do you want to restart Gui Interface?"), MessageBox.TYPE_YESNO)
@@ -1073,7 +1047,7 @@ class InfoCfg(Screen):
 
     def install_update(self, answer=False):
         if answer:
-            self.session.open(Console, 'Upgrading...', cmdlist=('wget -q "--no-check-certificate" ' + Utils.b64decoder(installer_url) + ' -O - | /bin/sh'), finishedCallback=self.myCallback, closeOnSuccess=False)
+            self.session.open(lsConsole, 'Upgrading...', cmdlist=('wget -q "--no-check-certificate" ' + Utils.b64decoder(installer_url) + ' -O - | /bin/sh'), finishedCallback=self.myCallback, closeOnSuccess=False)
         else:
             self.session.open(MessageBox, _("Update Aborted!"),  MessageBox.TYPE_INFO, timeout=3)
 
@@ -1085,11 +1059,7 @@ class InfoCfg(Screen):
         cont = " ---- Type Cam For Your Box--- \n"
         cont += "Config Softcam Manager(Oscam)':\n"
         cont += "Default folder:\n"
-                                                            
-                                                                          
         cont += "etc/tuxbox/config\n"
-                                                          
-                                                          
         cont += ' ------------------------------------------ \n'
         cont += ' ---- Type Oscam For Your Box--- \n'
         arc = ''
