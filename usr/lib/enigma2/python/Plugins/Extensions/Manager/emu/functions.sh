@@ -21,7 +21,7 @@ case  $z  in
 	;;
 esac
 z=${z^}
-FILE_TO_DOWNLOAD="http://levi45.spdns.eu/Addons/Multicam/$z/$1"
+FILE_TO_DOWNLOAD="https://raw.githubusercontent.com/levi-45/Multicam/main/$z/$1"
 which curl 1>/dev/null 2>&1
 if [ "$?" == "0" ] ; then
     curl --silent  --output /tmp/$(basename $FILE_TO_DOWNLOAD)  $FILE_TO_DOWNLOAD

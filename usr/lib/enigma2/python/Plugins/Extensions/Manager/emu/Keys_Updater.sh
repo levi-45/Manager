@@ -1,17 +1,11 @@
 #!/bin/sh
 ## DESCRIPTION=This script created by Levi45\nKeys Uodater
 ###############################################################################
-KeysUpdater="http://levi45.spdns.eu/Addons/Multicam/Keys_Updater.sh"
-SoftcamKeys="http://levi45.spdns.eu/Addons/SoftCam.Key"
-Constantcw="http://levi45.spdns.eu/Addons/constant.cw"
-OscamKeys="http://levi45.spdns.eu/Addons/oscam.keys"
-Oscamconstantcw="http://levi45.spdns.eu/Addons/oscam.constant.cw"
+SoftcamKeys="https://raw.githubusercontent.com/levi-45/Multicam/main/SoftCam.Key"
+Constantcw="https://raw.githubusercontent.com/levi-45/Multicam/main/constant.cw"
+OscamKeys="https://raw.githubusercontent.com/levi-45/Multicam/main/oscam.keys"
+Oscamconstantcw="https://raw.githubusercontent.com/levi-45/Multicam/main/oscam.constant.cw"
 echo ""
-echo ""
-echo "Downloading ${KeysUpdater}"
-wget ${KeysUpdater} -O /usr/lib/enigma2/python/Plugins/Extensions/Manager/emu/Keys_Updater.sh || echo "Error: Couldn't connect to ${KeysUpdater}"
-echo ""
-chmod 775 /usr/lib/enigma2/python/Plugins/Extensions/Manager/emu/Keys_Updater.sh
 echo ""
 echo "Downloading ${SoftcamKeys}"
 wget ${SoftcamKeys} -O /usr/keys/SoftCam.Key || echo "Error: Couldn't connect to ${SoftcamKeys}"

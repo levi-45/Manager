@@ -29,7 +29,7 @@ import sys
 import codecs
 
 plugin_foo = os.path.dirname(sys.modules[__name__].__file__)
-currversion = 'V.10.1-r29'
+currversion = 'V.10.1-r30'
 emu_script = str(plugin_foo) + '/emu'
 name_plugemu = 'Levi45 Emu Keys %s' % currversion
 screenwidth = getDesktop(0).size()

@@ -63,7 +63,7 @@ if PY3:
     long = int
     PY3 = True
 
-currversion = '10.1-r29'
+currversion = '10.1-r30'
 title_plug = 'Satellite-Forum.Com V.%s' % currversion
 title_emu = 'Levi45 Emu Keys V.%s' % currversion
 name_plug = 'Levi45 Cam Manager'
@@ -160,7 +160,7 @@ class Manager(Screen):
         self.setTitle(_(title_plug))
         self['title'] = Label()
         self['key_green'] = Label(_('Start'))
-        self['key_yellow'] = Label(_('Addons Panel'))
+        self['key_yellow'] = Label(_('Cam Download'))
         self['key_red'] = Label(_('Stop'))
         self['key_blue'] = Label(_('Script Executor'))
         self['description'] = Label(_('Scanning and retrieval list softcam ...'))

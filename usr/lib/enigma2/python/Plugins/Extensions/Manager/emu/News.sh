@@ -3,7 +3,7 @@
 ###############################################################################
 cd /tmp
 rm -f /tmp/News.txt
-wget http://levi45.spdns.eu/Addons/Multicam/News.txt -qO /tmp/News.txt > /dev/null 2>&1
+wget https://raw.githubusercontent.com/levi-45/Multicam/main/News.txt -qO /tmp/News.txt > /dev/null 2>&1
 
 if [ -f /tmp/News.txt ]; then 
 		cat /tmp/News.txt
