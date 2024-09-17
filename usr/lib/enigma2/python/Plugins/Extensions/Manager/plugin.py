@@ -32,11 +32,7 @@ from Screens.Standby import TryQuitMainloop
 from Tools.Directories import (fileExists, resolveFilename, SCOPE_PLUGINS)
 from Tools.LoadPixmap import LoadPixmap
 from enigma import (
-    RT_HALIGN_LEFT,
-    RT_VALIGN_CENTER,
-    eListboxPythonMultiContent,
     eTimer,
-    gFont,
     getDesktop,
 )
 from os import (mkdir, chmod)
@@ -63,7 +59,7 @@ if PY3:
     long = int
     PY3 = True
 
-currversion = '10.1-r30'
+currversion = '10.1-r31'
 title_plug = 'Satellite-Forum.Com V.%s' % currversion
 title_emu = 'Levi45 Emu Keys V.%s' % currversion
 name_plug = 'Levi45 Cam Manager'
@@ -769,7 +765,7 @@ class GetipklistLv(Screen):
                     self.names.append(str(plugins.getAttribute('cont')))
                 self["list"].l.setList(self.names)
                 self['description'].setText(_('Please select ...'))
-            self.downloading = True
+                self.downloading = True
         except:
             self['description'].setText(_('Error processing server addons data'))
 
@@ -877,8 +873,9 @@ class GetipklistLv2(Screen):
         if not os.path.exists(dest):
             os.system('ln -sf  /var/volatile/tmp /tmp')
         self.folddest = '/tmp/' + self.plug
+        cmd2 = ''
         if ".deb" in self.plug:
-            cmd2 = "dpkg -i '/tmp/" + self.plug  + "'"
+            cmd2 = "dpkg -i '/tmp/" + self.plug + "'"
         if ".ipk" in self.plug:
             cmd2 = "opkg install --force-reinstall --force-overwrite '/tmp/" + self.plug + "'"
         elif ".zip" in self.plug:
@@ -887,8 +884,7 @@ class GetipklistLv2(Screen):
             cmd2 = "tar -xvf '/tmp/" + self.plug + "' -C /"
         elif ".bz2" in self.plug and "gz" in self.plug:
             cmd2 = "tar -xjvf '/tmp/" + self.plug + "' -C /"
-        # cmd3 = "rm /tmp/" + self.plug
-        cmd = cmd2  # + " && "  # + cmd3
+        cmd = cmd2
         cmd00 = "wget --no-check-certificate -U '%s' -c '%s' -O '%s';%s > /dev/null" % (AgentRequest, str(self.com), self.folddest, cmd)
         print('cmd00:', cmd00)
         title = (_("Installing %s\nPlease Wait...") % self.dom)
