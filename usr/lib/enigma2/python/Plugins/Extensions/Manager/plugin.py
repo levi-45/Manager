@@ -59,7 +59,7 @@ if PY3:
     long = int
     PY3 = True
 
-currversion = '10.1-r32'
+currversion = '10.1-r33'
 title_plug = 'Satellite-Forum.Com V.%s' % currversion
 title_emu = 'Levi45 Emu Keys V.%s' % currversion
 name_plug = 'Levi45 Cam Manager'
@@ -109,7 +109,7 @@ elif screenwidth.width() == 1920:
 else:
     skin_path = plugin_foo + '/res/skins/hd/'
 
-if os.path.exists("/var/lib/dpkg/status"):
+if os.path.exists("/usr/bin/apt-get"):
     skin_path = skin_path + 'dreamOs/'
 if not os.path.exists('/etc/clist.list'):
     with open('/etc/clist.list', 'w'):

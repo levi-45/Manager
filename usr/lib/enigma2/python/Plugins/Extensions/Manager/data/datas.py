@@ -28,7 +28,7 @@ from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Screens.VirtualKeyBoard import VirtualKeyBoard
 from Tools.Directories import (fileExists, resolveFilename, SCOPE_PLUGINS)
-
+from Components.Sources.StaticText import StaticText
 from random import choice
 from enigma import (eTimer, getDesktop)
 import base64
@@ -151,7 +151,7 @@ elif screenwidth.width() == 1920:
 else:
     skin_path = plugin_foo + '/res/skins/hd/'
 
-if os.path.exists("/var/lib/dpkg/status"):
+if os.path.exists("/usr/bin/apt-get"):
     skin_path = skin_path + 'dreamOs/'
 
 
@@ -215,7 +215,6 @@ config.plugins.Manager.port = NoSave(ConfigNumber(default=15000))
 config.plugins.Manager.user = NoSave(ConfigText(default='Enter Username', visible_width=50, fixed_size=False))
 config.plugins.Manager.passw = NoSave(ConfigPassword(default='******', fixed_size=False, censor='*'))
 
-
 # ===================================================
 host = str(config.plugins.Manager.hostaddress.value)
 port = str(config.plugins.Manager.port.value)
@@ -260,16 +259,29 @@ class levi_config(Screen, ConfigListScreen):
         with codecs.open(skin, "r", encoding="utf-8") as f:
             self.skin = f.read()
         self.setup_title = (name_plug)
+        self['title'] = Label(_(name_plug))
+        self['key_red'] = Label(_('Back'))
+        self['key_green'] = Label(_('Force Emm Send'))
+        self['key_yellow'] = Label(_('Check Emm Send'))
+        self["key_blue"] = Label(_('Reset'))
+        self['description'] = Label(_('Wait please...'))
+        self['info'] = Label('')
+        
+        # self["key_red"] = StaticText(_("Back"))
+        # self["key_green"] = StaticText("Force Emm Send")
+        # self["key_yellow"] = StaticText("Check Emm Send")
+        # self["key_blue"] = StaticText("Reset")
+        # self['description'] = Label('Wait please...')
+        # self['info'] = Label(_(''))
+        
         self.onChangedEntry = []
         self.list = []
         ConfigListScreen.__init__(self, self.list, session=self.session, on_change=self.changedEntry)
-        self['title'] = Label(_(name_plug))
+
         self['actions'] = ActionMap(['InfobarEPGActions',
                                      'OkCancelActions',
-                                     # 'DirectionActions',
                                      'HotkeyActions',
                                      'VirtualKeyboardActions',
-                                     # 'EPGSelectActions',
                                      'ColorActions',
                                      'MenuActions'], {'left': self.keyLeft,
                                                       'right': self.keyRight,
@@ -281,15 +293,7 @@ class levi_config(Screen, ConfigListScreen):
                                                       'red': self.closex,
                                                       'cancel': self.closex,
                                                       'back': self.closex}, -1)
-        self['key_red'] = Label(_('Back'))
-        self['key_green'] = Label(_('Force Emm Send'))
-        self['key_yellow'] = Label(_('Check Emm Send'))
-        self["key_blue"] = Label(_('Reset'))
-        # self['key_green'].hide()
-        # self['key_yellow'].hide()
-        # self['key_blue'].hide()
-        self['info'] = Label('')
-        self['description'] = Label(_('Wait please...'))
+
         self.createSetup()
         if self.selectionChanged not in self["config"].onSelectionChanged:
             self["config"].onSelectionChanged.append(self.selectionChanged)
@@ -606,7 +610,7 @@ class levi_config(Screen, ConfigListScreen):
                     import six
                     data = six.ensure_str(data)
                 self.timer = eTimer()
-                if os.path.exists('/var/lib/dpkg/info'):
+                if os.path.exists("/usr/bin/apt-get"):
                     self.timer_conn = self.timer.timeout.connect(self.load_getcl(data))
                 else:
                     self.timer.callback.append(self.load_getcl(data))
@@ -644,6 +648,7 @@ class levi_config(Screen, ConfigListScreen):
             # <div id="cline">C: free.cccamiptv.club 13000 ggd32x cccamiptv.pro</div>
             elif 'cccamiptv' in data.lower():
                 url1 = re.findall(r'cline">\s*C:\s+([\w.-]+)\s+(\d+)\s+(\w+)\s+([\w.-]+)\s*', data)
+
             elif 'free.cccam.net' in data.lower():
                 url1 = re.findall(r'<b>C:\s+([\w.-]+)\s+(\d+)\s+(\w+)\s+([\w.-]+)</b>', data)
 
