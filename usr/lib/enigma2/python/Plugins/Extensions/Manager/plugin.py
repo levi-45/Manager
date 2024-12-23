@@ -59,7 +59,7 @@ if PY3:
     long = int
     PY3 = True
 
-currversion = '10.1-r33'
+currversion = '10.1-r34'
 title_plug = 'Satellite-Forum.Com V.%s' % currversion
 title_emu = 'Levi45 Emu Keys V.%s' % currversion
 name_plug = 'Levi45 Cam Manager'
@@ -243,13 +243,27 @@ class Manager(Screen):
         if 'oscam' in str(self.curCam).lower():
             try:
                 try:
-                    from Screens.OScamInfo import OscamInfoMenu
-                    print('[cccam] OScamInfo')
-                    self.session.open(OscamInfoMenu)
+                    from Screens.OScamInfo import OSCamInfo
+                    print('[cccam 1] OScamInfo')
+                    self.session.open(OSCamInfo)
                 except ImportError:
-                    from .data.OScamInfo import OscamInfoMenu
-                    print('[cccam] OScamInfo')
-                    self.session.open(OscamInfoMenu)
+                    from .data.OScamInfo import OSCamInfo
+                    print('[cccam 2] OScamInfo')
+                    self.session.open(OSCamInfo)
+                    
+                    # if os.path.exists(resolveFilename(SCOPE_PLUGINS, "Extensions/OscamStatus/{}".format('plugin.py'))):
+                        # from Plugins.Extensions.OscamStatus.plugin import OscamStatus
+                        # print('[cccam 1] OscamStatus')
+                        # self.session.open(OscamStatus)                    
+                    # else:
+                        # if os.path.exists(data_path + "/OScamInfo.pyo") or os.path.exists(data_path + '/OScamInfo.pyc'):
+                            # from Screens.OScamInfo import OSCamInfo
+                            # print('[cccam 1] OScamInfo')
+                            # self.session.open(OSCamInfo)
+                # except ImportError:
+                    # from .data.OScamInfo import OSCamInfo
+                    # print('[cccam 2] OScamInfo')
+                    # self.session.open(OSCamInfo)
             except Exception as e:
                 print('[cccam] OScamInfo e:', e)
                 pass

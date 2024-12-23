@@ -2,7 +2,7 @@
 
 ## setup command=wget -q "--no-check-certificate" https://raw.githubusercontent.com/levi-45/Manager/main/installer.sh -O - | /bin/sh
 ## Only This 2 lines to edit with new version ######
-version='10.1-r33'
+version='10.1-r34'
 changelog='Added some script'
 ##
 TMPPATH=/tmp/Manager-main
