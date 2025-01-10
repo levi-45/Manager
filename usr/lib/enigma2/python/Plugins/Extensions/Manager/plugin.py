@@ -59,7 +59,7 @@ if PY3:
     long = int
     PY3 = True
 
-currversion = '10.1-r34'
+currversion = '10.1-r35'
 title_plug = 'Satellite-Forum.Com V.%s' % currversion
 title_emu = 'Levi45 Emu Keys V.%s' % currversion
 name_plug = 'Levi45 Cam Manager'

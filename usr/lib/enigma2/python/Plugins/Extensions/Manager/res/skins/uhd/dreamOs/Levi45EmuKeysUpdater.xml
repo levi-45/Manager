@@ -1,19 +1,31 @@
-<screen name="Levi45 EmuKeys Updater" position="-4,0" size="544,1445" title="Levi45 EmuKeys Updater" flags="wfNoBorder" backgroundColor="transparent">
-    <eLabel position="-58,-7" size="544,1440" backgroundColor="#31000000" zPosition="1" cornerRadius="30"/>
-    <widget source="global.CurrentTime" render="Label" position="255,-9" size="250,83" font="Regular; 70" halign="center" backgroundColor="#10000000" transparent="1" valign="center" foregroundColor="white" zPosition="3">
-        <convert type="ClockToText">Default</convert>
-    </widget>
-    <widget source="global.CurrentTime" render="Label" position="254,133" size="250,50" font="Regular; 38" halign="center" backgroundColor="#10000000" foregroundColor="white" transparent="1" zPosition="3">
-        <convert type="ClockToText">Format:%e. %b</convert>
-    </widget>
-    <widget source="global.CurrentTime" render="Label" position="255,83" size="250,50" font="Regular; 38" halign="center" backgroundColor="#10000000" foregroundColor="white" transparent="1" zPosition="3">
-        <convert type="ClockToText">Format:%A</convert>
-    </widget>
-    <ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/Manager/res/pics/mcmaneger.png" transparent="1" position="3,5" size="190,193" alphatest="blend" zPosition="3"/>
-    <widget name="labstatus" position="0,1305" size="542,136" font="Regular; 26" halign="center" valign="center" foregroundColor="yellow" backgroundColor="#202020" transparent="0" zPosition="5"/>
+<screen name="Levi45EmuKeysUpdater" position="center,center" size="2560,1440" Title="Acherone Script" backgroundColor="transparent" flags="wfNoBorder">
+    <ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/Manager/res/pics/hd/mcmaneger.png" transparent="1" position="2151,948" size="254,258" alphatest="blend" zPosition="3"/>
+    <widget name="labstatus" position="1351,1042" size="723,182" font="Regular; 35" halign="center" valign="center" foregroundColor="yellow" backgroundColor="#202020" transparent="0" zPosition="5"/>
     <!-- Menu List -->
-    <!-- <widget name="list" position="5,202" size="535,775" zPosition="3" scrollbarMode="showOnDemand" /> -->
-    <widget source="list" render="Listbox" position="-4,200" size="544,1101" itemHeight="50" scrollbarMode="showOnDemand" transparent="1" zPosition="5" foregroundColor="#00a0a0a0" foregroundColorSelected="#ffffff" backgroundColor="#20000000" backgroundColorSelected="#0b2049">
-        <convert type="StringList"/>
+    <widget source="list" render="Listbox" position="75,202" size="1118,927" font="Regular;46" itemHeight="67" scrollbarMode="showOnDemand" transparent="1" zPosition="5" foregroundColor="#00a0a0a0" foregroundColorSelected="#ffffff" backgroundColor="#20000000" backgroundColorSelected="#0b2049">
+        <convert type="TemplatedMultiContent">
+                        {"template": [
+                            MultiContentEntryText(pos=(0, 0), size=(1067, 67), font=0, flags=RT_HALIGN_LEFT, text=1),  # Nome script
+                            <!-- MultiContentEntryText(pos=(400, 0), size=(667, 67), font=0, flags=RT_HALIGN_RIGHT, text=1),  # Descrizione -->
+                        ],
+                        "fonts": [gFont("Regular", 46)],
+                        "itemHeight": 67}
+                    </convert>
     </widget>
+    <widget name="line1" position="179,46" size="1035,107" font="Regular;56" halign="center" valign="center" foregroundColor="yellow" backgroundColor="#202020" transparent="0" zPosition="1"/>
+    <widget font="Regular; 40" halign="right" position="1868,27" render="Label" size="667,54" source="global.CurrentTime" transparent="1">
+        <convert type="ClockToText">Format:%a %d.%m. | %H:%M</convert>
+    </widget>
+    <eLabel backgroundColor="red" cornerRadius="3" position="46,1419" size="395,8" zPosition="11"/>
+    <eLabel backgroundColor="green" cornerRadius="3" position="456,1419" size="400,8" zPosition="11"/>
+    <eLabel backgroundColor="yellow" cornerRadius="3" position="870,1419" size="400,8" zPosition="11"/>
+    <!-- <eLabel backgroundColor="blue" cornerRadius="3" position="1283,1419" size="400,8" zPosition="11" /> -->
+    <widget name="key_red" render="Label" position="43,1355" size="400,60" zPosition="11" font="Regular; 40" valign="center" halign="center" backgroundColor="background" transparent="1" foregroundColor="white"/>
+    <widget name="key_green" render="Label" position="456,1355" size="400,60" zPosition="11" font="Regular; 40" valign="center" halign="center" backgroundColor="background" transparent="1" foregroundColor="white"/>
+    <widget name="key_yellow" render="Label" position="870,1355" size="400,60" zPosition="11" font="Regular; 40" valign="center" halign="center" backgroundColor="background" transparent="1" foregroundColor="white"/>
+    <!-- <widget name="key_blue" render="Label" position="1283,1355" size="400,60" zPosition="11" font="Regular; 40" valign="center" halign="center" backgroundColor="background" transparent="1" foregroundColor="white" /> -->
+    <eLabel backgroundColor="#002d3d5b" cornerRadius="20" position="0,0" size="2560,1440" zPosition="-99"/>
+    <eLabel backgroundColor="#001a2336" cornerRadius="30" position="27,1352" size="2507,80" zPosition="-80"/>
+    <eLabel name="" position="42,40" size="1202,1303" zPosition="-90" cornerRadius="18" backgroundColor="#00171a1c" foregroundColor="#00171a1c"/>
+    <widget source="session.VideoPicture" render="Pig" position="1330,134" zPosition="19" size="1174,666" backgroundColor="transparent" transparent="0" cornerRadius="14"/>
 </screen>
