@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
-# from .. import _
+
 from Components.ServiceEventTracker import ServiceEventTracker
 from Screens.Screen import Screen
 from Screens.MessageBox import MessageBox
@@ -36,14 +36,13 @@ PRIOLIST_D.append("P: 1702:000000")
 PRIOLIST_D.append("P: 1722:000000")
 PRIOLIST_D.append("P: 1833:000000")
 PRIOLIST_D.append("P: 0500:000000")
-global CCPrioMaker_session
 
+global CCPrioMaker_session
 CCPrioMaker_session = None
 
 
 def CCPrioMakerAutostart(session=None):
     if config.plugins.ccprio.autostart.value and CCPrioMaker_session and session:
-        # global CCPrioMaker_session
         CCPrioMaker_session = CCPrioMaker(session)
 
 
@@ -59,25 +58,19 @@ def cleanup_r(val):
 
 def readprio():
     if os_path.exists(PRIOPATH):
-        try:
-            with open(PRIOPATH, "r") as file:
-                for line in file:
-                    if line.startswith("#"):
-                        continue
-                    line = line.upper().strip()
-                    if line.startswith("P:"):
-                        val = cleanup_r(line)
-                        sp = val.split(':')
-                        if len(sp) > 3:
-                            PRIOLIST_P.append(f"{sp[2].strip()}{sp[3].strip()}")
-        except IOError as e:
-            print(f"Error reading file {PRIOPATH}: {e}")
+        with open(PRIOPATH, "r") as file:
+            for line in file:
+                if line.startswith("#"):
+                    continue
+                line = line.upper().strip()
+                if line.startswith("P:"):
+                    val = cleanup_r(line)
+                    sp = val.split(':')
+                    if len(sp) > 3:  # Ensure there are at least 4 elements
+                        PRIOLIST_P.append("%s%s" % (sp[2].strip(), sp[3].strip()))
     else:
-        try:
-            with open(PRIOPATH, 'w') as file:
-                file.writelines(f"{p}\n" for p in PRIOLIST_D)
-        except IOError as e:
-            print(f"Error writing to file {PRIOPATH}: {e}")
+        with open(PRIOPATH, 'w') as file:
+            file.writelines(p + "\n" for p in PRIOLIST_D)
 
 
 def cleanup(val):
@@ -96,10 +89,12 @@ def readecminfo():
         with open(ECMINFOPATH, "r") as file:
             for line in file:
                 line = line.strip()
+
                 if line.startswith("caid:"):
                     parts = line.split(":")
                     if len(parts) == 2:
                         caid = f"{int(parts[1], 16):04X}"
+
                 elif line.startswith("provid:"):
                     parts = line.split(":")
                     if len(parts) == 2:
@@ -208,24 +203,16 @@ class CCPrioMaker(Screen):
             if caid != "" and len(caid) == 4 and caid != "0000" and self.valssid != "":
                 val = "P: %s:%s:%s" % (caid, provid, self.ssid)
                 self.session.open(MessageBox, _("%s\n\n%s\n%s\n\nPrio entry\n%s") % (_("Add"), _("Provider") + ": " + self.Provider, _("Service") + ": " + self.ServiceName, val), MessageBox.TYPE_INFO, 3)
-                # PRIOLIST_P.append(self.valssid)
-                # if os_path.exists(PRIOPATH):
-                    # file = open(PRIOPATH, 'a+')
-                # else:
-                    # file = open(PRIOPATH, 'w')
-                    # for p in PRIOLIST_D:
-                        # file.write(p + "\n")
                 PRIOLIST_P.append(self.valssid)
-                # Controlla l'esistenza del file e scegli la modalità di apertura
-                mode = 'a+' if os.path.exists(PRIOPATH) else 'w'
-                # Usa 'with' per aprire il file e assicurarsi che venga chiuso automaticamente
+                # Open file in append mode, create if doesn't exist
+                mode = 'a+' if os_path.exists(PRIOPATH) else 'w'
                 with open(PRIOPATH, mode) as file:
-                    if mode == 'w':  # Se il file è appena stato creato, scrivi il contenuto di PRIOLIST_D
+                    if mode == 'w':
                         for p in PRIOLIST_D:
                             file.write(p + "\n")
-                            if config.plugins.ccprio.debug.value is True:
-                                file.write("# %s  %s Caids:%s\n" % (_("Provider") + ":" + self.Provider, _("Service") + ":" + self.ServiceName, self.caidlist))
-                            file.write("%s\n" % (val))
+                    if config.plugins.ccprio.debug.value is True:
+                        file.write("# %s  %s Caids:%s\n" % (_("Provider") + ":" + self.Provider, _("Service") + ":" + self.ServiceName, self.caidlist))
+                    file.write("%s\n" % (val))
 
 
 class Ccprio_Setup(Screen, ConfigListScreen):

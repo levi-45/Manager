@@ -296,27 +296,17 @@ class NcamInfo:
         else:
             self.showLog = False
             part = None
-        result = self.openWebIF(part)           # returns True/False and data or error
+        result = self.openWebIF(part)
         retval = []
         tmp = {}
         if result[0]:
             if not self.showLog:
                 dataXML = ElementTree.XML(result[1])
-                # if typ == "version":
-                    # if "version" in dataXML.attrib:
-                        # self.version = dataXML.attrib["version"]
-                    # else:
-                        # self.version = "-"
-                    # return self.version
                 status = dataXML.find("status")
                 clients = status.findall("client")
                 for client in clients:
                     name = client.attrib["name"]
                     proto = client.attrib["protocol"]
-                    # au = client.attrib["au"] if "au" in client.attrib else ""
-                    # login = client.find("times").attrib["login"]
-                    # online = client.find("times").attrib["online"]
-                    # port = client.find("connection").attrib["port"]
                     caid = client.find("request").attrib["caid"]
                     srvid = client.find("request").attrib["srvid"]
                     if "ecmtime" in client.find("request").attrib:
@@ -466,29 +456,20 @@ class NcamInfo:
 
 
 class oscMenuList(MenuList):
-    def __init__(self, list):
+    def __init__(self, list, itemH=30):
         MenuList.__init__(self, list, False, eListboxPythonMultiContent)
-        if f == 1.5:
-            self.l.setItemHeight(int(30 * f))
-            self.l.setFont(0, gFont("Regular", int(20 * f)))
-            self.l.setFont(1, gFont("Regular", int(18 * f)))
-            self.clientFont = gFont("Regular", int(16 * f))
-            self.l.setFont(2, self.clientFont)
-            self.l.setFont(3, gFont("Regular", int(12 * f)))
-        else:
-            self.l.setItemHeight(int(35 * f))
-            self.l.setFont(0, gFont("Regular", int(30 * f)))
-            self.l.setFont(1, gFont("Regular", int(25 * f)))
-            self.clientFont = gFont("Regular", int(25 * f))
-            self.l.setFont(2, self.clientFont)
-            self.l.setFont(3, gFont("Regular", int(25 * f)))
+        self.l.setItemHeight(int(itemH * f))
+        self.l.setFont(0, gFont("Regular", int(20 * f)))
+        self.l.setFont(1, gFont("Regular", int(18 * f)))
+        self.clientFont = gFont("Regular", int(16 * f))
+        self.l.setFont(2, self.clientFont)
+        self.l.setFont(3, gFont("Regular", int(12 * f)))
 
 
 class NcamInfoMenu(Screen):
     skin = '''
         <screen name="NcamInfoMenu" position="fill" title="NcamInfoMenu" backgroundColor="#ff000000" flags="wfNoBorder">
             <widget source="Title" render="Label" position="106,38" size="890,52" font="Regular; 32" noWrap="1" transparent="1" valign="center" zPosition="1" halign="left"/>
-            <widget source="ScreenPath" render="Label" position="36,10" size="1380,22" backgroundColor="#0528343b" transparent="1" zPosition="1" font="Regular; 19" valign="center" halign="left"/>
             <eLabel backgroundColor="#002d3d5b" cornerRadius="20" position="0,0" size="1920,1080" zPosition="-99"/>
             <eLabel backgroundColor="#001a2336" cornerRadius="30" position="20,1014" size="1880,60" zPosition="-80"/>
             <eLabel name="" position="31,30" size="901,977" zPosition="-90" cornerRadius="18" backgroundColor="#00171a1c" foregroundColor="#00171a1c"/>
@@ -957,7 +938,7 @@ class ncInfo(Screen, NcamInfo):
         else:
             data = self.readXML(typ=self.what)
         self.out = []
-        self.itemheight = 25
+        self.itemheight = 35
         if data[0]:
             if self.what != "l":
                 heading = (self.HEAD[self.NAME], self.HEAD[self.PROT], self.HEAD[self.CAID_SRVID],
@@ -1328,7 +1309,6 @@ class NcamInfoConfigScreen(ConfigListScreen, Screen):
     skin = '''
         <screen name="NcamInfoConfigScreen" position="fill" title="Ncam Info Setup" backgroundColor="#ff000000" flags="wfNoBorder">
             <widget source="Title" render="Label" position="106,38" size="890,52" font="Regular; 32" noWrap="1" transparent="1" valign="center" zPosition="1" halign="left"/>
-            <widget source="ScreenPath" render="Label" position="36,10" size="1380,22" backgroundColor="#0528343b" transparent="1" zPosition="1" font="Regular; 19" valign="center" halign="left"/>
             <widget font="Bold; 30" halign="right" position="1401,20" render="Label" size="500,40" source="global.CurrentTime" transparent="1">
                 <convert type="ClockToText">Format:%a %d.%m.  %H:%M</convert>
             </widget>

@@ -70,15 +70,19 @@ config.oscaminfo.intervall = ConfigInteger(default=10, limits=(1, 600))
 
 def check_NAMEBIN():
     NAMEBIN = "oscam"
-    # if fileExists("/tmp/.oscam/oscam.version"):
-        # NAMEBIN = "OScam"
+    """
+    if fileExists("/tmp/.oscam/oscam.version"):
+        NAMEBIN = "OScam"
+    """
     return NAMEBIN
 
 
 def check_NAMEBIN2():
     NAMEBIN2 = "OScam"
-    # if fileExists("/tmp/.oscam/oscam.version"):
-        # NAMEBIN2 = "OScam"
+    """
+    if fileExists("/tmp/.oscam/oscam.version"):
+        NAMEBIN2 = "OScam"
+    """
     return NAMEBIN2
 
 
@@ -301,21 +305,11 @@ class OscamInfo:
         if result[0]:
             if not self.showLog:
                 dataXML = ElementTree.XML(result[1])
-                # if typ == "version":
-                    # if "version" in dataXML.attrib:
-                        # self.version = dataXML.attrib["version"]
-                    # else:
-                        # self.version = "-"
-                    # return self.version
                 status = dataXML.find("status")
                 clients = status.findall("client")
                 for client in clients:
                     name = client.attrib["name"]
                     proto = client.attrib["protocol"]
-                    # au = client.attrib["au"] if "au" in client.attrib else ""
-                    # login = client.find("times").attrib["login"]
-                    # online = client.find("times").attrib["online"]
-                    # port = client.find("connection").attrib["port"]
                     caid = client.find("request").attrib["caid"]
                     srvid = client.find("request").attrib["srvid"]
                     if "ecmtime" in client.find("request").attrib:
@@ -494,29 +488,11 @@ class oscMenuList(MenuList):
             self.l.setFont(3, gFont("Regular", int(25 * f)))
 
 
-# class oscMenuList(MenuList):
-    # def __init__(self, list, itemH=35):
-        # MenuList.__init__(self, list, False, eListboxPythonMultiContent)
-        # self.l.setItemHeight(itemH)
-        # screenwidth = getDesktop(0).size().width()
-        # self.l.setFont(0, gFont("Regular", 20))
-        # self.l.setFont(1, gFont("Regular", 18))
-        # self.clientFont = gFont("Regular", 16)
-        # self.l.setFont(2, self.clientFont)
-        # self.l.setFont(3, gFont("Regular", 12))
-        # self.l.setFont(4, gFont("Regular", 30))
-        # self.l.setFont(5, gFont("Regular", 27))
-        # self.clientFont1080 = gFont("Regular", 24)
-        # self.l.setFont(6, self.clientFont1080)
-        # self.l.setFont(7, gFont("Regular", 24))
-
-
 class OSCamInfo(Screen):
 
     skin = '''
         <screen name="OSCamInfo" position="fill" title="OSCamInfo" backgroundColor="#ff000000" flags="wfNoBorder">
             <widget source="Title" render="Label" position="106,38" size="890,52" font="Regular; 32" noWrap="1" transparent="1" valign="center" zPosition="1" halign="left"/>
-            <widget source="ScreenPath" render="Label" position="36,10" size="1380,22" backgroundColor="#0528343b" transparent="1" zPosition="1" font="Regular; 19" valign="center" halign="left"/>
             <eLabel backgroundColor="#002d3d5b" cornerRadius="20" position="0,0" size="1920,1080" zPosition="-99"/>
             <eLabel backgroundColor="#001a2336" cornerRadius="30" position="20,1014" size="1880,60" zPosition="-80"/>
             <eLabel name="" position="31,30" size="901,977" zPosition="-90" cornerRadius="18" backgroundColor="#00171a1c" foregroundColor="#00171a1c"/>
@@ -1419,5 +1395,6 @@ class OscamInfoConfigScreen(ConfigListScreen, Screen):
         config.oscaminfo.autoupdate.save()
         config.oscaminfo.intervall.save()
         self.close()
+
 
 OscamInfoMenu = OSCamInfo
