@@ -4,7 +4,7 @@
 # --------------------#
 #  coded by Lululla   #
 #   skin by MMark     #
-#     26/06/2024     #
+#     14/02/2025      #
 #      No Coppy       #
 # --------------------#
 from __future__ import print_function
@@ -354,10 +354,6 @@ class levi_config(Screen, ConfigListScreen):
 
 								thread = threading.Thread(target=run_command)
 								thread.start()
-							else:
-								# self.session.openWithCallback(self.callMyMsg, MessageBox, _('The Cam is not active, send the command anyway?'), MessageBox.TYPE_YESNO)
-								self.session.open(MessageBox, _("Command Cancelled"), MessageBox.TYPE_INFO, timeout=5)
-								return
 
 							if exists('/tmp/emm.txt'):
 								print("EMM file exists!")
