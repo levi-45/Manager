@@ -42,7 +42,7 @@ import threading
 
 global skin_path
 
-sss = 'aHR0cHM6Ly9wYXN0ZWJpbi5jb20vcmF3L1U0ZU02RGpW'
+sss = "aHR0cHM6Ly9wYXN0ZWJpbi5jb20vcmF3L1U0ZU02RGpW"
 PY3 = sys.version_info.major >= 3
 
 if PY3:
@@ -57,30 +57,30 @@ def b64decoder(s):
 	s = str(s).strip()
 	try:
 		outp = base64.b64decode(s)
-		print('outp1 ', outp)
+		print("outp1 ", outp)
 		if PY3:
-			outp = outp.decode('utf-8')
-			print('outp2 ', outp)
+			outp = outp.decode("utf-8")
+			print("outp2 ", outp)
 	except TypeError:
 		padding = len(s) % 4
 		if padding == 1:
 			print("Invalid base64 string: {}".format(s))
-			return ''
+			return ""
 		elif padding == 2:
-			s += b'=='
+			s += b"=="
 		elif padding == 3:
-			s += b'='
+			s += b"="
 		outp = base64.b64decode(s)
-		print('outp1 ', outp)
+		print("outp1 ", outp)
 		if PY3:
-			outp = outp.decode('utf-8')
-			print('outp3 ', outp)
+			outp = outp.decode("utf-8")
+			print("outp3 ", outp)
 	return outp
 
 
-name_plug = 'Satellite-Forum.Com'
+name_plug = "Satellite-Forum.Com"
 plugin_foo = resolveFilename(SCOPE_PLUGINS, "Extensions/Manager")
-data_path = plugin_foo + '/data/'
+data_path = plugin_foo + "/data/"
 skin_path = plugin_foo
 
 try:
@@ -94,31 +94,31 @@ else:
 def checkStr(txt):
 	if PY3:
 		if isinstance(type(txt), type(bytes())):
-			txt = txt.decode('utf-8')
+			txt = txt.decode("utf-8")
 	else:
 		if isinstance(type(txt), type(unicode())):
-			txt = txt.encode('utf-8')
+			txt = txt.encode("utf-8")
 	return txt
 
 
 ListAgent = [
-	'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.15 (KHTML, like Gecko) Chrome/24.0.1295.0 Safari/537.15',
-	'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.14 (KHTML, like Gecko) Chrome/24.0.1292.0 Safari/537.14',
-	'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.13 (KHTML, like Gecko) Chrome/24.0.1290.1 Safari/537.13',
-	'Mozilla/5.0 (Windows NT 6.2) AppleWebKit/537.13 (KHTML, like Gecko) Chrome/24.0.1290.1 Safari/537.13',
-	'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_2) AppleWebKit/537.13 (KHTML, like Gecko) Chrome/24.0.1290.1 Safari/537.13',
-	'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_4) AppleWebKit/537.13 (KHTML, like Gecko) Chrome/24.0.1290.1 Safari/537.13',
-	'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.13 (KHTML, like Gecko) Chrome/24.0.1284.0 Safari/537.13',
-	'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.8 (KHTML, like Gecko) Chrome/17.0.940.0 Safari/535.8',
-	'Mozilla/6.0 (Windows NT 6.2; WOW64; rv:16.0.1) Gecko/20121011 Firefox/16.0.1',
-	'Mozilla/5.0 (Windows NT 6.2; WOW64; rv:16.0.1) Gecko/20121011 Firefox/16.0.1',
-	'Mozilla/5.0 (Windows NT 6.2; Win64; x64; rv:16.0.1) Gecko/20121011 Firefox/16.0.1',
-	'Mozilla/5.0 (Windows NT 6.1; rv:15.0) Gecko/20120716 Firefox/15.0a2',
-	'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.1.16) Gecko/20120427 Firefox/15.0a1',
-	'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:15.0) Gecko/20120427 Firefox/15.0a1',
-	'Mozilla/5.0 (Windows NT 6.2; WOW64; rv:15.0) Gecko/20120910144328 Firefox/15.0.2',
-	'Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:15.0) Gecko/20100101 Firefox/15.0.1',
-	'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:9.0a2) Gecko/20111101 Firefox/9.0a2',
+	"Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.15 (KHTML, like Gecko) Chrome/24.0.1295.0 Safari/537.15",
+	"Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.14 (KHTML, like Gecko) Chrome/24.0.1292.0 Safari/537.14",
+	"Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.13 (KHTML, like Gecko) Chrome/24.0.1290.1 Safari/537.13",
+	"Mozilla/5.0 (Windows NT 6.2) AppleWebKit/537.13 (KHTML, like Gecko) Chrome/24.0.1290.1 Safari/537.13",
+	"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_2) AppleWebKit/537.13 (KHTML, like Gecko) Chrome/24.0.1290.1 Safari/537.13",
+	"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_4) AppleWebKit/537.13 (KHTML, like Gecko) Chrome/24.0.1290.1 Safari/537.13",
+	"Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.13 (KHTML, like Gecko) Chrome/24.0.1284.0 Safari/537.13",
+	"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.8 (KHTML, like Gecko) Chrome/17.0.940.0 Safari/535.8",
+	"Mozilla/6.0 (Windows NT 6.2; WOW64; rv:16.0.1) Gecko/20121011 Firefox/16.0.1",
+	"Mozilla/5.0 (Windows NT 6.2; WOW64; rv:16.0.1) Gecko/20121011 Firefox/16.0.1",
+	"Mozilla/5.0 (Windows NT 6.2; Win64; x64; rv:16.0.1) Gecko/20121011 Firefox/16.0.1",
+	"Mozilla/5.0 (Windows NT 6.1; rv:15.0) Gecko/20120716 Firefox/15.0a2",
+	"Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.1.16) Gecko/20120427 Firefox/15.0a1",
+	"Mozilla/5.0 (Windows NT 6.1; WOW64; rv:15.0) Gecko/20120427 Firefox/15.0a1",
+	"Mozilla/5.0 (Windows NT 6.2; WOW64; rv:15.0) Gecko/20120910144328 Firefox/15.0.2",
+	"Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:15.0) Gecko/20100101 Firefox/15.0.1",
+	"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:9.0a2) Gecko/20111101 Firefox/9.0a2",
 ]
 
 
@@ -133,12 +133,12 @@ def getUrl(url):
 	elif sys.version_info.major == 2:
 		import urllib2
 	req = urllib2.Request(url)
-	req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.8.1.14) Gecko/20080404 Firefox/2.0.0.14')
+	req.add_header("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.8.1.14) Gecko/20080404 Firefox/2.0.0.14")
 	r = urllib2.urlopen(req, None, 15)
 	link = r.read()
 	r.close()
 	content = link
-	if str(type(content)).find('bytes') != -1:
+	if str(type(content)).find("bytes") != -1:
 		try:
 			content = content.decode("utf-8")
 		except Exception as e:
@@ -148,36 +148,36 @@ def getUrl(url):
 
 screenwidth = getDesktop(0).size()
 if screenwidth.width() == 2560:
-	skin_path = plugin_foo + '/res/skins/uhd/'
+	skin_path = plugin_foo + "/res/skins/uhd/"
 elif screenwidth.width() == 1920:
-	skin_path = plugin_foo + '/res/skins/fhd/'
+	skin_path = plugin_foo + "/res/skins/fhd/"
 else:
-	skin_path = plugin_foo + '/res/skins/hd/'
+	skin_path = plugin_foo + "/res/skins/hd/"
 if exists("/usr/bin/apt-get"):
-	skin_path = skin_path + 'dreamOs/'
+	skin_path = skin_path + "dreamOs/"
 
-if not exists('/etc/tuxbox/config'):
-	system('mkdir /etc/tuxbox/config')
+if not exists("/etc/tuxbox/config"):
+	system("mkdir /etc/tuxbox/config")
 
 
 def cccamPath():
-	cmd = 'find /usr -name "CCcam.cfg"'
+	cmd = "find /usr -name CCcam.cfg"
 	res = popen(cmd).read()
-	if res == '':
-		cmd = 'find /var -name "CCcam.cfg"'
+	if res == "":
+		cmd = "find /var -name CCcam.cfg"
 		res = popen(cmd).read()
-		if res == '':
-			cmd = 'find /etc -name "CCcam.cfg"'
+		if res == "":
+			cmd = "find /etc -name CCcam.cfg"
 			res = popen(cmd).read()
-			if res == '':
+			if res == "":
 				try:
-					folders = listdir('/etc/tuxbox/')
+					folders = listdir("/etc/tuxbox/")
 					for folder in folders:
-						if folder.startswith('oscam'):
-							cmd = 'find /etc/tuxbox/config/' + folder + ' -name "CCcam.cfg"'
+						if folder.startswith("oscam"):
+							cmd = "find /etc/tuxbox/config/" + folder + " -name CCcam.cfg"
 							res = popen(cmd).read()
-							return '/etc/tuxbox/config/' + folder + "CCcam.cfg"
-						if res == '':
+							return "/etc/tuxbox/config/" + folder + "CCcam.cfg"
+						if res == "":
 							return "/etc/CCcam.cfg"
 				except:
 					return "/etc/CCcam.cfg"
@@ -191,37 +191,37 @@ def cccamPath():
 
 
 Serverlive = [
-	('aHR0cHM6Ly9ib3NzY2NjYW0uY28vVGVzdC5waHA=', 'Server01'),
-	('aHR0cHM6Ly9pcHR2LTE1ZGF5cy5ibG9nc3BvdC5jb20=', 'Server02'),
-	('aHR0cHM6Ly9jY2NhbWlhLmNvbS9mcmVlLWNjY2FtLw==', 'Server03'),
-	('aHR0cHM6Ly9jY2NhbS5uZXQvZnJlZWNjY2Ft', 'Server04'),
-	('aHR0cHM6Ly9jY2NhbXNhdGUuY29tL2ZyZWU=', 'Server05'),
-	('aHR0cHM6Ly9jY2NhbXguY29tL2ZyZWUtY2NjYW0=', 'Server06'),
-	('aHR0cHM6Ly9jY2NhbS1wcmVtaXVtLmNvL2ZyZWUtY2NjYW0v', 'Server07'),
-	('aHR0cHM6Ly9jY2NhbWZyZWUuY28vZnJlZS9nZXQucGhw', 'Server8'),
-	('aHR0cHM6Ly9jY2NhbWlwdHYucHJvL2NjY2FtLWZyZWUvI3BhZ2UtY29udGVudA==', 'Server9'),
+	("aHR0cHM6Ly9ib3NzY2NjYW0uY28vVGVzdC5waHA=", "Server01"),
+	("aHR0cHM6Ly9pcHR2LTE1ZGF5cy5ibG9nc3BvdC5jb20=", "Server02"),
+	("aHR0cHM6Ly9jY2NhbWlhLmNvbS9mcmVlLWNjY2FtLw==", "Server03"),
+	("aHR0cHM6Ly9jY2NhbS5uZXQvZnJlZWNjY2Ft", "Server04"),
+	("aHR0cHM6Ly9jY2NhbXNhdGUuY29tL2ZyZWU=", "Server05"),
+	("aHR0cHM6Ly9jY2NhbXguY29tL2ZyZWUtY2NjYW0=", "Server06"),
+	("aHR0cHM6Ly9jY2NhbS1wcmVtaXVtLmNvL2ZyZWUtY2NjYW0v", "Server07"),
+	("aHR0cHM6Ly9jY2NhbWZyZWUuY28vZnJlZS9nZXQucGhw", "Server8"),
+	("aHR0cHM6Ly9jY2NhbWlwdHYucHJvL2NjY2FtLWZyZWUvI3BhZ2UtY29udGVudA==", "Server9"),
 ]
 
 
 cfgcam = [
-	('/etc/CCcam.cfg', 'CCcam'),
-	('/etc/tuxbox/config/oscam.server', 'Oscam'),
-	('/etc/tuxbox/config/oscam-emu/oscam.server', 'oscam-emu'),
-	('/etc/tuxbox/config/ncam.server', 'Ncam'),
-	('/etc/tuxbox/config/gcam.server', 'Gcam'),
-	('/etc/tuxbox/config/Oscamicam/oscam.server', 'Oscamicam')
+	("/etc/CCcam.cfg", "CCcam"),
+	("/etc/tuxbox/config/oscam.server", "Oscam"),
+	("/etc/tuxbox/config/oscam-emu/oscam.server", "oscam-emu"),
+	("/etc/tuxbox/config/ncam.server", "Ncam"),
+	("/etc/tuxbox/config/gcam.server", "Gcam"),
+	("/etc/tuxbox/config/Oscamicam/oscam.server", "Oscamicam")
 ]
 
 
 config.plugins.Manager = ConfigSubsection()
 config.plugins.Manager.active = ConfigYesNo(default=False)
 config.plugins.Manager.Server = NoSave(ConfigSelection(choices=Serverlive))  # , default=Server1))
-# config.plugins.Manager.cfgfile = NoSave(ConfigSelection(default='/etc/CCcam.cfg', choices=[('/etc/CCcam.cfg', _('CCcam')), ('/etc/tuxbox/config/oscam.server', _('Oscam')), ('/etc/tuxbox/config/ncam.server', _('Ncam'))]))
+# config.plugins.Manager.cfgfile = NoSave(ConfigSelection(default="/etc/CCcam.cfg", choices=[("/etc/CCcam.cfg", _("CCcam")), ("/etc/tuxbox/config/oscam.server", _("Oscam")), ("/etc/tuxbox/config/ncam.server", _("Ncam"))]))
 config.plugins.Manager.cfgfile = NoSave(ConfigSelection(choices=cfgcam))
-config.plugins.Manager.hostaddress = NoSave(ConfigText(default='127.0.0.1'))
+config.plugins.Manager.hostaddress = NoSave(ConfigText(default="127.0.0.1"))
 config.plugins.Manager.port = NoSave(ConfigNumber(default=16000))
-config.plugins.Manager.user = NoSave(ConfigText(default='Enter Username', visible_width=50, fixed_size=False))
-config.plugins.Manager.passw = NoSave(ConfigPassword(default='******', fixed_size=False, censor='*'))
+config.plugins.Manager.user = NoSave(ConfigText(default="Enter Username", visible_width=50, fixed_size=False))
+config.plugins.Manager.passw = NoSave(ConfigPassword(default="******", fixed_size=False, censor="*"))
 
 # ===================================================
 host = str(config.plugins.Manager.hostaddress.value)
@@ -235,83 +235,83 @@ def putlblcfg():
 	global buttn
 	global putlbl
 	putlbl = config.plugins.Manager.cfgfile.getValue()
-	buttn = ''
+	buttn = ""
 	if not putlbl:
 		print("Error: Invalid file path")
 		return None
 
-	if putlbl == '/etc/CCcam.cfg':
-		buttn = _('Write') + ' CCcam'
-		rstcfg = 'CCcam.cfg'
-	elif putlbl == '/etc/tuxbox/config/oscam.server':
-		buttn = _('Write') + ' Oscam'
-		rstcfg = 'oscam.server'
-	# elif putlbl == '/etc/tuxbox/config/gcam.server':
-		# buttn = _('Write') + ' Gcam'
-		# rstcfg = 'gcam.server'
-	elif putlbl == '/etc/tuxbox/config/oscam-emu/oscam.server':
-		buttn = _('Write') + ' OscamEmu'
-		rstcfg = 'oscam.server'
-	elif putlbl == '/etc/tuxbox/config/Oscamicam/oscam.server':
-		buttn = _('Write') + ' Oscamicam'
-		rstcfg = 'oscam.server'
-	elif putlbl == '/etc/tuxbox/config/ncam.server':
-		buttn = _('Write') + ' Ncam'
-		rstcfg = 'ncam.server'
+	if putlbl == "/etc/CCcam.cfg":
+		buttn = _("Write") + " CCcam"
+		rstcfg = "CCcam.cfg"
+	elif putlbl == "/etc/tuxbox/config/oscam.server":
+		buttn = _("Write") + " Oscam"
+		rstcfg = "oscam.server"
+	# elif putlbl == "/etc/tuxbox/config/gcam.server":
+		# buttn = _("Write") + " Gcam"
+		# rstcfg = "gcam.server"
+	elif putlbl == "/etc/tuxbox/config/oscam-emu/oscam.server":
+		buttn = _("Write") + " OscamEmu"
+		rstcfg = "oscam.server"
+	elif putlbl == "/etc/tuxbox/config/Oscamicam/oscam.server":
+		buttn = _("Write") + " Oscamicam"
+		rstcfg = "oscam.server"
+	elif putlbl == "/etc/tuxbox/config/ncam.server":
+		buttn = _("Write") + " Ncam"
+		rstcfg = "ncam.server"
 	else:
-		buttn = _('Write') + ' NONE'
-		rstcfg = 'unknow.server'
+		buttn = _("Write") + " NONE"
+		rstcfg = "unknow.server"
 		return None
 
 	return putlbl
 
 
 putlblcfg()
-print('putlblcfg start')
-print('putlbl ==========', putlbl)
-print('rstcfg ==========', rstcfg)
-print('rstcfg ==========', buttn)
-print('putlblcfg end')
+print("putlblcfg start")
+print("putlbl ==========", putlbl)
+print("rstcfg ==========", rstcfg)
+print("rstcfg ==========", buttn)
+print("putlblcfg end")
 
 
 class levi_config(Screen, ConfigListScreen):
 	def __init__(self, session):
 		Screen.__init__(self, session)
 		self.session = session
-		skin = join(skin_path, 'levi_config.xml')
+		skin = join(skin_path, "levi_config.xml")
 		with codecs.open(skin, "r", encoding="utf-8") as f:
 			self.skin = f.read()
 		self.setup_title = (name_plug)
-		self['title'] = Label(_(name_plug))
+		self["title"] = Label(_(name_plug))
 		self["key_red"] = Label(_("Back"))
 		self["key_green"] = Label("")
 		self["key_yellow"] = Label("")
 		self["key_blue"] = Label("")
-		self['description'] = Label('')
-		self['info'] = Label('')
+		self["description"] = Label("")
+		self["info"] = Label("")
 		self.onChangedEntry = []
 		self.list = []
 		ConfigListScreen.__init__(self, self.list, session=self.session, on_change=self.changedEntry)
-		self['actions'] = ActionMap(
+		self["actions"] = ActionMap(
 			[
-				'InfobarEPGActions',
-				'OkCancelActions',
-				'HotkeyActions',
-				'VirtualKeyboardActions',
-				'ColorActions',
-				'MenuActions'
+				"InfobarEPGActions",
+				"OkCancelActions",
+				"HotkeyActions",
+				"VirtualKeyboardActions",
+				"ColorActions",
+				"MenuActions"
 			],
 			{
-				'left': self.keyLeft,
-				'right': self.keyRight,
-				'ok': self.closex,
-				'showVirtualKeyboard': self.KeyText,
-				'green': self.green,
-				'yellow': self.sendemm,
-				'blue': self.resetcfg,
-				'red': self.closex,
-				'cancel': self.closex,
-				'back': self.closex
+				"left": self.keyLeft,
+				"right": self.keyRight,
+				"ok": self.closex,
+				"showVirtualKeyboard": self.KeyText,
+				"green": self.green,
+				"yellow": self.sendemm,
+				"blue": self.resetcfg,
+				"red": self.closex,
+				"cancel": self.closex,
+				"back": self.closex
 			},
 			-1
 		)
@@ -323,29 +323,39 @@ class levi_config(Screen, ConfigListScreen):
 
 	def layoutFinished(self):
 		self.setTitle(self.setup_title)
-		self['info'].setText(_('Select Your Choice'))
-		self['description'].setText(_('MENU EMM / SERVER CLINE'))
+		self["info"].setText(_("Select Your Choice"))
+		self["description"].setText(_("MENU EMM / SERVER CLINE"))
 
 	def sendemm(self):
 		if config.plugins.Manager.active.value is True:
 			self.getcl()
 		else:
 			try:
-				print('runningcam=', runningcam)
+				print("runningcam=", runningcam)
 				if runningcam is None:
 					return
 
 				def execute_command(choice):
 					if choice:
 						if 'oscam' in runningcam.lower():
-							cmd = "ps aux | grep -i '[o]scam'"
-							res = subprocess.getoutput(cmd)
-							print('res: ', res)
-							if any(cam in res.lower() for cam in ['oscam', 'icam', 'ncam', 'gcam']):
-								print('oscam exist')
+							# cmd = "ps aux | grep -i '[o]scam'"
+							# res = subprocess.getoutput(cmd)
+							res = ''
+
+							cmd = ["ps"]
+							output = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+							stdout, stderr = output.communicate()
+
+							if output.returncode == 0:
+								res = "\n".join(line for line in stdout.decode("utf-8").split("\n") if "oscam" in line.lower())
+								print('execute_command res ps:', res)
+							else:
+								print("Error:", stderr.decode("utf-8"))
+							if any(cam in res.lower() for cam in ["oscam", "icam", "ncam", "gcam"]):
+								print("oscam exist")
 								msg = []
 								msg.append(_("\n....\n.....\n"))
-								self.cmd1 = '/usr/lib/enigma2/python/Plugins/Extensions/tvManager/data/emm_sender.sh'
+								self.cmd1 = "/usr/lib/enigma2/python/Plugins/Extensions/Manager/data/emm_sender.sh"
 								if not access(self.cmd1, X_OK):
 									chmod(self.cmd1, 493)
 
@@ -355,9 +365,9 @@ class levi_config(Screen, ConfigListScreen):
 								thread = threading.Thread(target=run_command)
 								thread.start()
 
-							if exists('/tmp/emm.txt'):
+							if exists("/tmp/emm.txt"):
 								print("EMM file exists!")
-								with open('/tmp/emm.txt') as f:
+								with open("/tmp/emm.txt") as f:
 									file_content = f.read().strip()
 									msg.append("CURRENT EMM IS:\n")
 									msg.append(file_content)
@@ -367,11 +377,11 @@ class levi_config(Screen, ConfigListScreen):
 								self.session.open(MessageBox, _("Please wait, %s.") % msg, MessageBox.TYPE_INFO, timeout=10)
 				self.session.openWithCallback(execute_command, MessageBox, _("Do you want to execute the command?"), MessageBox.TYPE_YESNO)
 			except Exception as e:
-				print('error on emm', str(e))
+				print("error on emm", str(e))
 
 	def callMyMsg(self, answer=False):
 		if answer:
-			self.cmd1 = '/usr/lib/enigma2/python/Plugins/Extensions/tvManager/data/emm_sender.sh'
+			self.cmd1 = "/usr/lib/enigma2/python/Plugins/Extensions/Manager/data/emm_sender.sh"
 			if not access(self.cmd1, X_OK):
 				chmod(self.cmd1, 493)
 
@@ -390,18 +400,18 @@ class levi_config(Screen, ConfigListScreen):
 		if config.plugins.Manager.active.value is True:
 			import shutil
 			shutil.copy2(data_path + rstcfg, putlbl)
-			system('chmod -R 755 %s' % putlbl)
-			self.session.open(MessageBox, _('Reset') + ' ' + putlbl, type=MessageBox.TYPE_INFO, timeout=8)
+			system("chmod -R 755 %s" % putlbl)
+			self.session.open(MessageBox, _("Reset") + " " + putlbl, type=MessageBox.TYPE_INFO, timeout=8)
 
 	def showhide(self):
 		if config.plugins.Manager.active.value is True:
-			self['key_green'].setText(buttn)
-			self['key_yellow'].setText(_('Get Link'))
-			self['key_blue'].setText(_('Reset'))
+			self["key_green"].setText(buttn)
+			self["key_yellow"].setText(_("Get Link"))
+			self["key_blue"].setText(_("Reset"))
 		else:
-			self['key_green'].setText('')
-			self['key_yellow'].setText('Check Emm Send')
-			self['key_blue'].setText('')
+			self["key_green"].setText("")
+			self["key_yellow"].setText("Check Emm Send")
+			self["key_blue"].setText("")
 		return
 
 	def showInfo(self, info):
@@ -419,15 +429,15 @@ class levi_config(Screen, ConfigListScreen):
 	def green(self):
 		try:
 			if config.plugins.Manager.active.value is True:
-				if putlbl == '/etc/CCcam.cfg':
+				if putlbl == "/etc/CCcam.cfg":
 					self.CCcam()
 				elif putlbl in [
-					'/etc/tuxbox/config/oscam.server',
-					'/etc/tuxbox/config/oscam-emu/oscam.server',
-					'/etc/tuxbox/config/Oscamicam/oscam.server'
+					"/etc/tuxbox/config/oscam.server",
+					"/etc/tuxbox/config/oscam-emu/oscam.server",
+					"/etc/tuxbox/config/Oscamicam/oscam.server"
 				]:
 					self.Oscam()
-				elif putlbl == '/etc/tuxbox/config/ncam.server':
+				elif putlbl == "/etc/tuxbox/config/ncam.server":
 					self.Ncam()
 				else:
 					return
@@ -438,53 +448,53 @@ class levi_config(Screen, ConfigListScreen):
 	def createSetup(self):
 		self.editListEntry = None
 		self.list = []
-		self.list.append(getConfigListEntry(_('Activate Insert line in Config File:'), config.plugins.Manager.active, _('If Active: Download/Reset Server Config')))
+		self.list.append(getConfigListEntry(_("Activate Insert line in Config File:"), config.plugins.Manager.active, _("If Active: Download/Reset Server Config")))
 		if config.plugins.Manager.active.value:
-			self.list.append(getConfigListEntry(_('Server Config'), config.plugins.Manager.cfgfile, putlbl))
-			self.list.append(getConfigListEntry(_('Server Link'), config.plugins.Manager.Server, _('Select Get Link')))
-			self.list.append(getConfigListEntry(_('Server URL'), config.plugins.Manager.hostaddress, _('Server Url i.e. 012.345.678.900')))
-			self.list.append(getConfigListEntry(_('Server Port'), config.plugins.Manager.port, _('Port')))
-			self.list.append(getConfigListEntry(_('Server Username'), config.plugins.Manager.user, _('Username')))
-			self.list.append(getConfigListEntry(_('Server Password'), config.plugins.Manager.passw, _('Password')))
-			self['key_green'].setText(buttn)
-			self['key_yellow'].setText(_('Get Link'))
-			self['key_blue'].setText(_('Reset'))
+			self.list.append(getConfigListEntry(_("Server Config"), config.plugins.Manager.cfgfile, putlbl))
+			self.list.append(getConfigListEntry(_("Server Link"), config.plugins.Manager.Server, _("Select Get Link")))
+			self.list.append(getConfigListEntry(_("Server URL"), config.plugins.Manager.hostaddress, _("Server Url i.e. 012.345.678.900")))
+			self.list.append(getConfigListEntry(_("Server Port"), config.plugins.Manager.port, _("Port")))
+			self.list.append(getConfigListEntry(_("Server Username"), config.plugins.Manager.user, _("Username")))
+			self.list.append(getConfigListEntry(_("Server Password"), config.plugins.Manager.passw, _("Password")))
+			self["key_green"].setText(buttn)
+			self["key_yellow"].setText(_("Get Link"))
+			self["key_blue"].setText(_("Reset"))
 
-		self['config'].list = self.list
-		self['config'].l.setList(self.list)
+		self["config"].list = self.list
+		self["config"].l.setList(self.list)
 		self.showhide()
 
 	def KeyText(self):
-		sel = self['config'].getCurrent()
+		sel = self["config"].getCurrent()
 		if sel:
-			self.session.openWithCallback(self.VirtualKeyBoardCallback, VirtualKeyBoard, title=self['config'].getCurrent()[0], text=self['config'].getCurrent()[1].value)
+			self.session.openWithCallback(self.VirtualKeyBoardCallback, VirtualKeyBoard, title=self["config"].getCurrent()[0], text=self["config"].getCurrent()[1].value)
 
 	def keyLeft(self):
 		ConfigListScreen.keyLeft(self)
-		print('current selection:', self['config'].l.getCurrentSelection())
+		print("current selection:", self["config"].l.getCurrentSelection())
 		putlblcfg()
 		self.createSetup()
 		self.getcl()
 
 	def keyRight(self):
 		ConfigListScreen.keyRight(self)
-		print('current selection:', self['config'].l.getCurrentSelection())
+		print("current selection:", self["config"].l.getCurrentSelection())
 		putlblcfg()
 		self.createSetup()
 		self.getcl()
 
 	def keyDown(self):
-		self['config'].instance.moveSelection(self['config'].instance.moveDown)
+		self["config"].instance.moveSelection(self["config"].instance.moveDown)
 		self.createSetup()
 
 	def keyUp(self):
-		self['config'].instance.moveSelection(self['config'].instance.moveUp)
+		self["config"].instance.moveSelection(self["config"].instance.moveUp)
 		self.createSetup()
 
 	def VirtualKeyBoardCallback(self, callback=None):
 		if callback is not None and len(callback):
-			self['config'].getCurrent()[1].value = callback
-			self['config'].invalidate(self['config'].getCurrent())
+			self["config"].getCurrent()[1].value = callback
+			self["config"].invalidate(self["config"].getCurrent())
 		return
 
 	def createSummary(self):
@@ -500,45 +510,45 @@ class levi_config(Screen, ConfigListScreen):
 		self.selectionChanged()
 
 	def getCurrentEntry(self):
-		return self['config'].getCurrent()[0]
+		return self["config"].getCurrent()[0]
 
 	def getCurrentValue(self):
-		return str(self['config'].getCurrent()[1].getText())
+		return str(self["config"].getCurrent()[1].getText())
 
 	def CCcam(self):
 		global host, port, user, passw
 		putlblcfg()
-		print('putlblcfg CCcam ===================', putlbl)
-		if 'CCcam.cfg' not in putlbl:
-			self.session.open(MessageBox, _('Select CCcam'), type=MessageBox.TYPE_INFO, timeout=5)
+		print("putlblcfg CCcam ===================", putlbl)
+		if "CCcam.cfg" not in putlbl:
+			self.session.open(MessageBox, _("Select CCcam"), type=MessageBox.TYPE_INFO, timeout=5)
 			return
 
-		if config.plugins.Manager.cfgfile.value != '/etc/CCcam.cfg':
-			self.session.open(MessageBox, _('Select CCcam'), type=MessageBox.TYPE_INFO, timeout=5)
+		if config.plugins.Manager.cfgfile.value != "/etc/CCcam.cfg":
+			self.session.open(MessageBox, _("Select CCcam"), type=MessageBox.TYPE_INFO, timeout=5)
 			return
 		dest = config.plugins.Manager.cfgfile.value
-		host = 'C: ' + str(config.plugins.Manager.hostaddress.value)
+		host = "C: " + str(config.plugins.Manager.hostaddress.value)
 		port = str(config.plugins.Manager.port.value)
 		user = str(config.plugins.Manager.user.value)
 		passw = str(config.plugins.Manager.passw.value)
 
-		if fileExists('/etc/CCcam.cfg'):
-			dest = '/etc/CCcam.cfg'
+		if fileExists("/etc/CCcam.cfg"):
+			dest = "/etc/CCcam.cfg"
 		else:
-			self.session.open(MessageBox, _('Please Reset - No File CFG'), type=MessageBox.TYPE_INFO, timeout=5)
+			self.session.open(MessageBox, _("Please Reset - No File CFG"), type=MessageBox.TYPE_INFO, timeout=5)
 			return
-		system('chmod -R 755 %s' % dest)
-		cfgdok = open(dest, 'a')
-		cfgdok.write('\n\n' + host + ' ' + port + ' ' + user + ' ' + passw)
+		system("chmod -R 755 %s" % dest)
+		cfgdok = open(dest, "a")
+		cfgdok.write("\n\n" + host + " " + port + " " + user + " " + passw)
 		cfgdok.close()
-		self.session.open(MessageBox, _('Server Copy in ') + dest, type=MessageBox.TYPE_INFO, timeout=8)
+		self.session.open(MessageBox, _("Server Copy in ") + dest, type=MessageBox.TYPE_INFO, timeout=8)
 
 	def Oscam(self):
 		global host, port, user, passw
 		putlblcfg()
-		print('putlbl Oscam ===================', putlbl)
-		if 'oscam.server' not in putlbl:
-			self.session.open(MessageBox, _('Select OScam'), type=MessageBox.TYPE_INFO, timeout=5)
+		print("putlbl Oscam ===================", putlbl)
+		if "oscam.server" not in putlbl:
+			self.session.open(MessageBox, _("Select OScam"), type=MessageBox.TYPE_INFO, timeout=5)
 			return
 
 		dest = config.plugins.Manager.cfgfile.value
@@ -547,20 +557,20 @@ class levi_config(Screen, ConfigListScreen):
 		user = str(config.plugins.Manager.user.value)
 		passw = str(config.plugins.Manager.passw.value)
 		if not fileExists(dest):
-			self.session.open(MessageBox, _('Please Reset - No File CFG'), type=MessageBox.TYPE_INFO, timeout=5)
+			self.session.open(MessageBox, _("Please Reset - No File CFG"), type=MessageBox.TYPE_INFO, timeout=5)
 			return
-		system('chmod -R 755 %s' % dest)
-		cfgdok = open(dest, 'a')
-		cfgdok.write('\n[reader]\nlabel = Server_' + host + '\nenable= 1\nprotocol = cccam\ndevice = ' + host + ',' + port + '\nuser = ' + user + '\npassword = ' + passw + '\ninactivitytimeout = 30\ngroup = 3\ncccversion = 2.2.1\ncccmaxhops = 0\nccckeepalive = 1\naudisabled = 1\n\n')
+		system("chmod -R 755 %s" % dest)
+		cfgdok = open(dest, "a")
+		cfgdok.write("\n[reader]\nlabel = Server_" + host + "\nenable= 1\nprotocol = cccam\ndevice = " + host + "," + port + "\nuser = " + user + "\npassword = " + passw + "\ninactivitytimeout = 30\ngroup = 3\ncccversion = 2.2.1\ncccmaxhops = 0\nccckeepalive = 1\naudisabled = 1\n\n")
 		cfgdok.close()
-		self.session.open(MessageBox, _('Server Copy in ') + dest, type=MessageBox.TYPE_INFO, timeout=8)
+		self.session.open(MessageBox, _("Server Copy in ") + dest, type=MessageBox.TYPE_INFO, timeout=8)
 
 	def Ncam(self):
 		global host, port, user, passw
 		putlblcfg()
-		print('putlbl Oscam ===================', putlbl)
-		if 'ncam.server' not in putlbl:
-			self.session.open(MessageBox, _('Select Ncam'), type=MessageBox.TYPE_INFO, timeout=5)
+		print("putlbl Oscam ===================", putlbl)
+		if "ncam.server" not in putlbl:
+			self.session.open(MessageBox, _("Select Ncam"), type=MessageBox.TYPE_INFO, timeout=5)
 			return
 
 		dest = config.plugins.Manager.cfgfile.value
@@ -568,16 +578,16 @@ class levi_config(Screen, ConfigListScreen):
 		port = str(config.plugins.Manager.port.value)
 		user = str(config.plugins.Manager.user.value)
 		passw = str(config.plugins.Manager.passw.value)
-		if fileExists('/etc/tuxbox/config/ncam.server'):
-			dest = '/etc/tuxbox/config/ncam.server'
+		if fileExists("/etc/tuxbox/config/ncam.server"):
+			dest = "/etc/tuxbox/config/ncam.server"
 		else:
-			self.session.open(MessageBox, _('Please Reset - No File CFG'), type=MessageBox.TYPE_INFO, timeout=5)
+			self.session.open(MessageBox, _("Please Reset - No File CFG"), type=MessageBox.TYPE_INFO, timeout=5)
 			return
-		system('chmod -R 755 %s' % dest)
-		cfgdok = open(dest, 'a')
-		cfgdok.write('\n[reader]\nlabel = Server_' + host + '\nenable= 1\nprotocol = cccam\ndevice = ' + host + ',' + port + '\nuser = ' + user + '\npassword = ' + passw + '\ngroup = 3\ncccversion = 2.0.11\ndisablecrccws_only_for= 0500:032830\ncccmaxhops= 1\nccckeepalive= 1\naudisabled = 1\n\n')
+		system("chmod -R 755 %s" % dest)
+		cfgdok = open(dest, "a")
+		cfgdok.write("\n[reader]\nlabel = Server_" + host + "\nenable= 1\nprotocol = cccam\ndevice = " + host + "," + port + "\nuser = " + user + "\npassword = " + passw + "\ngroup = 3\ncccversion = 2.0.11\ndisablecrccws_only_for= 0500:032830\ncccmaxhops= 1\nccckeepalive= 1\naudisabled = 1\n\n")
 		cfgdok.close()
-		self.session.open(MessageBox, _('Server Copy in ') + dest, type=MessageBox.TYPE_INFO, timeout=8)
+		self.session.open(MessageBox, _("Server Copy in ") + dest, type=MessageBox.TYPE_INFO, timeout=8)
 
 	def getcl(self):
 		try:
@@ -595,21 +605,21 @@ class levi_config(Screen, ConfigListScreen):
 					self.timer.callback.append(self.load_getcl(data))
 				self.timer.start(600, 1)
 			except Exception as e:
-				print('getcl error: ', str(e))
+				print("getcl error: ", str(e))
 		except Exception as e:
-			print('error on host', str(e))
+			print("error on host", str(e))
 
 	def load_getcl(self, data):
 		global host, port, user, passw
 		try:
 			data = checkStr(data)
-			url1 = re.findall(r'<h1>C:\s+([\w.-]+)\s+(\d+)\s+(\w+)\s+([\w.-]+)\s*', data)
+			url1 = re.findall(r"<h1>C:\s+([\w.-]+)\s+(\d+)\s+(\w+)\s+([\w.-]+)\s*", data)
 
-			if 'bosscccam' in data.lower():
-				url1 = re.findall(r'<strong>c:\s+([\w.-]+)\s+(\d+)\s+(\w+)\s+([\w.-]+)\s*</strong', data)
+			if "bosscccam" in data.lower():
+				url1 = re.findall(r"<strong>c:\s+([\w.-]+)\s+(\d+)\s+(\w+)\s+([\w.-]+)\s*</strong", data)
 
 			# <h3 class="elementor-heading-title elementor-size-default">C: free.cccamx.com 18804 Trial978532 89390137</h3>
-			elif 'cccamx' in data.lower():
+			elif "cccamx" in data.lower():
 				url1 = re.findall(r'">C:\s+([\w.-]+)\s+(\d+)\s+(\w+)\s+([\w.-]+)\s*</h3>', data)
 
 			elif '15days' in data.lower():

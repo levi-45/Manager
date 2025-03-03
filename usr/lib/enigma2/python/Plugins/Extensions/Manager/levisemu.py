@@ -10,20 +10,20 @@
 #      No Coppy      #
 # -------------------#
 from . import _
-
+from . Console import Console
 from Components.ActionMap import ActionMap
 from Components.Sources.List import List
 # from Components.MenuList import MenuList
 # from Components.MultiContent import MultiContentEntryText
 from Components.Label import Label
 from Plugins.Plugin import PluginDescriptor
-from Screens.Console import Console
+# from Screens.Console import Console
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 # from enigma import eListboxPythonMultiContent
 # from enigma import gFont
 from enigma import getDesktop
-from os import listdir, mkdir
+from os import mkdir
 import os
 import sys
 import codecs
@@ -33,8 +33,10 @@ from requests import get, exceptions
 
 
 plugin_foo = os.path.dirname(sys.modules[__name__].__file__)
-currversion = 'V.10.1-r36'
-emu_script = str(plugin_foo) + '/emu'
+currversion = 'V.10.1-r38'
+# emu_script = str(plugin_foo) + '/emu/'
+emu_script = os.path.join(plugin_foo, "emu") + "/"
+
 name_plugemu = 'Levi45 Emu Keys %s' % currversion
 fps = "https://patbuweb.com/script/script.tar"
 
@@ -71,7 +73,7 @@ class Levi45EmuKeysUpdater(Screen):
                 <ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/Manager/res/pics/hd/mcmaneger.png" transparent="1" position="1613,711" size="190,193" alphatest="blend" zPosition="3" />
                 <widget name="labstatus" position="1013,781" size="542,136" font="Regular; 26" halign="center" valign="center" foregroundColor="yellow" backgroundColor="#202020" transparent="0" zPosition="5" />
                 <!-- Menu List -->
-                <widget source="list" render="Listbox" position="56,151" size="838,695" font="Regular;34" itemHeight="50" scrollbarMode="showOnDemand" transparent="1" zPosition="5" foregroundColor="#00a0a0a0" foregroundColorSelected="#ffffff" backgroundColor="#20000000" backgroundColorSelected="#0b2049">
+                <widget source="list" render="Listbox" position="56,151" size="838,695" itemHeight="50" scrollbarMode="showOnDemand" transparent="1" zPosition="5" foregroundColor="#00a0a0a0" foregroundColorSelected="#ffffff" backgroundColor="#20000000" backgroundColorSelected="#0b2049">
                     <convert type="TemplatedMultiContent">
                         {"template": [
                             MultiContentEntryText(pos=(0, 0), size=(800, 50), font=0, flags=RT_HALIGN_LEFT, text=1),  # Nome script
@@ -85,18 +87,18 @@ class Levi45EmuKeysUpdater(Screen):
                 <widget font="Regular; 30" halign="right" position="1401,20" render="Label" size="500,40" source="global.CurrentTime" transparent="1">
                 <convert type="ClockToText">Format:%a %d.%m. | %H:%M</convert>
                 </widget>
-                <eLabel backgroundColor="red" cornerRadius="3" position="34,1064" size="296,6" zPosition="11" />
-                <eLabel backgroundColor="green" cornerRadius="3" position="342,1064" size="300,6" zPosition="11" />
-                <eLabel backgroundColor="yellow" cornerRadius="3" position="652,1064" size="300,6" zPosition="11" />
-                <eLabel backgroundColor="blue" cornerRadius="3" position="962,1064" size="300,6" zPosition="11" />
+                <eLabel backgroundColor="red" position="34,1064" size="296,6" zPosition="11" />
+                <eLabel backgroundColor="green" position="342,1064" size="300,6" zPosition="11" />
+                <eLabel backgroundColor="yellow" position="652,1064" size="300,6" zPosition="11" />
+                <eLabel backgroundColor="blue" position="962,1064" size="300,6" zPosition="11" />
                 <widget name="key_red" render="Label" position="32,1016" size="300,45" zPosition="11" font="Regular; 30" valign="center" halign="center" backgroundColor="background" transparent="1" foregroundColor="white" />
                 <widget name="key_green" render="Label" position="342,1016" size="300,45" zPosition="11" font="Regular; 30" valign="center" halign="center" backgroundColor="background" transparent="1" foregroundColor="white" />
                 <widget name="key_yellow" render="Label" position="652,1016" size="300,45" zPosition="11" font="Regular; 30" valign="center" halign="center" backgroundColor="background" transparent="1" foregroundColor="white" />
                 <widget name="key_blue" render="Label" position="962,1016" size="300,45" zPosition="11" font="Regular; 30" valign="center" halign="center" backgroundColor="background" transparent="1" foregroundColor="white" />
-                <eLabel backgroundColor="#002d3d5b" cornerRadius="20" position="0,0" size="1920,1080" zPosition="-99" />
-                <eLabel backgroundColor="#001a2336" cornerRadius="30" position="20,1014" size="1880,60" zPosition="-80" />
-                <eLabel name="" position="31,30" size="901,977" zPosition="-90" cornerRadius="18" backgroundColor="#00171a1c" foregroundColor="#00171a1c" />
-                <widget source="session.VideoPicture" render="Pig" position="997,100" zPosition="19" size="880,499" backgroundColor="transparent" transparent="0" cornerRadius="14" />
+                <eLabel backgroundColor="#002d3d5b" position="0,0" size="1920,1080" zPosition="-99" />
+                <eLabel backgroundColor="#001a2336" position="20,1014" size="1880,60" zPosition="-80" />
+                <eLabel name="" position="31,30" size="901,977" zPosition="-90" backgroundColor="#00171a1c" foregroundColor="#00171a1c" />
+                <widget source="session.VideoPicture" render="Pig" position="997,100" zPosition="19" size="880,499" backgroundColor="transparent" transparent="0" />
             </screen>"""
 
     def __init__(self, session, args=None):
@@ -108,7 +110,7 @@ class Levi45EmuKeysUpdater(Screen):
         self.setTitle(name_plugemu)
         self['labstatus'] = Label(_('NO SCRIPT FOUND'))
         self.mlist = []
-        # self.populateScript()
+        self.populateScript()
         self['list'] = List(self.mlist)
         self['list'].onSelectionChanged.append(self.schanged)
         self['line1'] = Label(_('Available Scripts'))
@@ -124,7 +126,7 @@ class Levi45EmuKeysUpdater(Screen):
             'cancel': self.close,
         }, -1)
 
-        self.onShown.append(self.populateScript)
+        # self.onShown.append(self.populateScript)
         self.onLayoutFinish.append(self.setWindowTitle)
 
     def setWindowTitle(self):
@@ -137,38 +139,32 @@ class Levi45EmuKeysUpdater(Screen):
     def populateScript(self):
         try:
             if not os.path.exists('/usr/script'):
-                makedirs('/usr/script', 493)
-
+                mkdir('/usr/script', 493)
             if not os.path.exists(emu_script):
                 mkdir(emu_script, 493)
         except:
             pass
-
-        myscripts = listdir('/usr/script')
-        scripts = []
+        self.names = []
+        self.urls = []
+        myscripts = os.listdir(emu_script)
         for fil in myscripts:
-            if fil.endswith('.sh'):
-                fil2 = fil[:-3]
-                myfil = '/usr/script/' + str(fil)
-                desc = None
+            if fil.find('.sh') != -1:
+                fil2 = fil[:-3].replace('_', ' ')  # .upper()
+                desc = 'No Info Available'
+                myfil = emu_script + '/' + fil
+                print('myfil: ', myfil)
                 with codecs.open(myfil, "rb", encoding="latin-1") as f:
                     for line in f.readlines():
-                        line = line.strip()
-                        if line.startswith('#DESCRIPTION='):
+                        if line.find('#DESCRIPTION=') != -1:
+                            line = line.strip()
                             desc = line[13:]
-                            break
-                        elif line.startswith('##DESCRIPTION='):
-                            desc = line[14:]
-                            break
 
                 if not desc:
-                    desc = _("%s") % fil2
-                desc = desc.replace('_', ' ').replace('-', ' ').capitalize()
-                scripts.append((fil2, desc))
-
-        scripts.sort(key=lambda x: x[0].lower())
-        self.mlist = scripts
-        self['list'].setList(self.mlist)
+                    desc = fil2  # Fallback to the filename without extension if no description found
+                desc = desc.replace("_", " ").replace("-", " ").capitalize()  # Format description
+                res = (fil2, desc)
+                self.mlist.append(res)
+		self.mlist = sorted(self.mlist, key=lambda x: x[0].lower())
 
     def schanged(self):
         mysel = self['list'].getCurrent()
@@ -184,18 +180,35 @@ class Levi45EmuKeysUpdater(Screen):
         else:
             self.session.open(MessageBox, _('Please Download Script!'), MessageBox.TYPE_INFO)
 
-    def run(self, answer=False):
-        if answer:
-            if len(self.mlist) > 0:
+    def run(self, result):
+        if result:
+            import subprocess
+            from os import access, X_OK, chmod
+            if len(self.mlist) >= 0:
                 mysel = self['list'].getCurrent()
                 if mysel:
                     mysel = mysel[0]
-                    mysel2 = '/usr/script/' + mysel + '.sh'
-                    from os import access, X_OK, chmod
+                    mysel = mysel.replace(' ', '_')
+                    mysel2 = emu_script + '/' + mysel + '.sh'
                     if not access(mysel2, X_OK):
-                        chmod(mysel2, 0o0777)
-                    mytitle = _("Levi45 Script %s") % mysel
-                    self.session.open(Console, title=mytitle, cmdlist=[mysel2])
+                        chmod(mysel2, 0o0755)
+                    mytitle = 'Levi45 Script: ' + mysel
+                    log_file = '/tmp/my_debug.log'
+                    cmd = [mysel2]
+
+                    with open(log_file, 'w') as f:
+                        process = subprocess.Popen(cmd, stdout=f, stderr=subprocess.STDOUT)
+                        process.communicate()  # Aspetta che il processo finisca
+                    self.openVi(None)
+                    # self.session.openWithCallback(self.openVi, Console, _(mytitle), cmdlist=[cmd])
+
+    def openVi(self, callback=''):
+        from .data.File_Commander import File_Commander
+        user_log = '/tmp/my_debug.log'
+        if os.path.exists(user_log):
+            self.session.open(File_Commander, user_log)
+        else:
+            print("Error: Log file not found or empty.")
 
     def getScrip(self, url):
         dest = '/tmp/script.tar'
@@ -205,12 +218,12 @@ class Levi45EmuKeysUpdater(Screen):
             response.raise_for_status()
             with open(dest, 'wb') as file:
                 file.write(response.content)
-            command = "tar -xvf /tmp/script.tar -C /usr/script"
+            command = "tar -xvf /tmp/script.tar -C %s" % emu_script
             os.system(command)
             if os.path.exists(dest):
                 os.remove(dest)
             self.populateScript()
-            self.session.open(MessageBox, _('Scripts downloaded and extracted successfully!'), MessageBox.TYPE_INFO)
+            self.session.open(MessageBox, _('Scripts downloaded and extracted successfully in to /usr/script!'), MessageBox.TYPE_INFO)
         except exceptions.RequestException as error:
             print("Error during script download:", str(error))
             self.session.open(MessageBox, _('Error during script download: %s') % str(error), MessageBox.TYPE_ERROR)
@@ -226,11 +239,11 @@ class Levi45EmuKeysUpdater(Screen):
             self.getScrip(fps)
 
     def sremove(self):
-        self.session.openWithCallback(self.xremove, MessageBox, _('Remove all scripts from folder?'), MessageBox.TYPE_YESNO)
+        self.session.openWithCallback(self.xremove, MessageBox, _('Remove all scripts from folder /usr/script?'), MessageBox.TYPE_YESNO)
 
     def xremove(self, answer=False):
         if answer:
-            command = "rm -rf /usr/script/*"
+            command = "rm -rf /usr/lib/enigma2/python/Plugins/Extensions/Manager/emu/*"
             os.system(command)
             self.populateScript()
             self.session.open(MessageBox, _('Scripts successfully removed!'), MessageBox.TYPE_INFO)

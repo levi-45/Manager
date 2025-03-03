@@ -2,16 +2,16 @@
     <ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/Manager/res/pics/hd/mcmaneger.png" transparent="1" position="1613,711" size="190,193" alphatest="blend" zPosition="3"/>
     <widget name="labstatus" position="1013,781" size="542,136" font="Regular; 26" halign="center" valign="center" foregroundColor="yellow" backgroundColor="#202020" transparent="0" zPosition="5"/>
     <!-- Menu List -->
-    <widget source="list" render="Listbox" position="56,151" size="838,695" font="Regular;34" itemHeight="50" scrollbarMode="showOnDemand" transparent="1" zPosition="5" foregroundColor="#00a0a0a0" foregroundColorSelected="#ffffff" backgroundColor="#20000000" backgroundColorSelected="#0b2049">
+    <widget source="list" render="Listbox" position="56,151" size="838,695" itemHeight="50" scrollbarMode="showOnDemand" transparent="1" zPosition="5" foregroundColor="#00a0a0a0" foregroundColorSelected="#ffffff" backgroundColor="#20000000" backgroundColorSelected="#0b2049">
         <convert type="TemplatedMultiContent">
                         {"template": [
                             MultiContentEntryText(pos=(0, 0), size=(800, 50), font=0, flags=RT_HALIGN_LEFT, text=1),  # Nome script
-                            <!-- MultiContentEntryText(pos=(300, 0), size=(500, 50), font=0, flags=RT_HALIGN_RIGHT, text=1),  # Descrizione -->
                         ],
                         "fonts": [gFont("Regular", 34)],
                         "itemHeight": 50}
                     </convert>
     </widget>
+
     <widget name="line1" position="134,34" size="776,80" font="Regular;42" halign="center" valign="center" foregroundColor="yellow" backgroundColor="#202020" transparent="0" zPosition="1"/>
     <widget font="Regular; 30" halign="right" position="1401,20" render="Label" size="500,40" source="global.CurrentTime" transparent="1">
         <convert type="ClockToText">Format:%a %d.%m. | %H:%M</convert>

@@ -10,7 +10,7 @@
 	<widget name="config" position="222,211" size="959,580" itemHeight="50" scrollbarMode="showOnDemand" transparent="1" zPosition="5" foregroundColor="#00a0a0a0" foregroundColorSelected="#ffffff" backgroundColor="#20000000" backgroundColorSelected="#0b2049"/>
 	<widget name="info" position="220,816" size="951,86" font="Regular;30" halign="center" foregroundColor="yellow" backgroundColor="#20000000" transparent="1" zPosition="5"/>
 	<!-- Colors 1220 -->
-	<eLabel position="1357,779" size="265,264" backgroundColor="#80000000" zPosition="1" cornerRadius="30"/>
+	<eLabel position="1357,779" size="265,264" backgroundColor="#80000000" zPosition="1"/>
 	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/Manager/res/pics/key_red.png" position="220,945" size="30,30" alphatest="blend" zPosition="5"/>
 	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/Manager/res/pics/key_green.png" position="220,1005" size="30,30" alphatest="blend" zPosition="5"/>
 	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/Manager/res/pics/key_yellow.png" position="1160,945" size="30,30" alphatest="blend" zPosition="5"/>

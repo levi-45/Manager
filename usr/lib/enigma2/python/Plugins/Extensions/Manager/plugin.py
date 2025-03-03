@@ -12,8 +12,7 @@
 from __future__ import print_function
 # local import
 from . import _, MYFTP, wgetsts, installer_url, developer_url
-from . import Utils
-from .Utils import RequestAgent
+from .Utils import RequestAgent, b64decoder, checkGZIP
 from .data.GetEcmInfo import GetEcmInfo
 from .Console import Console as lsConsole
 
@@ -29,60 +28,71 @@ from Screens.Screen import Screen
 # from Screens.Console import Console
 from Screens.Standby import TryQuitMainloop
 # from Tools.BoundFunction import boundFunction
-from Tools.Directories import (fileExists, resolveFilename, SCOPE_PLUGINS)
+from Tools.Directories import resolveFilename, SCOPE_PLUGINS
 from Tools.LoadPixmap import LoadPixmap
 from enigma import (
 	eTimer,
 	getDesktop,
 )
-from os import (mkdir, chmod)
+from os import mkdir, access, X_OK, system, popen, chmod, remove, walk, stat
+from os.path import dirname, join, exists, islink
 from time import sleep
 from twisted.web.client import getPage
 import codecs
-import os
 import sys
 import time
 import json
 from datetime import datetime
 from xml.dom import minidom
+import subprocess
 
 global active, skin_path, local
 global _session, runningcam
 
+
 active = False
 _session = None
-
 PY3 = sys.version_info.major >= 3
+
 if PY3:
 	unicode = str
 	unichr = chr
 	long = int
 	PY3 = True
+	from urllib.request import urlopen, Request
+else:
+	from urllib2 import urlopen, Request
 
-currversion = '10.1-r37'
-title_plug = 'Satellite-Forum.Com V.%s' % currversion
-title_emu = 'Levi45 Emu Keys V.%s' % currversion
-name_plug = 'Levi45 Cam Manager'
-name_plugemu = 'Levi45 Emu Keys'
-plugin_foo = os.path.dirname(sys.modules[__name__].__file__)
-keys = '/usr/keys'
-camscript = '/usr/camscript'
-data_path = os.path.join(plugin_foo, 'data')
-FILE_XML = os.path.join(plugin_foo, 'Manager.xml')
-ECM_INFO = '/tmp/ecm.info'
-ereral = MYFTP.replace('+', '').replace('-', '')
-FTPxx_XML = Utils.b64decoder(ereral)
+currversion = "10.1-r38"
+title_plug = "Satellite-Forum.Com V.%s" % currversion
+title_emu = "Levi45 Emu Keys V.%s" % currversion
+name_plug = "Levi45 Cam Manager"
+name_plugemu = "Levi45 Emu Keys"
+plugin_foo = dirname(sys.modules[__name__].__file__)
+keys = "/usr/keys"
+camscript = "/usr/camscript"
+data_path = join(plugin_foo, "data")
+FILE_XML = join(plugin_foo, "Manager.xml")
+ECM_INFO = "/tmp/ecm.info"
+ereral = MYFTP.replace("+", "").replace("-", "")
+FTPxx_XML = b64decoder(ereral)
 local = True
-ECM_INFO = '/tmp/ecm.info'
-EMPTY_ECM_INFO = ('', '0', '0', '0')
+ECM_INFO = "/tmp/ecm.info"
+EMPTY_ECM_INFO = ("", "0", "0", "0")
 old_ecm_time = time.time()
 info = {}
-ecm = ''
+ecm = ""
 SOFTCAM = 0
 CCCAMINFO = 1
 OSCAMINFO = 2
 AgentRequest = RequestAgent()
 runningcam = None
+
+
+headers = {
+	"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36",
+	"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8", "Accept-Encoding": "deflate"
+}
 
 
 try:
@@ -91,30 +101,57 @@ except:
 	pass
 
 
+def install_package():
+	try:
+		check_cmd = ["opkg", "list-installed"]
+		output = subprocess.check_output(check_cmd, stderr=subprocess.DEVNULL).decode("utf-8")
+
+		if "libusb-1.0-0" in output:
+			print("Package libusb-1.0-0 is already installed.")
+			return
+
+		print("Updating opkg...")
+		subprocess.run(["opkg", "update"], check=True)
+
+		print("Installing libusb-1.0-0...")
+		subprocess.run(["opkg", "install", "libusb-1.0-0"], check=True)
+
+		print("Installation completed.")
+
+	except subprocess.CalledProcessError as e:
+		print("Error executing opkg:", e)
+	except Exception as e:
+		print("Unexpected error:", e)
+
+
+install_package()
+
+
 def checkdir():
 	keys = "/usr/keys"
 	camscript = "/usr/camscript"
-	if not os.path.exists(keys):
+	if not exists(keys):
 		mkdir("/usr/keys")
-	if not os.path.exists(camscript):
+	if not exists(camscript):
 		mkdir("/usr/camscript")
 
 
 checkdir()
 screenwidth = getDesktop(0).size()
 if screenwidth.width() == 2560:
-	skin_path = plugin_foo + '/res/skins/uhd/'
+	skin_path = plugin_foo + "/res/skins/uhd/"
 elif screenwidth.width() == 1920:
-	skin_path = plugin_foo + '/res/skins/fhd/'
+	skin_path = plugin_foo + "/res/skins/fhd/"
 else:
-	skin_path = plugin_foo + '/res/skins/hd/'
+	skin_path = plugin_foo + "/res/skins/hd/"
 
-if os.path.exists("/usr/bin/apt-get"):
-	skin_path = skin_path + 'dreamOs/'
-if not os.path.exists('/etc/clist.list'):
-	with open('/etc/clist.list', 'w'):
-		print('/etc/clist.list as been create')
-		os.system('chmod 755 /etc/clist.list &')
+if exists("/usr/bin/apt-get"):
+	skin_path = skin_path + "dreamOs/"
+
+if not exists("/etc/clist.list"):
+	with open("/etc/clist.list", "w"):
+		print("/etc/clist.list as been create")
+		system("chmod 755 /etc/clist.list &")
 
 
 class Manager(Screen):
@@ -124,44 +161,57 @@ class Manager(Screen):
 		self.session = session
 		global _session, runningcam
 		_session = session
-		skin = os.path.join(skin_path, 'Manager.xml')
+		skin = join(skin_path, "Manager.xml")
 		with codecs.open(skin, "r", encoding="utf-8") as f:
 			self.skin = f.read()
 		self.namelist = []
 		self.softcamslist = []
-		self.oldService = ''
+		self.oldService = ""
 		try:
 			self.oldService = self.session.nav.getCurrentlyPlayingServiceReference()
 		except:
 			self.oldService = self.session.nav.getCurrentlyPlayingServiceOrGroup()
-		self["NumberActions"] = NumberActionMap(["NumberActions"], {'0': self.keyNumberGlobal,
-																	'1': self.keyNumberGlobal,
-																	'2': self.keyNumberGlobal,
-																	'8': self.keyNumberGlobal},)
-		self['actions'] = ActionMap(['OkCancelActions',
-									 'ColorActions',
-									 'EPGSelectActions',
-									 'HotkeyActions',
-									 'InfobarEPGActions',
-									 'MenuActions'], {'ok': self.action,
-													  'cancel': self.close,
-													  'menu': self.configtv,
-													  'blue': self.openemu,
-													  # 'blue': self.Blue,
-													  'yellow': self.download,
-													  'green': self.action,
-													  # 'info': self.cccam,
-													  'info': self.CfgInfo,
-													  'red': self.stop}, -1)
+		self["NumberActions"] = NumberActionMap(
+			["NumberActions"],
+			{
+				"0": self.keyNumberGlobal,
+				"1": self.keyNumberGlobal,
+				"2": self.keyNumberGlobal,
+				"8": self.keyNumberGlobal
+			},
+		)
+		self["actions"] = ActionMap(
+			[
+				"OkCancelActions",
+				"ColorActions",
+				"EPGSelectActions",
+				"HotkeyActions",
+				"InfobarEPGActions",
+				"MenuActions"
+			],
+			{
+				"ok": self.action,
+				"cancel": self.close,
+				"menu": self.configtv,
+				"blue": self.openemu,
+				# "blue": self.Blue,
+				"yellow": self.download,
+				"green": self.action,
+				# "info": self.cccam,
+				"info": self.CfgInfo,
+				"red": self.stop
+			},
+			-1
+		)
 		self.setTitle(_(title_plug))
-		self['title'] = Label()
-		self['key_green'] = Label(_('Start'))
-		self['key_yellow'] = Label(_('Cam Download'))
-		self['key_red'] = Label(_('Stop'))
-		self['key_blue'] = Label(_('Script Executor'))
-		self['description'] = Label(_('Scanning and retrieval list softcam ...'))
-		self['info'] = Label()
-		self['infocam'] = Label()
+		self["title"] = Label()
+		self["key_green"] = Label(_("Start"))
+		self["key_yellow"] = Label(_("Cam Download"))
+		self["key_red"] = Label(_("Stop"))
+		self["key_blue"] = Label(_("Script Executor"))
+		self["description"] = Label(_("Scanning and retrieval list softcam ..."))
+		self["info"] = Label()
+		self["infocam"] = Label()
 		self["infocam"].setText("Softcam")
 		self["list"] = List([])
 		self.curCam = None
@@ -189,46 +239,46 @@ class Manager(Screen):
 	def setBlueKey(self):
 		global runningcam
 		self.curCam = self.readCurrent()
-		# self.BlueAction = 'SOFTCAM'
+		self.BlueAction = "SOFTCAM"
 		self["infocam"].setText("Softcam")
 		if self.curCam is not None:
 			nim = str(self.curCam).lower()
-			print('nim lower=', nim)
+			print("nim lower=", nim)
 
-			if 'oscam' in str(self.curCam).lower():
-				print('oscam in nim')
+			if "oscam" in str(self.curCam).lower():
+				print("oscam in nim")
 				runningcam = "oscam"
 				self["infocam"].setText("OSCAMINFO")
-				self.BlueAction = 'OSCAMINFO'
-				if os.path.exists(data_path + "/OScamInfo.pyo") or os.path.exists(data_path + '/OScamInfo.pyc'):
-					print('existe OScamInfo')
+				self.BlueAction = "OSCAMINFO"
+				if exists(data_path + "/OScamInfo.pyo") or exists(data_path + "/OScamInfo.pyc"):
+					print("existe OScamInfo")
 
-			if 'cccam' in str(self.curCam).lower():
+			if "cccam" in str(self.curCam).lower():
 				runningcam = "cccam"
-				self.BlueAction = 'CCCAMINFO'
+				self.BlueAction = "CCCAMINFO"
 				self["infocam"].setText("CCCAMINFO")
-				if os.path.exists(data_path + '/CCcamInfo.pyo') or os.path.exists(data_path + '/CCcamInfo.pyc'):
-					print('existe CCcamInfo')
+				if exists(data_path + "/CCcamInfo.pyo") or exists(data_path + "/CCcamInfo.pyc"):
+					print("existe CCcamInfo")
 
-			if 'movicam' in str(self.curCam).lower():
-				print('movicam in nim')
+			if "movicam" in str(self.curCam).lower():
+				print("movicam in nim")
 				runningcam = "movicam"
-				self.BlueAction = 'MOVICAMINFO'
+				self.BlueAction = "MOVICAMINFO"
 				self["infocam"].setText("MOVICAMINFO")
-				if os.path.exists(data_path + "/OScamInfo.pyo") or os.path.exists(data_path + '/OScamInfo.pyc'):
-					print('existe movicamInfo')
+				if exists(data_path + "/OScamInfo.pyo") or exists(data_path + "/OScamInfo.pyc"):
+					print("existe movicamInfo")
 
-			if 'ncam' in str(self.curCam).lower():
+			if "ncam" in str(self.curCam).lower():
 				runningcam = "ncam"
-				self.BlueAction = 'NCAMINFO'
+				self.BlueAction = "NCAMINFO"
 				self["infocam"].setText("NCAMINFO")
-				print('ncam in nim')
-				if os.path.exists(data_path + "/NcamInfo.pyo") or os.path.exists(data_path + '/NcamInfo.pyc'):
-					print('existe NcamInfo')
+				print("ncam in nim")
+				if exists(data_path + "/NcamInfo.pyo") or exists(data_path + "/NcamInfo.pyc"):
+					print("existe NcamInfo")
 
-		print('[setBlueKey] self.curCam= 11 ', self.curCam)
-		print('[setBlueKey] self.BlueAction= 11 ', self.BlueAction)
-		print('[setBlueKey] runningcam= 11 ', runningcam)
+		print("[setBlueKey] self.curCam= 11 ", self.curCam)
+		print("[setBlueKey] self.BlueAction= 11 ", self.BlueAction)
+		print("[setBlueKey] runningcam= 11 ", runningcam)
 
 	def ShowSoftcamCallback(self):
 		pass
@@ -238,79 +288,79 @@ class Manager(Screen):
 		self.session.open(Levi45EmuKeysUpdater)
 
 	def cccam(self):
-		print('[cccam] self.BlueAction are:', self.BlueAction)
+		print("[cccam] self.BlueAction are:", self.BlueAction)
 
-		if 'oscam' in str(self.curCam).lower():
+		if "oscam" in str(self.curCam).lower():
 			try:
 				try:
 					from Screens.OScamInfo import OSCamInfo
-					print('[cccam 1] OScamInfo')
+					print("[cccam 1] OScamInfo")
 					self.session.open(OSCamInfo)
 				except ImportError:
 					from .data.OScamInfo import OSCamInfo
-					print('[cccam 2] OScamInfo')
+					print("[cccam 2] OScamInfo")
 					self.session.open(OSCamInfo)
 					"""
-					# if os.path.exists(resolveFilename(SCOPE_PLUGINS, "Extensions/OscamStatus/{}".format('plugin.py'))):
+					# if exists(resolveFilename(SCOPE_PLUGINS, "Extensions/OscamStatus/{}".format("plugin.py"))):
 						# from Plugins.Extensions.OscamStatus.plugin import OscamStatus
-						# print('[cccam 1] OscamStatus')
+						# print("[cccam 1] OscamStatus")
 						# self.session.open(OscamStatus)
 					# else:
-						# if os.path.exists(data_path + "/OScamInfo.pyo") or os.path.exists(data_path + '/OScamInfo.pyc'):
+						# if exists(data_path + "/OScamInfo.pyo") or exists(data_path + "/OScamInfo.pyc"):
 							# from Screens.OScamInfo import OSCamInfo
-							# print('[cccam 1] OScamInfo')
+							# print("[cccam 1] OScamInfo")
 							# self.session.open(OSCamInfo)
 				# except ImportError:
 					# from .data.OScamInfo import OSCamInfo
-					# print('[cccam 2] OScamInfo')
+					# print("[cccam 2] OScamInfo")
 					# self.session.open(OSCamInfo)
 					"""
 			except Exception as e:
-				print('[cccam] OScamInfo e:', e)
+				print("[cccam] OScamInfo e:", e)
 				pass
 
-		elif 'ccam' in str(self.curCam).lower():
+		elif "ccam" in str(self.curCam).lower():
 			try:
 				from Screens.CCcamInfo import CCcamInfoMain
-				print('[cccam 12] CCcamInfo')
+				print("[cccam 12] CCcamInfo")
 				self.session.open(CCcamInfoMain)
 			except ImportError:
 				from .data.CCcamInfo import CCcamInfoMain
-				print('[cccam 2] CCcamInfo')
+				print("[cccam 2] CCcamInfo")
 				self.session.open(CCcamInfoMain)
 
-		elif 'ncam' in str(self.curCam).lower():
+		elif "ncam" in str(self.curCam).lower():
 			try:
 				try:
 					from Screens.NcamInfo import NcamInfoMenu
-					print('[cccam] NcamInfo')
+					print("[cccam] NcamInfo")
 					self.session.open(NcamInfoMenu)
 				except ImportError:
 					from .data.NcamInfo import NcamInfoMenu
-					print('[cccam] NcamInfo')
+					print("[cccam] NcamInfo")
 					self.session.open(NcamInfoMenu)
 			except Exception as e:
-				print('[cccam] NcamInfo e:', e)
+				print("[cccam] NcamInfo e:", e)
 				pass
 
-		elif 'movicam' in str(self.curCam).lower():
+		elif "movicam" in str(self.curCam).lower():
 			try:
 				try:
 					from Screens.OScamInfo import OscamInfoMenu
-					print('[cccam] MOVICAMINFO')
+					print("[cccam] MOVICAMINFO")
 					self.session.open(OscamInfoMenu)
 				except ImportError:
 					from .data.OScamInfo import OscamInfoMenu
-					print('[cccam] MOVICAMINFO')
+					print("[cccam] MOVICAMINFO")
 					self.session.open(OscamInfoMenu)
 			except Exception as e:
-				print('[cccam] MOVICAMINFO e:', e)
+				print("[cccam] MOVICAMINFO e:", e)
 				pass
 		else:
 			return
 
 	def callbackx(self, call=None):
-		print('call:', call)
+		print("call:", call)
 		pass
 
 	def openemu(self):
@@ -348,7 +398,7 @@ class Manager(Screen):
 	def ecm(self):
 		try:
 			ecmf = ""
-			if os.path.exists(ECM_INFO):
+			if exists(ECM_INFO):
 				try:
 					with open(ECM_INFO) as f:
 						self["info"].text = f.read()
@@ -363,20 +413,15 @@ class Manager(Screen):
 		self.EcmInfoPollTimer.stop()
 
 	def messagekd(self):
-		self.session.openWithCallback(self.keysdownload, MessageBox, _('Update SoftcamKeys from google search?'), MessageBox.TYPE_YESNO)
+		self.session.openWithCallback(self.keysdownload, MessageBox, _("Update SoftcamKeys from google search?"), MessageBox.TYPE_YESNO)
 
 	def keysdownload(self, result):
 		if result:
-			script = ('%s/auto.sh' % plugin_foo)
-			from os import access, X_OK
+			script = ("%s/auto.sh" % plugin_foo)
 			if not access(script, X_OK):
 				chmod(script, 493)
-			if os.path.exists('/usr/keys/SoftCam.Key'):
-				os.system('rm -rf /usr/keys/SoftCam.Key')
-			# import subprocess
-			# # subprocess.check_output(['bash', script])
-			# subprocess.Popen(script, shell=True, executable='/bin/bash')
-			# self.session.open(MessageBox, _('SoftcamKeys Updated!'), MessageBox.TYPE_INFO, timeout=5)
+			if exists("/usr/keys/SoftCam.Key"):
+				system("rm -rf /usr/keys/SoftCam.Key")
 			cmd = script
 			title = _("Installing Softcam Keys\nPlease Wait...")
 			self.session.open(lsConsole, _(title), [cmd], closeOnSuccess=False)
@@ -400,9 +445,9 @@ class Manager(Screen):
 		arc = ""
 		arkFull = ""
 		libsssl = ""
-		python = os.popen("python -V").read().strip("\n\r")
-		arcx = os.popen("uname -m").read().strip("\n\r")
-		libs = os.popen("ls -l /usr/lib/libss*.*").read().strip("\n\r")
+		python = popen("python -V").read().strip("\n\r")
+		arcx = popen("uname -m").read().strip("\n\r")
+		libs = popen("ls -l /usr/lib/libss*.*").read().strip("\n\r")
 		if arcx:
 			arc = arcx
 			print("arc= ", arc)
@@ -420,10 +465,10 @@ class Manager(Screen):
 	def arckget(self):
 		zarcffll = "by Lululla"
 		try:
-			if os.path.exists('/var/lib/dpkg/info'):
-				zarcffll = os.popen('dpkg --print-architecture | grep -iE "arm|aarch64|mips|cortex|sh4|sh_4"').read().strip('\n\r')
+			if exists("/usr/bin/apt-get"):
+				zarcffll = popen("dpkg --print-architecture | grep -iE 'arm|aarch64|mips|cortex|sh4|sh_4'").read().strip("\n\r")
 			else:
-				zarcffll = os.popen('opkg print-architecture | grep -iE "arm|aarch64|mips|cortex|h4|sh_4"').read().strip('\n\r')
+				zarcffll = popen("opkg print-architecture | grep -iE 'arm|aarch64|mips|cortex|h4|sh_4'").read().strip("\n\r")
 			return str(zarcffll)
 		except Exception as e:
 			print("Error ", e)
@@ -469,34 +514,34 @@ class Manager(Screen):
 			print("self var=== ", self.var)
 			"""
 			cmdx = "chmod 755 /usr/camscript/*.*"  # + self.softcamslist[self.var][0] + ".sh"
-			os.system(cmdx)
+			system(cmdx)
 			curCam = self.readCurrent()
 			if self.last is not None:
 				try:
 					foldcurr = "/usr/bin/" + str(curCam)
 					foldscrpt = "/usr/camscript/" + str(curCam) + ".sh"
-					os.chmod(foldcurr, 0o755)
-					os.chmod(foldscrpt, 0o755)
+					chmod(foldcurr, 0o755)
+					chmod(foldscrpt, 0o755)
 				except OSError:
 					pass
 
 				if self.last == self.var:
 					self.cmd1 = "/usr/camscript/" + self.softcamslist[self.var][0] + ".sh" + " cam_res &"
 					_session.open(MessageBox, _("Please wait..\nRESTART CAM"), MessageBox.TYPE_INFO, timeout=5)
-					os.system(self.cmd1)
+					system(self.cmd1)
 					sleep(1)
 				else:
 					self.cmd1 = "/usr/camscript/" + self.softcamslist[self.last][0] + ".sh" + " cam_down &"
 					_session.open(MessageBox, _("Please wait..\nSTOP & RESTART CAM"), MessageBox.TYPE_INFO, timeout=5)
-					os.system(self.cmd1)
+					system(self.cmd1)
 					sleep(1)
 					self.cmd1 = "/usr/camscript/" + self.softcamslist[self.var][0] + ".sh" + " cam_up &"
-					os.system(self.cmd1)
+					system(self.cmd1)
 			else:
 				try:
 					self.cmd1 = "/usr/camscript/" + self.softcamslist[self.var][0] + ".sh" + " cam_up &"
 					_session.open(MessageBox, _("Please wait..\nSTART UP CAM"), MessageBox.TYPE_INFO, timeout=5)
-					os.system(self.cmd1)
+					system(self.cmd1)
 					sleep(1)
 				except:
 					self.close()
@@ -517,7 +562,7 @@ class Manager(Screen):
 				clist = open("/etc/clist.list", "w", encoding="UTF-8")
 			else:
 				clist = open("/etc/clist.list", "w")
-			os.system("chmod 755 /etc/clist.list &")
+			system("chmod 755 /etc/clist.list &")
 			clist.write(str(self.curCam))
 			clist.close()
 
@@ -527,7 +572,7 @@ class Manager(Screen):
 			stcam = open("/etc/startcam.sh", "w")
 		stcam.write("#!/bin/sh\n" + self.cmd1)
 		stcam.close()
-		os.system("chmod 755 /etc/startcam.sh &")
+		system("chmod 755 /etc/startcam.sh &")
 		return
 
 	def stop(self):
@@ -545,12 +590,12 @@ class Manager(Screen):
 			self.last = self.getLastIndex()
 			if self.last is not None:  # or self.curCam != "no":
 				self.cmd1 = "/usr/camscript/" + self.softcamslist[self.last][0] + ".sh" + " cam_down &"
-				os.system(self.cmd1)
+				system(self.cmd1)
 				self.curCam = None
 				self.writeFile()
 				sleep(1)
-				if os.path.exists(ECM_INFO):
-					os.remove(ECM_INFO)
+				if exists(ECM_INFO):
+					remove(ECM_INFO)
 				_session.open(MessageBox, _("Please wait..\nSTOP CAM"), MessageBox.TYPE_INFO, timeout=5)
 				self["info"].setText("CAM STOPPED")
 				self.BlueAction = "SOFTCAM"
@@ -565,18 +610,14 @@ class Manager(Screen):
 			self.index = 0
 			s = 0
 			pathscript = "/usr/camscript/"
-			for root, dirs, files in os.walk(pathscript):
+			for root, dirs, files in walk(pathscript):
 				for name in files:
 					scriptlist.append(name)
 					s += 1
 			i = len(self.softcamslist)
 			del self.softcamslist[0:i]
-			png1 = LoadPixmap(cached=True,
-							  path=resolveFilename(SCOPE_PLUGINS,
-												   "Extensions/Manager/res/img/{}".format('actcam.png')))
-			png2 = LoadPixmap(cached=True,
-							  path=resolveFilename(SCOPE_PLUGINS,
-												   "Extensions/Manager/res/img/{}".format('defcam.png')))
+			png1 = LoadPixmap(cached=True, path=resolveFilename(SCOPE_PLUGINS, "Extensions/Manager/res/img/{}".format("actcam.png")))
+			png2 = LoadPixmap(cached=True, path=resolveFilename(SCOPE_PLUGINS, "Extensions/Manager/res/img/{}".format("defcam.png")))
 			if s >= 1:
 				for lines in scriptlist:
 					dat = pathscript + lines
@@ -612,11 +653,11 @@ class Manager(Screen):
 	def readCurrent(self):
 		currCam = None
 		self.FilCurr = ""
-		if fileExists("/etc/CurrentBhCamName"):
+		if exists("/etc/CurrentBhCamName"):
 			self.FilCurr = "/etc/CurrentBhCamName"
 		else:
 			self.FilCurr = "/etc/clist.list"
-		if os.stat(self.FilCurr).st_size > 0:
+		if stat(self.FilCurr).st_size > 0:
 			try:
 				if sys.version_info[0] == 3:
 					clist = open(self.FilCurr, "r", encoding="UTF-8")
@@ -692,8 +733,8 @@ class Manager(Screen):
 			icount = icount + 1
 		myfile.close()
 		myfile2.close()
-		os.system('rm /etc/autocam.txt')
-		os.system('cp /etc/autocam2.txt /etc/autocam.txt')
+		system('rm /etc/autocam.txt')
+		system('cp /etc/autocam2.txt /etc/autocam.txt')
 		'''
 
 	def cancel(self):
@@ -704,7 +745,7 @@ class GetipklistLv(Screen):
 
 	def __init__(self, session):
 		self.session = session
-		skin = os.path.join(skin_path, "GetipklistLv.xml")
+		skin = join(skin_path, "GetipklistLv.xml")
 		with open(skin, "r") as f:
 			self.skin = f.read()
 		Screen.__init__(self, session)
@@ -720,7 +761,7 @@ class GetipklistLv(Screen):
 		self["key_yellow"] = Button()
 		self["key_blue"] = Button()
 		self["key_green"].hide()
-		if os.path.exists(FILE_XML):
+		if exists(FILE_XML):
 			self["key_green"].show()
 		self["key_yellow"].hide()
 		self["key_blue"].hide()
@@ -730,15 +771,26 @@ class GetipklistLv(Screen):
 		local = False
 		self.icount = 0
 		self.downloading = False
-		self.xml = str(FTPxx_XML)
+		self.xml = FTPxx_XML
 		self.timer = eTimer()
-		if os.path.exists("/var/lib/dpkg/status"):
+		if exists("/var/lib/dpkg/status"):
 			self.timer_conn = self.timer.timeout.connect(self._gotPageLoad)
 		else:
 			self.timer.callback.append(self._gotPageLoad)
 		self.timer.start(500, 1)
-		self["actions"] = ActionMap(["OkCancelActions",
-									 "ColorActions"], {"ok": self.okClicked, "cancel": self.close, "green": self.loadpage, "red": self.close}, -1)
+		self["actions"] = ActionMap(
+			[
+				"OkCancelActions",
+				"ColorActions"
+			],
+			{
+				"ok": self.okClicked,
+				"cancel": self.close,
+				"green": self.loadpage,
+				"red": self.close
+			},
+			-1
+		)
 		self.onShown.append(self.pasx)
 
 	def pasx(self):
@@ -746,7 +798,7 @@ class GetipklistLv(Screen):
 
 	def loadpage(self):
 		global local
-		if os.path.exists(FILE_XML):
+		if exists(FILE_XML):
 			self.lists = []
 			del self.names[:]
 			del self.list[:]
@@ -756,33 +808,54 @@ class GetipklistLv(Screen):
 				local = True
 			self._gotPageLoad()
 
-	def downloadxmlpage(self):
-		url = str(FTPxx_XML)
-		if PY3:
-			url = url.encode()
-		getPage(url).addCallback(self._gotPageLoad).addErrback(self.errorLoad)
-
-	def errorLoad(self, error):
-		print(str(error))
-		self['description'].setText(_('Try again later ...'))
-		self.downloading = False
-
 	def _gotPageLoad(self):
 		global local
+		"""
+		# if local is False:
+			# self.xml = checkGZIP(self.xml)
+		# self.xml = "https://raw.githubusercontent.com/levi-45/Multicam/main/Caminstaller.xml"
+		"""
+		if PY3:
+			self.xml = self.xml.encode()
+
 		if local is False:
-			self.xml = Utils.checkGZIP(self.xml)
+			if exists("/usr/bin/apt-get"):
+				print("have a dreamOs!!!")
+				self.data = checkGZIP(self.xml)
+				self.downloadxmlpage(self.data)
+			else:
+				print("have a Atv-PLi - etc..!!!")
+				getPage(self.xml).addCallback(self.downloadxmlpage).addErrback(self.errorLoad)
+
+	def downloadxmlpage(self, data):
+		self.xml = data
 		self.list = []
 		self.names = []
 		try:
 			if self.xml:
 				self.xmlparse = minidom.parseString(self.xml)
 				for plugins in self.xmlparse.getElementsByTagName("plugins"):
+					if not exists("/usr/bin/apt-get"):
+						if "deb" in str(plugins.getAttribute("cont")).lower():
+							continue
+
+					if exists("/usr/bin/apt-get"):
+						if "deb" not in str(plugins.getAttribute("cont")).lower():
+							continue
 					self.names.append(str(plugins.getAttribute("cont")))
+				# self["list"].l.setItemHeight(50)
 				self["list"].l.setList(self.names)
 				self["description"].setText(_("Please select ..."))
 				self.downloading = True
-		except:
-			self['description'].setText(_('Error processing server addons data'))
+
+		except Exception as e:
+			print("error:", e)
+			self["description"].setText(_("Error processing server addons data"))
+
+	def errorLoad(self, error):
+		print(str(error))
+		self["description"].setText(_("Try again later ..."))
+		self.downloading = False
 
 	def okClicked(self):
 		try:
@@ -799,7 +872,7 @@ class GetipklistLv2(Screen):
 	def __init__(self, session, xmlparse, selection):
 		Screen.__init__(self, session)
 		self.session = session
-		skin = os.path.join(skin_path, 'GetipklistLv.xml')
+		skin = join(skin_path, "GetipklistLv.xml")
 		with codecs.open(skin, "r", encoding="utf-8") as f:
 			self.skin = f.read()
 		self.xmlparse = xmlparse
@@ -820,14 +893,22 @@ class GetipklistLv2(Screen):
 		self["key_green"] = Button("Remove")
 		self["key_yellow"] = Button("Restart")
 		self["key_blue"] = Button()
-		# self['key_green'].hide()
-		# self['key_yellow'].hide()
-		self['key_blue'].hide()
-		self["actions"] = ActionMap(["OkCancelActions", "ColorActions"], {"ok": self.message,
-																		  "cancel": self.close,
-																		  "green": self.remove,
-																		  "yellow": self.restart,
-																		  }, -1)
+		# self["key_green"].hide()
+		# self["key_yellow"].hide()
+		# self["key_blue"].hide()
+		self["actions"] = ActionMap(
+			[
+				"OkCancelActions",
+				"ColorActions"
+			],
+			{
+				"ok": self.message,
+				"cancel": self.close,
+				"green": self.remove,
+				"yellow": self.restart,
+			},
+			-1
+		)
 		self.onLayoutFinish.append(self.start)
 
 	def start(self):
@@ -849,21 +930,15 @@ class GetipklistLv2(Screen):
 								# test lululla
 								self.com = self.com.replace('"', "")
 								if ".deb" in self.com:
-									if not os.path.exists("/usr/bin/apt-get"):
-										self.session.open(MessageBox,
-														  _("Unknow Image!"),
-														  MessageBox.TYPE_INFO,
-														  timeout=5)
+									if not exists("/usr/bin/apt-get"):
+										self.session.open(MessageBox, _("Unknow Image!"), MessageBox.TYPE_INFO, timeout=5)
 										return
 									n2 = self.com.find("_", 0)
 									self.dom = self.com[:n2]
 
 								if ".ipk" in self.com:
-									if os.path.exists("/usr/bin/apt-get"):
-										self.session.open(MessageBox,
-														  _("Unknow Image!"),
-														  MessageBox.TYPE_INFO,
-														  timeout=5)
+									if exists("/usr/bin/apt-get"):
+										self.session.open(MessageBox, _("Unknow Image!"), MessageBox.TYPE_INFO, timeout=5)
 										return
 									n2 = self.com.find("_", 0)
 									self.dom = self.com[:n2]
@@ -885,8 +960,8 @@ class GetipklistLv2(Screen):
 	def prombt(self):
 		self.plug = self.com.split("/")[-1]
 		dest = "/tmp"
-		if not os.path.exists(dest):
-			os.system("ln -sf  /var/volatile/tmp /tmp")
+		if not exists(dest):
+			system("ln -sf  /var/volatile/tmp /tmp")
 		self.folddest = "/tmp/" + self.plug
 		cmd2 = ""
 		if ".deb" in self.plug:
@@ -906,10 +981,7 @@ class GetipklistLv2(Screen):
 		self.session.open(lsConsole, _(title), [cmd00], closeOnSuccess=False)
 
 	def remove(self):
-		self.session.openWithCallback(self.removenow,
-									  MessageBox,
-									  _("Do you want to remove?"),
-									  MessageBox.TYPE_YESNO)
+		self.session.openWithCallback(self.removenow, MessageBox, _("Do you want to remove?"), MessageBox.TYPE_YESNO)
 
 	def removenow(self, answer=False):
 		if answer:
@@ -925,11 +997,8 @@ class GetipklistLv2(Screen):
 							cmd = ""
 
 							if ".deb" in self.com:
-								if not os.path.exists("/usr/bin/apt-get"):
-									self.session.open(MessageBox,
-													  _("Unknow Image!"),
-													  MessageBox.TYPE_INFO,
-													  timeout=5)
+								if not exists("/usr/bin/apt-get"):
+									self.session.open(MessageBox, _("Unknow Image!"), MessageBox.TYPE_INFO, timeout=5)
 									return
 								self.plug = self.com.split("/")[-1]
 								n2 = self.plug.find("_", 0)
@@ -937,11 +1006,8 @@ class GetipklistLv2(Screen):
 								cmd = "dpkg -r " + self.dom  # + """
 								print("cmd deb remove:", cmd)
 							if ".ipk" in self.com:
-								if os.path.exists("/usr/bin/apt-get"):
-									self.session.open(MessageBox,
-													  _("Unknow Image!"),
-													  MessageBox.TYPE_INFO,
-													  timeout=5)
+								if exists("/usr/bin/apt-get"):
+									self.session.open(MessageBox, _("Unknow Image!"), MessageBox.TYPE_INFO, timeout=5)
 									return
 								self.plug = self.com.split("/")[-1]
 								n2 = self.plug.find("_", 0)
@@ -963,53 +1029,60 @@ class GetipklistLv2(Screen):
 class InfoCfg(Screen):
 	def __init__(self, session):
 		self.session = session
-		skin = os.path.join(skin_path, 'InfoCfg.xml')
+		skin = join(skin_path, "InfoCfg.xml")
 		with codecs.open(skin, "r", encoding="utf-8") as f:
 			self.skin = f.read()
 		Screen.__init__(self, session)
 		self.list = []
 		self.setTitle(_(title_plug))
-		self['list'] = Label()
-		self['actions'] = ActionMap(['OkCancelActions',
-									 'ColorActions',
-									 'DirectionActions',
-									 'HotkeyActions',
-									 'InfobarEPGActions',
-									 'ChannelSelectBaseActions'], {'ok': self.close,
-																   'back': self.close,
-																   'cancel': self.close,
-																   'yellow': self.update_me,
-																   'green': self.update_dev,
-																   'yellow_long': self.update_dev,
-																   'info_long': self.update_dev,
-																   'infolong': self.update_dev,
-																   'showEventInfoPlugin': self.update_dev,
-																   'red': self.close}, -1)
-		self["paypal"] = Label()
-		self['key_red'] = Button(_('Back'))
-		self['key_green'] = Button(_('Force Update'))
-		self['key_yellow'] = Button(_('Update'))
-		self['key_blue'] = Button()
-		self['key_green'].hide()
-		self['key_yellow'].hide()
-		self['key_blue'].hide()
+		self["list"] = Label()
+		self["actions"] = ActionMap(
+			[
+				"OkCancelActions",
+				"DirectionActions",
+				"HotkeyActions",
+				"InfobarEPGActions",
+				"ColorActions",
+				"ChannelSelectBaseActions"
+			],
+			{
+				"ok": self.close,
+				"back": self.close,
+				"cancel": self.close,
+				"yellow": self.update_me,
+				"green": self.update_dev,
+				"yellow_long": self.update_dev,
+				"info_long": self.update_dev,
+				"infolong": self.update_dev,
+				"showEventInfoPlugin": self.update_dev,
+				"red": self.close
+			},
+			-1
+		)
+		self["key_red"] = Button(_("Back"))
+		self["key_green"] = Button(_("Force Update"))
+		self["key_yellow"] = Button(_("Update"))
+		self["key_blue"] = Button()
+		self["key_green"].hide()
+		self["key_yellow"].hide()
+		self["key_blue"].hide()
 
 		self.Update = False
 		self.timer = eTimer()
-		if os.path.exists('/var/lib/dpkg/status'):
+		if exists("/var/lib/dpkg/status"):
 			self.timer_conn = self.timer.timeout.connect(self.check_vers)
 		else:
 			self.timer.callback.append(self.check_vers)
 		self.timer.start(500, 1)
-		self['title'] = Label(_(title_plug))
-		self['description'] = Label(_('Path Configuration Folder'))
+		self["title"] = Label(_(title_plug))
+		self["description"] = Label(_("Path Configuration Folder"))
 		self.onShown.append(self.updateList)
 
 	def check_vers(self):
 		remote_version = "0.0"
 		remote_changelog = ""
-		req = Utils.Request(Utils.b64decoder(installer_url), headers={'User-Agent': AgentRequest})
-		page = Utils.urlopen(req).read()
+		req = Request(b64decoder(installer_url), headers={"User-Agent": AgentRequest})
+		page = urlopen(req).read()
 		if PY3:
 			data = page.decode("utf-8")
 		else:
@@ -1040,17 +1113,17 @@ class InfoCfg(Screen):
 			self.session.open(MessageBox, _("Congrats! You already have the latest version..."),  MessageBox.TYPE_INFO, timeout=4)
 
 	def update_dev(self):
-		req = Utils.Request(Utils.b64decoder(developer_url), headers={'User-Agent': AgentRequest})
-		page = Utils.urlopen(req).read()
+		req = Request(b64decoder(developer_url), headers={"User-Agent": AgentRequest})
+		page = urlopen(req).read()
 		data = json.loads(page)
-		remote_date = data['pushed_at']
-		strp_remote_date = datetime.strptime(remote_date, '%Y-%m-%dT%H:%M:%SZ')
-		remote_date = strp_remote_date.strftime('%Y-%m-%d')
+		remote_date = data["pushed_at"]
+		strp_remote_date = datetime.strptime(remote_date, "%Y-%m-%dT%H:%M:%SZ")
+		remote_date = strp_remote_date.strftime("%Y-%m-%d")
 		self.session.openWithCallback(self.install_update, MessageBox, _("Do you want to install update ( %s ) now?") % (remote_date), MessageBox.TYPE_YESNO)
 
 	def install_update(self, answer=False):
 		if answer:
-			self.session.open(lsConsole, 'Upgrading...', cmdlist=('wget -q "--no-check-certificate" ' + Utils.b64decoder(installer_url) + ' -O - | /bin/sh'), finishedCallback=self.myCallback, closeOnSuccess=False)
+			self.session.open(lsConsole, "Upgrading...", cmdlist=("wget -q --no-check-certificate " + b64decoder(installer_url) + " -O - | /bin/sh"), finishedCallback=self.myCallback, closeOnSuccess=False)
 		else:
 			self.session.open(MessageBox, _("Update Aborted!"),  MessageBox.TYPE_INFO, timeout=3)
 
@@ -1063,25 +1136,25 @@ class InfoCfg(Screen):
 		cont += "Config Softcam Manager(Oscam)':\n"
 		cont += "Default folder:\n"
 		cont += "etc/tuxbox/config\n"
-		cont += ' ------------------------------------------ \n'
-		cont += ' ---- Type Oscam For Your Box--- \n'
-		arc = ''
-		arkFull = ''
-		libsssl = ''
-		arcx = os.popen('uname -m').read().strip('\n\r')
-		python = os.popen('python -V').read().strip('\n\r')
-		libs = os.popen('ls -l /usr/lib/libss*.*').read().strip('\n\r')
+		cont += " ------------------------------------------ \n"
+		cont += " ---- Type Oscam For Your Box--- \n"
+		arc = ""
+		arkFull = ""
+		libsssl = ""
+		arcx = popen("uname -m").read().strip("\n\r")
+		python = popen("python -V").read().strip("\n\r")
+		libs = popen("ls -l /usr/lib/libss*.*").read().strip("\n\r")
 		if arcx:
 			arc = arcx
-			print('arc= ', arc)
+			print("arc= ", arc)
 		if self.arckget():
-			print('arkget= ', arkFull)
+			print("arkget= ", arkFull)
 			arkFull = self.arckget()
 		if libs:
 			libsssl = libs
-		cont += ' ------------------------------------------ \n'
-		cont += 'Cpu: %s\nArchitecture info: %s\nPython V.%s\nLibssl(oscam):\n%s\n' % (arc, arkFull, python, libsssl)
-		cont += ' ------------------------------------------ \n'
+		cont += " ------------------------------------------ \n"
+		cont += "Cpu: %s\nArchitecture info: %s\nPython V.%s\nLibssl(oscam):\n%s\n" % (arc, arkFull, python, libsssl)
+		cont += " ------------------------------------------ \n"
 		return cont
 
 	def updateList(self):
@@ -1090,10 +1163,10 @@ class InfoCfg(Screen):
 	def arckget(self):
 		zarcffll = "by Lululla"
 		try:
-			if os.path.exists("/usr/bin/apt-get"):
-				zarcffll = os.popen("dpkg --print-architecture | grep -iE 'arm|aarch64|mips|cortex|sh4|sh_4'").read().strip("\n\r")
+			if exists("/usr/bin/apt-get"):
+				zarcffll = popen("dpkg --print-architecture | grep -iE 'arm|aarch64|mips|cortex|sh4|sh_4'").read().strip("\n\r")
 			else:
-				zarcffll = os.popen("opkg print-architecture | grep -iE 'arm|aarch64|mips|cortex|h4|sh_4'").read().strip("\n\r")
+				zarcffll = popen("opkg print-architecture | grep -iE 'arm|aarch64|mips|cortex|h4|sh_4'").read().strip("\n\r")
 			return str(zarcffll)
 		except Exception as e:
 			print("Error ", e)
@@ -1111,10 +1184,7 @@ def startConfig(session, **kwargs):
 
 def mainmenu(menu_id):
 	if menu_id == "setup":
-		return [(_("Levi45 Softcam Manager"),
-				 startConfig,
-				 "Levi45 Softcam Manager",
-				 50)]
+		return [(_("Levi45 Softcam Manager"), startConfig, "Levi45 Softcam Manager", 50)]
 	else:
 		return []
 
@@ -1128,22 +1198,22 @@ def autostart(reason, session=None, **kwargs):
 			print('session none')
 			try:
 				print('ok started autostart')
-				if fileExists('/etc/init.d/dccamd'):
-					os.system('mv /etc/init.d/dccamd /etc/init.d/dccamdOrig &')
-				if fileExists('/usr/bin/dccamd'):
-					os.system("mv /usr/bin/dccamd /usr/bin/dccamdOrig &")
-				os.system('ln -sf /usr/bin /var/bin')
-				os.system('ln -sf /usr/keys /var/keys')
-				os.system('ln -sf /usr/scce /var/scce')
-				# os.system('ln -sf /usr/camscript /var/camscript')
-				os.system('sleep 2')
-				os.system('/etc/startcam.sh &')
-				os.system('sleep 2')
-			except:
-				print('except autostart')
-		else:
-			print('pass autostart')
-	return
+				if exists('/etc/init.d/dccamd'):
+					system('mv /etc/init.d/dccamd /etc/init.d/dccamdOrig &')
+				for link, target in [("/var/bin", "/usr/bin"), ("/var/keys", "/usr/keys"), ("/var/scce", "/usr/scce"), ("/var/script", "/usr/script")]:
+					if not islink(link):
+						system("ln -sf %s %s" % (target, link))
+				# system('ln -sf /usr/camscript /var/camscript')
+				system('sleep 2')
+				if system("/etc/startcam.sh") != 0:
+					print("Error starting the cam with /etc/startcam.sh")
+				else:
+					print("*** running autostart ***")
+				return
+			except Exception as e:
+				print("Error reading script file:", e)
+
+		print("pass autostart")
 
 
 def menu(menu_id, **kwargs):
