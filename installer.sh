@@ -1,8 +1,8 @@
 #!/bin/bash
 
-## setup command=wget -q "--no-check-certificate" https://raw.githubusercontent.com/levi-45/Manager/main/installer.sh -O - | /bin/sh
+## setup command=wget -q https://raw.githubusercontent.com/levi-45/Manager/main/installer.sh -O - | /bin/sh -O - | /bin/sh
 ## Only This 2 lines to edit with new version ######
-version='10.1-r38'
+version='10.1-r39'
 changelog='Fix Dreambox issue'
 ##
 TMPPATH=/tmp/Manager-main

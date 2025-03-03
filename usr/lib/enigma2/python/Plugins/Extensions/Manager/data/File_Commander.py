@@ -11,7 +11,7 @@ from Tools.Directories import fileExists
 from enigma import eLabel
 from errno import ENOENT
 from os import system
-
+#   by lululla
 DEFAULT_MODULE_NAME = __name__.split(".")[-1]
 pname = _("File Commander - Addon")
 pdesc = _("play/show Files")
@@ -63,16 +63,16 @@ class File_Commander(Screen):
             "green": self.SaveFile,
             "back": self.exitEditor,
             "red": self.exitEditor,
-            "yellow": self.SaveFile,
-            "blue": self.exitEditor,
+            "yellow": self.del_Line,
+            "blue": self.del_Line,
             "chplus": self.posStart,
             "chminus": self.posEnd,
         }, -1)
         self["list_head"] = Label(self.file_name)
         self["key_red"] = Label(_("Exit"))
-        self["key_green"] = Label(_("Exit"))
-        self["key_yellow"] = Label(_("Save"))
-        self["key_blue"] = Label(_("Exit"))
+        self["key_green"] = Label(_("Save"))
+        self["key_yellow"] = Label(_("Del Line"))
+        self["key_blue"] = Label(_("Ins Line"))
         self.selLine = None
         self.oldLine = None
         self.isChanged = False
@@ -109,7 +109,7 @@ class File_Commander(Screen):
             del self.list[self.selLine]
             self.refreshList()
 
-    def ins_Line(self):
+    def del_Line(self):
         self.selLine = self["filedata"].getSelectionIndex()
         self.list.insert(self.selLine, "0000: " + "" + '\n')
         self.isChanged = True

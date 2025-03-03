@@ -4,7 +4,7 @@
 # --------------------#
 #  coded by Lululla   #
 #   skin by MMark     #
-#     14/02/2025      #
+#     03/03/2025      #
 #      No Coppy       #
 # --------------------#
 from __future__ import print_function
@@ -30,7 +30,7 @@ from Screens.VirtualKeyBoard import VirtualKeyBoard
 from Tools.Directories import (fileExists, resolveFilename, SCOPE_PLUGINS)
 from random import choice
 from enigma import eTimer, getDesktop
-from os.path import exists, join
+from os.path import exists, dirname, join
 from os import popen, chmod, system, stat, access, X_OK, listdir
 import base64
 import re
@@ -155,6 +155,7 @@ else:
 	skin_path = plugin_foo + "/res/skins/hd/"
 if exists("/usr/bin/apt-get"):
 	skin_path = skin_path + "dreamOs/"
+
 
 if not exists("/etc/tuxbox/config"):
 	system("mkdir /etc/tuxbox/config")
@@ -337,10 +338,10 @@ class levi_config(Screen, ConfigListScreen):
 
 				def execute_command(choice):
 					if choice:
-						if 'oscam' in runningcam.lower():
+						if "oscam" in runningcam.lower():
 							# cmd = "ps aux | grep -i '[o]scam'"
 							# res = subprocess.getoutput(cmd)
-							res = ''
+							res = ""
 
 							cmd = ["ps"]
 							output = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -348,7 +349,7 @@ class levi_config(Screen, ConfigListScreen):
 
 							if output.returncode == 0:
 								res = "\n".join(line for line in stdout.decode("utf-8").split("\n") if "oscam" in line.lower())
-								print('execute_command res ps:', res)
+								print("execute_command res ps:", res)
 							else:
 								print("Error:", stderr.decode("utf-8"))
 							if any(cam in res.lower() for cam in ["oscam", "icam", "ncam", "gcam"]):
@@ -573,6 +574,8 @@ class levi_config(Screen, ConfigListScreen):
 			self.session.open(MessageBox, _("Select Ncam"), type=MessageBox.TYPE_INFO, timeout=5)
 			return
 
+		if not exists("/etc/tuxbox/config"):
+			system("mkdir /etc/tuxbox/config")
 		dest = config.plugins.Manager.cfgfile.value
 		host = str(config.plugins.Manager.hostaddress.value)
 		port = str(config.plugins.Manager.port.value)
@@ -687,21 +690,21 @@ class levi_config(Screen, ConfigListScreen):
 
 			else:
 				url1 = re.findall(r'<h1>C:\s+([\w.-]+)\s+(\d+)\s+(\w+)\s+([\w.-]+)\s*', data)
-			print('===========data=========', url1)
+			print("===========data=========", url1)
 
-			if url1 != '':
-				host = ''
-				port = ''
-				user = ''
-				password = ''
-				if 'cccameurop' in data.lower():
+			if url1 != "":
+				host = ""
+				port = ""
+				user = ""
+				password = ""
+				if "cccameurop" in data.lower():
 					for u, pw in url1:
-						# url1 = 'cccameurop.com 19000' + url1[0] + url1[1]
-						host = 'cccameurop.com'
-						port = '19000'
+						# url1 = "cccameurop.com 19000" + url1[0] + url1[1]
+						host = "cccameurop.com"
+						port = "19000"
 						user = str(u)
 						password = str(pw)
-						print('Host: %s - Port: %s - User: %s - Password: %s' % (host, port, user, password))
+						print("Host: %s - Port: %s - User: %s - Password: %s" % (host, port, user, password))
 				else:
 					for h, p, u, pw in url1:
 						print(h, p, u, pw)
@@ -709,8 +712,8 @@ class levi_config(Screen, ConfigListScreen):
 						port = str(p)
 						user = str(u)
 						password = str(pw)
-						password = password.replace('</h1>', '').replace('</b>', '')
-						password = password.replace('</div>', '').replace('</span>', '')
+						password = password.replace("</h1>", "").replace("</b>", "")
+						password = password.replace("</div>", "").replace("</span>", "")
 				# if config.plugins.Manager.active.getValue():
 				config.plugins.Manager.hostaddress.setValue(host)
 				config.plugins.Manager.port.setValue(port)
@@ -720,21 +723,21 @@ class levi_config(Screen, ConfigListScreen):
 			else:
 				return
 		except Exception as e:
-			print('error on string cline', str(e))
+			print("error on string cline", str(e))
 
 	def readCurrent(self):
 		currCam = None
-		self.FilCurr = ''
-		if fileExists('/etc/CurrentBhCamName'):
-			self.FilCurr = '/etc/CurrentBhCamName'
+		self.FilCurr = ""
+		if fileExists("/etc/CurrentBhCamName"):
+			self.FilCurr = "/etc/CurrentBhCamName"
 		else:
-			self.FilCurr = '/etc/clist.list'
+			self.FilCurr = "/etc/clist.list"
 		if stat(self.FilCurr).st_size > 0:
 			try:
 				if sys.version_info[0] == 3:
-					clist = open(self.FilCurr, 'r', encoding='UTF-8')
+					clist = open(self.FilCurr, "r", encoding="UTF-8")
 				else:
-					clist = open(self.FilCurr, 'r')
+					clist = open(self.FilCurr, "r")
 			except:
 				return
 			if clist is not None:
