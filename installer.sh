@@ -2,8 +2,8 @@
 
 ## setup command=wget -q https://raw.githubusercontent.com/levi-45/Manager/main/installer.sh -O - | /bin/sh -O - | /bin/sh
 ## Only This 2 lines to edit with new version ######
-version='10.1-r39'
-changelog='Fix Dreambox issue'
+version='10.2-r0'
+changelog='Fix All issues'
 ##
 TMPPATH=/tmp/Manager-main
 FILEPATH=/tmp/main.tar.gz

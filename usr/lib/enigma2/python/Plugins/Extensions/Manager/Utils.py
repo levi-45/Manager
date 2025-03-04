@@ -8,7 +8,7 @@ import sys
 import datetime
 import os
 import re
-import ssl
+# import ssl
 import base64
 import requests
 # import chardet
@@ -40,7 +40,6 @@ if PY3:
     # import chardet
     bytes = bytes
     unicode = str
-    range = range
     from urllib.parse import quote
     from urllib.request import urlopen
     from urllib.request import Request
@@ -48,12 +47,10 @@ if PY3:
 
 if PY2:
     str = str
-    range = xrange
     from urllib import quote
     from urllib2 import urlopen
     from urllib2 import Request
     from urllib2 import HTTPError, URLError
-
 
 requests.packages.urllib3.disable_warnings(
     requests.packages.urllib3.exceptions.InsecureRequestWarning)
@@ -1264,37 +1261,6 @@ def decodeUrl(text):
     return text
 
 
-'''
-# import re
-# from six import ensure_str, unichr, iteritems
-# from six.moves import html_entities
-# _UNICODE_MAP = { k:unichr(v) for k,v in iteritems(html_entities.name2codepoint) }
-# _ESCAPE_RE = re.compile("[&<>\"']")
-# _UNESCAPE_RE = re.compile(r"&\s*(#?)(\w+?)\s*;")        # Whitespace handling added due to "hand-assed" parsers of html pages
-# _ESCAPE_DICT = {
-                # "&": "&amp;",
-                # "<": "&lt;",
-                # ">": "&gt;",
-                # '"': "&quot;",
-                # "'": "&apos;",
-                # }
-
-# def html_escape(value):
-    # return _ESCAPE_RE.sub(lambda match: _ESCAPE_DICT[match.group(0)], ensure_str(value).strip())
-
-# def html_unescape(value):
-    # return _UNESCAPE_RE.sub(_convert_entity, ensure_str(value).strip())
-
-# def _convert_entity(m):
-    # if m.group(1) == "#":
-        # try:
-            # return unichr(int(m.group(2)[1:], 16)) if m.group(2)[:1].lower() == "x" else unichr(int(m.group(2)))
-        # except ValueError:
-            # return "&#%s;" % m.group(2)
-    # return _UNICODE_MAP.get(m.group(2), "&%s;" % m.group(2))
-'''
-
-
 def normalize(title):
     try:
         import unicodedata
@@ -1826,10 +1792,10 @@ def get_title(title):
         # title = title.encode('utf-8')
     # except:
         # pass
-    title = re.sub('&#(\d+);', '', title)
-    title = re.sub('(&#[0-9]+)([^;^0-9]+)', '\\1;\\2', title)
-    title = title.replace('&quot;', '\"').replace('&amp;', '&')
-    title = re.sub('\n|([[].+?[]])|([(].+?[)])|\s(vs|v[.])\s|(:|;|-|–|"|,|\'|\_|\.|\?)|\s', '', title).lower()
+    title = re.sub(r'&#(\d+);', '', title)
+    title = re.sub(r'(&#[0-9]+)([^;^0-9]+)', '\\1;\\2', title)
+    title = title.replace(r'&quot;', '\"').replace(r'&amp;', '&')
+    title = re.sub(r'\n|([[].+?[]])|([(].+?[)])|\s(vs|v[.])\s|(:|;|-|–|"|,|\'|\_|\.|\?)|\s', '', title).lower()
     return title
 
 

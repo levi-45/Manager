@@ -63,7 +63,7 @@ if PY3:
 else:
 	from urllib2 import urlopen, Request
 
-currversion = "10.1-r39"
+currversion = "10.2-r0"
 title_plug = "Satellite-Forum.Com V.%s" % currversion
 title_emu = "Levi45 Emu Keys V.%s" % currversion
 name_plug = "Levi45 Cam Manager"
