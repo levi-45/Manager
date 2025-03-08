@@ -26,7 +26,7 @@ from requests import get, exceptions
 
 
 plugin_foo = os.path.dirname(sys.modules[__name__].__file__)
-currversion = 'V.10.2-r0'
+currversion = 'V.10.2-r1'
 # emu_script = str(plugin_foo) + '/emu/'
 emu_script = os.path.join(plugin_foo, "emu") + "/"
 
@@ -101,17 +101,18 @@ class Levi45EmuKeysUpdater(Screen):
 			self.skin = f.read()
 		self.session = session
 		self.setTitle(name_plugemu)
-		self['labstatus'] = Label(_('NO SCRIPT FOUND'))
+		self.onChangedEntry = []
+		self['labstatus'] = Label()
 		self.mlist = []
 		self.populateScript()
 		self['list'] = List(self.mlist)
-		self['list'].onSelectionChanged.append(self.schanged)
+		self['list'].onSelectionChanged.append(self.changed)		
 		self['line1'] = Label(_('Available Scripts'))
 		self['key_red'] = Label(_('Close'))
 		self['key_green'] = Label(_('Select'))
 		self['key_yellow'] = Label(_('Download'))
 		self['key_blue'] = Label(_('Remove'))
-		self["actions"] = ActionMap(['OkCancelActions', 'ColorActions'], {
+		self["actions"] = ActionMap(['OkCancelActions', 'ColorActions', "DirectionActions"], {
 			'ok': self.messagern,
 			'green': self.messagern,
 			'yellow': self.download,
@@ -131,8 +132,8 @@ class Levi45EmuKeysUpdater(Screen):
 
 	def populateScript(self):
 		try:
-			if not os.path.exists('/usr/script'):
-				mkdir('/usr/script', 493)
+			if not os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/Manager/emu'):
+				mkdir('/usr/lib/enigma2/python/Plugins/Extensions/Manager/emu', 493)
 			if not os.path.exists(emu_script):
 				mkdir(emu_script, 493)
 		except:
@@ -143,7 +144,7 @@ class Levi45EmuKeysUpdater(Screen):
 		for fil in myscripts:
 			if fil.find('.sh') != -1:
 				fil2 = fil[:-3].replace('_', ' ')  # .upper()
-				desc = 'No Info Available'
+				desc = ''
 				myfil = emu_script + '/' + fil
 				print('myfil: ', myfil)
 				with codecs.open(myfil, "rb", encoding="latin-1") as f:
@@ -159,7 +160,7 @@ class Levi45EmuKeysUpdater(Screen):
 				self.mlist.append(res)
 		self.mlist = sorted(self.mlist, key=lambda x: x[0].lower())
 
-	def schanged(self):
+	def changed(self):
 		mysel = self['list'].getCurrent()
 		if mysel:
 			mytext = ' ' + mysel[1]
@@ -190,15 +191,15 @@ class Levi45EmuKeysUpdater(Screen):
 
 					with open(log_file, 'w') as f:
 						process = subprocess.Popen(cmd, stdout=f, stderr=subprocess.STDOUT)
-						process.communicate()  # Aspetta che il processo finisca
+						process.communicate()
 					self.openVi(None)
 					# self.session.openWithCallback(self.openVi, Console, _(mytitle), cmdlist=[cmd])
 
 	def openVi(self, callback=''):
-		from .data.File_Commander import File_Commander
+		from .data.File_Commander import Lululla_Commander
 		user_log = '/tmp/my_debug.log'
 		if os.path.exists(user_log):
-			self.session.open(File_Commander, user_log)
+			self.session.open(Lululla_Commander, user_log)
 		else:
 			print("Error: Log file not found or empty.")
 

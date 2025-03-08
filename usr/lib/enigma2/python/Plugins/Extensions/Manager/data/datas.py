@@ -3,13 +3,12 @@
 
 # --------------------#
 #  coded by Lululla   #
-#   skin by MMark     #
 #     03/03/2025      #
 #      No Coppy       #
 # --------------------#
 from __future__ import print_function
 from .. import _
-from ..plugin import runningcam
+from ..plugin import currversion, runningcam
 from Components.ActionMap import ActionMap
 from Components.ConfigList import ConfigListScreen
 from Components.Label import Label
@@ -78,10 +77,11 @@ def b64decoder(s):
 	return outp
 
 
+# currversion = "2.3"
 name_plug = "Satellite-Forum.Com"
-plugin_foo = resolveFilename(SCOPE_PLUGINS, "Extensions/Manager")
-data_path = plugin_foo + "/data/"
-skin_path = plugin_foo
+plugin_path = resolveFilename(SCOPE_PLUGINS, "Extensions/Manager")
+data_path = plugin_path + "/data/"
+skin_path = plugin_path
 
 try:
 	_create_unverified_https_context = ssl._create_unverified_context
@@ -146,13 +146,14 @@ def getUrl(url):
 	return content
 
 
+# =============== SCREEN PATH SETTING
 screenwidth = getDesktop(0).size()
 if screenwidth.width() == 2560:
-	skin_path = plugin_foo + "/res/skins/uhd/"
+	skin_path = plugin_path + "/res/skins/uhd/"
 elif screenwidth.width() == 1920:
-	skin_path = plugin_foo + "/res/skins/fhd/"
+	skin_path = plugin_path + "/res/skins/fhd/"
 else:
-	skin_path = plugin_foo + "/res/skins/hd/"
+	skin_path = plugin_path + "/res/skins/hd/"
 if exists("/usr/bin/apt-get"):
 	skin_path = skin_path + "dreamOs/"
 
@@ -186,9 +187,91 @@ def cccamPath():
 				return "/etc/CCcam.cfg"
 		else:
 			return "/var/CCcam.cfg"
+
+
+def findOscam():
+	"""Trova tutti i percorsi di oscam.server sul sistema."""
+	paths = [
+		"/etc/tuxbox/config/oscam/oscam.server",
+		"/etc/tuxbox/config/oscam-emu/oscam.server",
+		"/etc/tuxbox/config/oscam_atv_free/oscam.server",
+		"/etc/tuxbox/config/oscam.server",
+		"/etc/tuxbox/config/oscam-stable/oscam.server",
+		"/var/tuxbox/config/oscam.server",
+		"/etc/tuxbox/config/gcam.server",
+		"/etc/tuxbox/config/ncam.server",
+		"/etc/tuxbox/config/ncam/ncam.server",
+		"/etc/tuxbox/config/supcam-emu/oscam.server",
+		"/etc/tuxbox/config/oscamicam/oscam.server",
+		"/etc/tuxbox/config/oscamicamnew/oscam.server"
+	]
+	return paths
+
+
+def saveFileContent(file_pathx):
+	"""Returns the contents of the file if it exists."""
+	if exists(file_pathx):
+		with open(file_pathx, "r") as f:
+			return f.read()
+	return ""
+
+
+def prependToFile(file_pathx):
+	"""
+	Reads (and creates if necessary) the original backup of the file,
+	adding markers to avoid duplication.
+	Returns the original content (with markers).
+	"""
+	directory = dirname(file_pathx)
+	if not exists(directory):
+		print("DEBUG: Directory non esistente per", file_pathx)
+		return ""
+
+	backup_path = file_pathx + "Orig"
+	original_content = ""
+
+	if not exists(backup_path) and exists(file_pathx):
+		with open(file_pathx, "r") as f:
+			original_content = f.read()
+		with open(backup_path, "w") as f:
+			f.write(original_content)
+		print("DEBUG: Creato backup per", file_pathx)
+	elif exists(backup_path):
+		with open(backup_path, "r") as f:
+			original_content = f.read()
+		print("DEBUG: Lettura backup esistente per", file_pathx)
+
+	marker_start = "### ORIGINAL START ###"
+	marker_end = "### ORIGINAL END ###"
+	if marker_start not in original_content:
+		original_content = marker_start + "\n" + original_content.strip() + "\n" + marker_end + "\n"
+		print("DEBUG: Aggiunti marker al backup per", file_pathx)
 	else:
-		return "/usr/CCcam.cfg"
-	return "/etc/CCcam.cfg"
+		print("DEBUG: Marker già presenti nel backup per", file_pathx)
+
+	return original_content
+
+
+def remove_backup_block(content):
+	"""
+	If the content starts with the backup block (marker),
+	removes it and returns only the new content.
+	"""
+	marker_start = "### ORIGINAL START ###"
+	marker_end = "### ORIGINAL END ###"
+	if content.startswith(marker_start):
+		end_index = content.find(marker_end)
+		if end_index != -1:
+			# Salta il blocco del backup
+			return content[end_index + len(marker_end):].strip()
+	return content
+
+
+def ensure_directory_exists(file_path):
+	"""Ensures that the file directory exists; otherwise, creates it."""
+	directory = dirname(file_path)
+	if not exists(directory):
+		return
 
 
 Serverlive = [
@@ -217,7 +300,6 @@ cfgcam = [
 config.plugins.Manager = ConfigSubsection()
 config.plugins.Manager.active = ConfigYesNo(default=False)
 config.plugins.Manager.Server = NoSave(ConfigSelection(choices=Serverlive))  # , default=Server1))
-# config.plugins.Manager.cfgfile = NoSave(ConfigSelection(default="/etc/CCcam.cfg", choices=[("/etc/CCcam.cfg", _("CCcam")), ("/etc/tuxbox/config/oscam.server", _("Oscam")), ("/etc/tuxbox/config/ncam.server", _("Ncam"))]))
 config.plugins.Manager.cfgfile = NoSave(ConfigSelection(choices=cfgcam))
 config.plugins.Manager.hostaddress = NoSave(ConfigText(default="127.0.0.1"))
 config.plugins.Manager.port = NoSave(ConfigNumber(default=16000))
@@ -289,7 +371,7 @@ class levi_config(Screen, ConfigListScreen):
 		self["key_yellow"] = Label("")
 		self["key_blue"] = Label("")
 		self["description"] = Label("")
-		self["info"] = Label("")
+		self["info"] = Label(_("Wait please..."))
 		self.onChangedEntry = []
 		self.list = []
 		ConfigListScreen.__init__(self, self.list, session=self.session, on_change=self.changedEntry)
@@ -312,6 +394,7 @@ class levi_config(Screen, ConfigListScreen):
 				"blue": self.resetcfg,
 				"red": self.closex,
 				"cancel": self.closex,
+				"info": self.infomsg,
 				"back": self.closex
 			},
 			-1
@@ -327,14 +410,15 @@ class levi_config(Screen, ConfigListScreen):
 		self["info"].setText(_("Select Your Choice"))
 		self["description"].setText(_("MENU EMM / SERVER CLINE"))
 
+	def infomsg(self):
+		self.session.open(MessageBox, _("Levi45 Softcam Manager\nby Lululla V.%s\nInstall Cam Software\nForum Support www.satellite-forum.com\n") % currversion,  MessageBox.TYPE_INFO, timeout=4)
+
 	def sendemm(self):
-		if config.plugins.Manager.active.value is True:
+		if config.plugins.Manager.active.value:
 			self.getcl()
 		else:
 			try:
-				print("runningcam=", runningcam)
-				if runningcam is None:
-					return
+				print("datas runningcam=", runningcam)
 
 				def execute_command(choice):
 					if choice:
@@ -352,6 +436,7 @@ class levi_config(Screen, ConfigListScreen):
 								print("execute_command res ps:", res)
 							else:
 								print("Error:", stderr.decode("utf-8"))
+
 							if any(cam in res.lower() for cam in ["oscam", "icam", "ncam", "gcam"]):
 								print("oscam exist")
 								msg = []
@@ -376,6 +461,7 @@ class levi_config(Screen, ConfigListScreen):
 									msg = (" %s " % _("\n")).join(msg)
 									print("DEBUG: msg_output =", msg)
 								self.session.open(MessageBox, _("Please wait, %s.") % msg, MessageBox.TYPE_INFO, timeout=10)
+
 				self.session.openWithCallback(execute_command, MessageBox, _("Do you want to execute the command?"), MessageBox.TYPE_YESNO)
 			except Exception as e:
 				print("error on emm", str(e))

@@ -12,9 +12,9 @@
 from __future__ import print_function
 # local import
 from . import _, MYFTP, wgetsts, installer_url, developer_url
-from .Utils import RequestAgent, b64decoder, checkGZIP
+from .data.Utils import RequestAgent, b64decoder, checkGZIP
 from .data.GetEcmInfo import GetEcmInfo
-from .Console import Console as lsConsole
+from .data.Console import Console
 
 # enigma lib import
 from Components.ActionMap import ActionMap, NumberActionMap
@@ -25,29 +25,27 @@ from Components.Sources.List import List
 from Plugins.Plugin import PluginDescriptor
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
-# from Screens.Console import Console
 from Screens.Standby import TryQuitMainloop
-# from Tools.BoundFunction import boundFunction
 from Tools.Directories import resolveFilename, SCOPE_PLUGINS
 from Tools.LoadPixmap import LoadPixmap
 from enigma import (
 	eTimer,
 	getDesktop,
 )
+from datetime import datetime
 from os import mkdir, access, X_OK, system, popen, chmod, remove, walk, stat
 from os.path import dirname, join, exists, islink
 from time import sleep
 from twisted.web.client import getPage
+from xml.dom import minidom
 import codecs
+import json
+import subprocess
 import sys
 import time
-import json
-from datetime import datetime
-from xml.dom import minidom
-import subprocess
 
 global active, skin_path, local
-global _session, runningcam
+global _session
 
 
 active = False
@@ -63,7 +61,7 @@ if PY3:
 else:
 	from urllib2 import urlopen, Request
 
-currversion = "10.2-r0"
+currversion = "10.2-r1"
 title_plug = "Satellite-Forum.Com V.%s" % currversion
 title_emu = "Levi45 Emu Keys V.%s" % currversion
 name_plug = "Levi45 Cam Manager"
@@ -86,7 +84,6 @@ SOFTCAM = 0
 CCCAMINFO = 1
 OSCAMINFO = 2
 AgentRequest = RequestAgent()
-runningcam = None
 
 
 headers = {
@@ -151,7 +148,7 @@ if exists("/usr/bin/apt-get"):
 if not exists("/etc/clist.list"):
 	with open("/etc/clist.list", "w"):
 		print("/etc/clist.list as been create")
-		system("chmod 755 /etc/clist.list &")
+		system("chmod 755 /etc/clist.list")
 
 
 class Manager(Screen):
@@ -160,6 +157,7 @@ class Manager(Screen):
 		Screen.__init__(self, session)
 		self.session = session
 		global _session, runningcam
+		runningcam = None
 		_session = session
 		skin = join(skin_path, "Manager.xml")
 		with codecs.open(skin, "r", encoding="utf-8") as f:
@@ -239,46 +237,31 @@ class Manager(Screen):
 	def setBlueKey(self):
 		global runningcam
 		self.curCam = self.readCurrent()
-		self.BlueAction = "SOFTCAM"
-		self["infocam"].setText("Softcam")
+		self["infocam"].setText("SOFTCAM")
+		self.BlueAction = None  # Default action
 		if self.curCam is not None:
-			nim = str(self.curCam).lower()
-			print("nim lower=", nim)
-
-			if "oscam" in str(self.curCam).lower():
-				print("oscam in nim")
-				runningcam = "oscam"
-				self["infocam"].setText("OSCAMINFO")
-				self.BlueAction = "OSCAMINFO"
-				if exists(data_path + "/OScamInfo.pyo") or exists(data_path + "/OScamInfo.pyc"):
-					print("existe OScamInfo")
-
-			if "cccam" in str(self.curCam).lower():
-				runningcam = "cccam"
-				self.BlueAction = "CCCAMINFO"
-				self["infocam"].setText("CCCAMINFO")
-				if exists(data_path + "/CCcamInfo.pyo") or exists(data_path + "/CCcamInfo.pyc"):
-					print("existe CCcamInfo")
-
-			if "movicam" in str(self.curCam).lower():
-				print("movicam in nim")
-				runningcam = "movicam"
-				self.BlueAction = "MOVICAMINFO"
-				self["infocam"].setText("MOVICAMINFO")
-				if exists(data_path + "/OScamInfo.pyo") or exists(data_path + "/OScamInfo.pyc"):
-					print("existe movicamInfo")
-
-			if "ncam" in str(self.curCam).lower():
-				runningcam = "ncam"
-				self.BlueAction = "NCAMINFO"
-				self["infocam"].setText("NCAMINFO")
-				print("ncam in nim")
-				if exists(data_path + "/NcamInfo.pyo") or exists(data_path + "/NcamInfo.pyc"):
-					print("existe NcamInfo")
-
-		print("[setBlueKey] self.curCam= 11 ", self.curCam)
-		print("[setBlueKey] self.BlueAction= 11 ", self.BlueAction)
-		print("[setBlueKey] runningcam= 11 ", runningcam)
+			cam_name = str(self.curCam).lower()
+			print("cam_name=", cam_name)
+			cam_info = {
+				"oscam": ("OSCAMINFO", "OScamInfo"),
+				"cccam": ("CCCAMINFO", "CCcamInfo"),
+				"movicam": ("MOVICAMINFO", "OScamInfo"),
+				"ncam": ("NCAMINFO", "NcamInfo")
+			}
+			for key, (action, file_name) in cam_info.items():
+				if key in cam_name:
+					print("%s detected in cam_name" % key)
+					runningcam = key
+					self.BlueAction = action
+					self["infocam"].setText(action)
+					if exists(join(plugin_foo, "data/%s.pyo" % file_name)) or exists(join(plugin_foo, "data/%s.pyc" % file_name)):
+						print("existe %s" % file_name)
+					break
+			# Debug info
+			print("[setBlueKey] self.curCam=", self.curCam)
+			print("[setBlueKey] self.BlueAction=", self.BlueAction)
+			print("[setBlueKey] runningcam=", runningcam)
+			print("[setBlueKey] file_name=", file_name)
 
 	def ShowSoftcamCallback(self):
 		pass
@@ -289,8 +272,9 @@ class Manager(Screen):
 
 	def cccam(self):
 		print("[cccam] self.BlueAction are:", self.BlueAction)
-
-		if "oscam" in str(self.curCam).lower():
+		cam_name = str(self.curCam).lower()
+		print("cam_name=", cam_name)
+		if "oscam" in cam_name:
 			try:
 				try:
 					from Screens.OScamInfo import OSCamInfo
@@ -300,26 +284,12 @@ class Manager(Screen):
 					from .data.OScamInfo import OSCamInfo
 					print("[cccam 2] OScamInfo")
 					self.session.open(OSCamInfo)
-					"""
-					# if exists(resolveFilename(SCOPE_PLUGINS, "Extensions/OscamStatus/{}".format("plugin.py"))):
-						# from Plugins.Extensions.OscamStatus.plugin import OscamStatus
-						# print("[cccam 1] OscamStatus")
-						# self.session.open(OscamStatus)
-					# else:
-						# if exists(data_path + "/OScamInfo.pyo") or exists(data_path + "/OScamInfo.pyc"):
-							# from Screens.OScamInfo import OSCamInfo
-							# print("[cccam 1] OScamInfo")
-							# self.session.open(OSCamInfo)
-				# except ImportError:
-					# from .data.OScamInfo import OSCamInfo
-					# print("[cccam 2] OScamInfo")
-					# self.session.open(OSCamInfo)
-					"""
+
 			except Exception as e:
 				print("[cccam] OScamInfo e:", e)
 				pass
 
-		elif "ccam" in str(self.curCam).lower():
+		elif "ccam" in cam_name:
 			try:
 				from Screens.CCcamInfo import CCcamInfoMain
 				print("[cccam 12] CCcamInfo")
@@ -329,7 +299,7 @@ class Manager(Screen):
 				print("[cccam 2] CCcamInfo")
 				self.session.open(CCcamInfoMain)
 
-		elif "ncam" in str(self.curCam).lower():
+		elif "ncam" in cam_name:
 			try:
 				try:
 					from Screens.NcamInfo import NcamInfoMenu
@@ -343,7 +313,7 @@ class Manager(Screen):
 				print("[cccam] NcamInfo e:", e)
 				pass
 
-		elif "movicam" in str(self.curCam).lower():
+		elif "movicam" in cam_name:
 			try:
 				try:
 					from Screens.OScamInfo import OscamInfoMenu
@@ -417,14 +387,14 @@ class Manager(Screen):
 
 	def keysdownload(self, result):
 		if result:
-			script = ("%s/auto.sh" % plugin_foo)
+			script = join(plugin_foo, "auto.sh")
 			if not access(script, X_OK):
 				chmod(script, 493)
 			if exists("/usr/keys/SoftCam.Key"):
 				system("rm -rf /usr/keys/SoftCam.Key")
 			cmd = script
 			title = _("Installing Softcam Keys\nPlease Wait...")
-			self.session.open(lsConsole, _(title), [cmd], closeOnSuccess=False)
+			self.session.open(Console, _(title), [cmd], closeOnSuccess=False)
 
 	def CfgInfo(self):
 		self.session.open(InfoCfg)
@@ -513,8 +483,8 @@ class Manager(Screen):
 			# # self.var = self["list"].getSelectionIndex()
 			print("self var=== ", self.var)
 			"""
-			cmdx = "chmod 755 /usr/camscript/*.*"  # + self.softcamslist[self.var][0] + ".sh"
-			system(cmdx)
+			system("chmod 755 /etc/clist.list")
+			system("chmod 755 /usr/camscript/*.*")
 			curCam = self.readCurrent()
 			if self.last is not None:
 				try:
@@ -562,7 +532,7 @@ class Manager(Screen):
 				clist = open("/etc/clist.list", "w", encoding="UTF-8")
 			else:
 				clist = open("/etc/clist.list", "w")
-			system("chmod 755 /etc/clist.list &")
+			chmod("/etc/clist.list", 755)
 			clist.write(str(self.curCam))
 			clist.close()
 
@@ -572,7 +542,7 @@ class Manager(Screen):
 			stcam = open("/etc/startcam.sh", "w")
 		stcam.write("#!/bin/sh\n" + self.cmd1)
 		stcam.close()
-		system("chmod 755 /etc/startcam.sh &")
+		chmod("/etc/startcam.sh", 755)
 		return
 
 	def stop(self):
@@ -671,15 +641,16 @@ class Manager(Screen):
 				clist.close()
 		return currCam
 
-	'''
+	"""
 	def autocam(self):
 		current = None
 		try:
+			# clist = open("/etc/clist.list", "r")
 			if sys.version_info[0] == 3:
-				clist = open(self.FilCurr, 'r', encoding='UTF-8')
+				clist = open("/etc/clist.list", "r", encoding="UTF-8")
 			else:
-				clist = open(self.FilCurr, 'r')
-			print('found list')
+				clist = open("/etc/clist.list", "r")
+			print("found list")
 		except:
 			return
 
@@ -687,55 +658,55 @@ class Manager(Screen):
 			for line in clist:
 				current = line
 			clist.close()
-		print('current =', current)
-		if os.path.isfile('/etc/autocam.txt') is False:
+		print("current =", current)
+		if os.path.isfile("/etc/autocam.txt") is False:
 			if sys.version_info[0] == 3:
-				alist = open('/etc/autocam.txt', 'w', encoding='UTF-8')
+				alist = open("/etc/autocam.txt", "w", encoding="UTF-8")
 			else:
-				alist = open('/etc/autocam.txt', 'w')
+				alist = open("/etc/autocam.txt", "w")
 			alist.close()
-		self.autoclean()
+		self.cleanauto()
 		if sys.version_info[0] == 3:
-			alist = open('/etc/autocam.txt', 'a', encoding='UTF-8')
+			alist = open("/etc/autocam.txt", "a", encoding="UTF-8")
 		else:
-			alist = open('/etc/autocam.txt', 'a')
-		alist.write(self.oldService.toString() + '\n')
-		self.last = self.getLastIndex()
-		alist.write(current + '\n')
+			alist = open("/etc/autocam.txt", "a")
+		alist.write(self.oldService.toString() + "\n")
+		# last = self.getLastIndex()
+		alist.write(current + "\n")
 		alist.close()
-		_session.open(MessageBox, _('Autocam assigned to the current channel'), MessageBox.TYPE_INFO, timeout=5)
+		self.session.openWithCallback(self.callback, MessageBox, _("Autocam assigned to the current channel"), type=1, timeout=10)
 		return
 
-	def autoclean(self):
-		delemu = 'no'
-		if os.path.isfile('/etc/autocam.txt') is False:
+	def cleanauto(self):
+		delemu = "no"
+		if os.path.isfile("/etc/autocam.txt") is False:
 			return
 		if sys.version_info[0] == 3:
-			myfile = open('/etc/autocam.txt', 'r', encoding='UTF-8')
+			myfile = open("/etc/autocam.txt", "r", encoding="UTF-8")
 		else:
-			myfile = open('/etc/autocam.txt', 'r')
+			myfile = open("/etc/autocam.txt", "r")
 
 		if sys.version_info[0] == 3:
-			myfile2 = open('/etc/autocam2.txt', 'w', encoding='UTF-8')
+			myfile2 = open("/etc/autocam2.txt", "w", encoding="UTF-8")
 		else:
-			myfile2 = open('/etc/autocam2.txt', 'w')
+			myfile2 = open("/etc/autocam2.txt", "w")
 		icount = 0
 		for line in myfile.readlines():
 			if line[:-1] == self.oldService.toString():
-				delemu = 'yes'
+				delemu = "yes"
 				icount = icount + 1
 				continue
-			if delemu == 'yes':
-				delemu = 'no'
+			if delemu == "yes":
+				delemu = "no"
 				icount = icount + 1
 				continue
 			myfile2.write(line)
 			icount = icount + 1
 		myfile.close()
 		myfile2.close()
-		system('rm /etc/autocam.txt')
-		system('cp /etc/autocam2.txt /etc/autocam.txt')
-		'''
+		system("rm /etc/autocam.txt")
+		system("cp /etc/autocam2.txt /etc/autocam.txt")
+		"""
 
 	def cancel(self):
 		self.close()
@@ -810,11 +781,6 @@ class GetipklistLv(Screen):
 
 	def _gotPageLoad(self):
 		global local
-		"""
-		# if local is False:
-			# self.xml = checkGZIP(self.xml)
-		# self.xml = "https://raw.githubusercontent.com/levi-45/Multicam/main/Caminstaller.xml"
-		"""
 		if PY3:
 			self.xml = self.xml.encode()
 
@@ -978,7 +944,7 @@ class GetipklistLv2(Screen):
 		cmd00 = "wget --no-check-certificate -U '%s' -c '%s' -O '%s';%s > /dev/null" % (AgentRequest, str(self.com), self.folddest, cmd)
 		print("cmd00:", cmd00)
 		title = (_("Installing %s\nPlease Wait...") % self.dom)
-		self.session.open(lsConsole, _(title), [cmd00], closeOnSuccess=False)
+		self.session.open(Console, _(title), [cmd00], closeOnSuccess=False)
 
 	def remove(self):
 		self.session.openWithCallback(self.removenow, MessageBox, _("Do you want to remove?"), MessageBox.TYPE_YESNO)
@@ -1016,7 +982,7 @@ class GetipklistLv2(Screen):
 								print("cmd ipk remove:", cmd)
 
 							title = (_("Removing %s") % self.dom)
-							self.session.open(lsConsole, _(title), [cmd])
+							self.session.open(Console, _(title), [cmd])
 
 	def restart(self):
 		self.session.openWithCallback(self.restartnow, MessageBox, _("Do you want to restart Gui Interface?"), MessageBox.TYPE_YESNO)
@@ -1099,7 +1065,6 @@ class InfoCfg(Screen):
 					break
 		self.new_version = remote_version
 		self.new_changelog = remote_changelog
-		# if float(currversion) < float(remote_version):
 		if currversion < remote_version:
 			self.Update = True
 			self["key_yellow"].show()
@@ -1123,7 +1088,7 @@ class InfoCfg(Screen):
 
 	def install_update(self, answer=False):
 		if answer:
-			self.session.open(lsConsole, "Upgrading...", cmdlist=("wget -q --no-check-certificate " + b64decoder(installer_url) + " -O - | /bin/sh"), finishedCallback=self.myCallback, closeOnSuccess=False)
+			self.session.open(Console, "Upgrading...", cmdlist=("wget -q --no-check-certificate " + b64decoder(installer_url) + " -O - | /bin/sh"), finishedCallback=self.myCallback, closeOnSuccess=False)
 		else:
 			self.session.open(MessageBox, _("Update Aborted!"),  MessageBox.TYPE_INFO, timeout=3)
 
@@ -1198,12 +1163,11 @@ def autostart(reason, session=None, **kwargs):
 			print('session none')
 			try:
 				print('ok started autostart')
-				if exists('/etc/init.d/dccamd'):
-					system('mv /etc/init.d/dccamd /etc/init.d/dccamdOrig &')
+				if exists("/etc/init.d/dccamd"):
+					system("mv /etc/init.d/dccamd /etc/init.d/dccamdOrig &")
 				for link, target in [("/var/bin", "/usr/bin"), ("/var/keys", "/usr/keys"), ("/var/scce", "/usr/scce"), ("/var/script", "/usr/script")]:
 					if not islink(link):
 						system("ln -sf %s %s" % (target, link))
-				# system('ln -sf /usr/camscript /var/camscript')
 				system('sleep 2')
 				if system("/etc/startcam.sh") != 0:
 					print("Error starting the cam with /etc/startcam.sh")
@@ -1225,7 +1189,8 @@ def main(session, **kwargs):
 	try:
 		session.open(Manager)
 	except:
-		pass
+		import traceback
+		traceback.print_exc()
 
 
 def main2(session, **kwargs):
