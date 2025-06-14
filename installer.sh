@@ -2,8 +2,8 @@
 
 ## setup command=wget -q https://raw.githubusercontent.com/levi-45/Manager/main/installer.sh -O - | /bin/sh -O - | /bin/sh
 ## Only This 2 lines to edit with new version ######
-version='10.2-r1'
-changelog='Fixed All'
+version='10.2-r2'
+changelog='All code rewritten and now fully compatible py 2 and py3'
 ##
 TMPPATH=/tmp/Manager-main
 FILEPATH=/tmp/main.tar.gz

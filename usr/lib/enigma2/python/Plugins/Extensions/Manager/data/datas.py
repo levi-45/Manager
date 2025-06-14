@@ -1,43 +1,70 @@
 # #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-# --------------------#
-#  coded by Lululla   #
-#     03/03/2025      #
-#      No Coppy       #
-# --------------------#
 from __future__ import print_function
-from .. import _
-from ..plugin import currversion, runningcam
+"""
+===============================================================================
+ Author: [Lululla] [Levi45]
+ Version: 1.0
+ Platform: Enigma2 (OE-A / OpenPLi compatible)
+
+ Config - Helper for Enigma2
+
+ This module collects free CCcam lines from various websites and automatically
+ converts them into [reader] blocks for use in oscam.server.
+ Send emm tu tvsat card
+
+ Features:
+ - Fetches data from multiple sources using regular expressions
+ - Validates hostnames and ports
+ - Automatically generates OSCam reader blocks
+ - Backs up the original file if it exists
+ - Avoids writing duplicate readers
+ - Uses threading to avoid blocking the GUI
+
+ Requirements:
+ - Internet access on the device
+
+ Credits: by Lululla
+ Date: May 2025
+===============================================================================
+"""
+import base64
+import codecs
+import re
+import ssl
+import subprocess
+import sys
+from threading import Thread
+from os import X_OK, access, chmod, listdir, popen, stat, system
+from os.path import dirname, exists, join
+from random import choice
+
+from enigma import eTimer, getDesktop
+
 from Components.ActionMap import ActionMap
 from Components.ConfigList import ConfigListScreen
 from Components.Label import Label
 from Components.config import (
 	ConfigNumber,
-	ConfigSelection,
-	ConfigYesNo,
-	ConfigSubsection,
 	ConfigPassword,
-	config,
+	ConfigSelection,
+	ConfigSubsection,
 	ConfigText,
-	getConfigListEntry,
+	ConfigYesNo,
 	NoSave,
+	config,
+	getConfigListEntry,
 )
+
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Screens.VirtualKeyBoard import VirtualKeyBoard
-from Tools.Directories import (fileExists, resolveFilename, SCOPE_PLUGINS)
-from random import choice
-from enigma import eTimer, getDesktop
-from os.path import exists, dirname, join
-from os import popen, chmod, system, stat, access, X_OK, listdir
-import base64
-import re
-import ssl
-import sys
-import subprocess
-import codecs
-import threading
+
+from Tools.Directories import SCOPE_PLUGINS, fileExists, resolveFilename
+
+from .. import _
+from ..plugin import currversion, runningcam
 
 global skin_path
 
@@ -48,7 +75,6 @@ if PY3:
 	unicode = str
 	unichr = chr
 	long = int
-	PY3 = True
 
 
 def b64decoder(s):
@@ -133,7 +159,9 @@ def getUrl(url):
 	elif sys.version_info.major == 2:
 		import urllib2
 	req = urllib2.Request(url)
-	req.add_header("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.8.1.14) Gecko/20080404 Firefox/2.0.0.14")
+	req.add_header(
+		"User-Agent",
+		"Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.8.1.14) Gecko/20080404 Firefox/2.0.0.14")
 	r = urllib2.urlopen(req, None, 15)
 	link = r.read()
 	r.close()
@@ -181,7 +209,7 @@ def cccamPath():
 							return "/etc/tuxbox/config/" + folder + "CCcam.cfg"
 						if res == "":
 							return "/etc/CCcam.cfg"
-				except:
+				except BaseException:
 					return "/etc/CCcam.cfg"
 			else:
 				return "/etc/CCcam.cfg"
@@ -244,7 +272,8 @@ def prependToFile(file_pathx):
 	marker_start = "### ORIGINAL START ###"
 	marker_end = "### ORIGINAL END ###"
 	if marker_start not in original_content:
-		original_content = marker_start + "\n" + original_content.strip() + "\n" + marker_end + "\n"
+		original_content = marker_start + "\n" + original_content.strip() + "\n" + \
+			marker_end + "\n"
 		print("DEBUG: Aggiunti marker al backup per", file_pathx)
 	else:
 		print("DEBUG: Marker già presenti nel backup per", file_pathx)
@@ -299,7 +328,7 @@ cfgcam = [
 
 config.plugins.Manager = ConfigSubsection()
 config.plugins.Manager.active = ConfigYesNo(default=False)
-config.plugins.Manager.Server = NoSave(ConfigSelection(choices=Serverlive))  # , default=Server1))
+config.plugins.Manager.Server = NoSave(ConfigSelection(choices=Serverlive))	 # , default=Server1))
 config.plugins.Manager.cfgfile = NoSave(ConfigSelection(choices=cfgcam))
 config.plugins.Manager.hostaddress = NoSave(ConfigText(default="127.0.0.1"))
 config.plugins.Manager.port = NoSave(ConfigNumber(default=16000))
@@ -323,24 +352,18 @@ def putlblcfg():
 		print("Error: Invalid file path")
 		return None
 
-	if putlbl == "/etc/CCcam.cfg":
-		buttn = _("Write") + " CCcam"
-		rstcfg = "CCcam.cfg"
-	elif putlbl == "/etc/tuxbox/config/oscam.server":
-		buttn = _("Write") + " Oscam"
-		rstcfg = "oscam.server"
-	# elif putlbl == "/etc/tuxbox/config/gcam.server":
-		# buttn = _("Write") + " Gcam"
-		# rstcfg = "gcam.server"
-	elif putlbl == "/etc/tuxbox/config/oscam-emu/oscam.server":
-		buttn = _("Write") + " OscamEmu"
-		rstcfg = "oscam.server"
-	elif putlbl == "/etc/tuxbox/config/Oscamicam/oscam.server":
-		buttn = _("Write") + " Oscamicam"
-		rstcfg = "oscam.server"
-	elif putlbl == "/etc/tuxbox/config/ncam.server":
-		buttn = _("Write") + " Ncam"
-		rstcfg = "ncam.server"
+	path_map = {
+		"/etc/CCcam.cfg": ("CCcam", "CCcam.cfg"),
+		"/etc/tuxbox/config/oscam.server": ("Oscam", "oscam.server"),
+		# "/etc/tuxbox/config/gcam.server": ("Gcam", "gcam.server"),  # eventualmente da riabilitare
+		"/etc/tuxbox/config/oscam-emu/oscam.server": ("OscamEmu", "oscam.server"),
+		"/etc/tuxbox/config/Oscamicam/oscam.server": ("Oscamicam", "oscam.server"),
+		"/etc/tuxbox/config/ncam.server": ("Ncam", "ncam.server"),
+	}
+
+	if putlbl in path_map:
+		buttn = _("Write") + " " + path_map[putlbl][0]
+		rstcfg = path_map[putlbl][1]
 	else:
 		buttn = _("Write") + " NONE"
 		rstcfg = "unknow.server"
@@ -392,7 +415,7 @@ class levi_config(Screen, ConfigListScreen):
 				"green": self.green,
 				"yellow": self.sendemm,
 				"blue": self.resetcfg,
-				"red": self.closex,
+				"red": self.oscamAu,
 				"cancel": self.closex,
 				"info": self.infomsg,
 				"back": self.closex
@@ -413,6 +436,57 @@ class levi_config(Screen, ConfigListScreen):
 	def infomsg(self):
 		self.session.open(MessageBox, _("Levi45 Softcam Manager\nby Lululla V.%s\nInstall Cam Software\nForum Support www.satellite-forum.com\n") % currversion,  MessageBox.TYPE_INFO, timeout=4)
 
+	def oscamAu(self, answer=False):
+
+		if answer:
+			def status_callback(msg):
+				print("[CCcamCollector] {}".format(msg))
+
+			def run_collector_thread():
+				try:
+					from .MyCCcamCollector import MyCCcamCollector
+					collector = MyCCcamCollector(putlbl)
+					collector.run(status_callback=status_callback)
+				except Exception as e:
+					print("error:{}".format(e))
+
+					def show_error(err=e):
+						self.session.open(MessageBox, "Error downloading CCcam data:\n{}".format(err), MessageBox.TYPE_ERROR)
+
+					self.timer = eTimer()
+					if exists("/usr/bin/apt-get"):
+						self.timer_conn = self.timer.timeout.connect(show_error)
+					else:
+						self.timer.callback.append(show_error)
+					self.timer.start(0, True)
+					return
+
+				def show_success():
+					name = "Oscam" if "oscam" in putlbl.lower() else "CCcam"
+					message = "{} config saved to:\n{}".format(name, putlbl)
+					self.session.open(MessageBox, message, MessageBox.TYPE_INFO)
+
+				self.timer = eTimer()
+				if exists("/usr/bin/apt-get"):
+					self.timer_conn = self.timer.timeout.connect(show_success)
+				else:
+					self.timer.callback.append(show_success)
+				self.timer.start(0, True)
+
+			Thread(target=run_collector_thread).start()
+
+		else:
+			def ask_callback(result):
+				if result:
+					self.oscamAu(True)
+
+			self.session.openWithCallback(
+				ask_callback,
+				MessageBox,
+				"Do you want to automatically download CCcam readers?\nThey will be saved to:\n{}".format(putlbl),
+				MessageBox.TYPE_YESNO
+			)
+
 	def sendemm(self):
 		if config.plugins.Manager.active.value:
 			self.getcl()
@@ -426,7 +500,7 @@ class levi_config(Screen, ConfigListScreen):
 							# cmd = "ps aux | grep -i '[o]scam'"
 							# res = subprocess.getoutput(cmd)
 							res = ""
-
+							msg = []
 							cmd = ["ps"]
 							output = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 							stdout, stderr = output.communicate()
@@ -439,7 +513,6 @@ class levi_config(Screen, ConfigListScreen):
 
 							if any(cam in res.lower() for cam in ["oscam", "icam", "ncam", "gcam"]):
 								print("oscam exist")
-								msg = []
 								msg.append(_("\n....\n.....\n"))
 								self.cmd1 = "/usr/lib/enigma2/python/Plugins/Extensions/Manager/data/emm_sender.sh"
 								if not access(self.cmd1, X_OK):
@@ -448,7 +521,7 @@ class levi_config(Screen, ConfigListScreen):
 								def run_command():
 									subprocess.run(self.cmd1, shell=True)
 
-								thread = threading.Thread(target=run_command)
+								thread = Thread(target=run_command)
 								thread.start()
 
 							if exists("/tmp/emm.txt"):
@@ -475,7 +548,7 @@ class levi_config(Screen, ConfigListScreen):
 			def run_command():
 				subprocess.run(self.cmd1, shell=True)
 
-			thread = threading.Thread(target=run_command)
+			thread = Thread(target=run_command)
 			thread.start()
 		else:
 			self.session.open(MessageBox, _("Command Cancelled"), MessageBox.TYPE_INFO, timeout=5)
@@ -492,12 +565,14 @@ class levi_config(Screen, ConfigListScreen):
 
 	def showhide(self):
 		if config.plugins.Manager.active.value is True:
+			self["key_red"].setText(_("xLine"))
 			self["key_green"].setText(buttn)
 			self["key_yellow"].setText(_("Get Link"))
 			self["key_blue"].setText(_("Reset"))
 		else:
+			self["key_red"].setText("")
 			self["key_green"].setText("")
-			self["key_yellow"].setText("Check Emm Send")
+			self["key_yellow"].setText(_("Check Emm Send"))
 			self["key_blue"].setText("")
 		return
 
@@ -631,7 +706,7 @@ class levi_config(Screen, ConfigListScreen):
 		self.session.open(MessageBox, _("Server Copy in ") + dest, type=MessageBox.TYPE_INFO, timeout=8)
 
 	def Oscam(self):
-		global host, port, user, passw
+		global host, port, user
 		putlblcfg()
 		print("putlbl Oscam ===================", putlbl)
 		if "oscam.server" not in putlbl:
@@ -699,7 +774,7 @@ class levi_config(Screen, ConfigListScreen):
 			print("error on host", str(e))
 
 	def load_getcl(self, data):
-		global host, port, user, passw
+		global host, port, user
 		try:
 			data = checkStr(data)
 			url1 = re.findall(r"<h1>C:\s+([\w.-]+)\s+(\d+)\s+(\w+)\s+([\w.-]+)\s*", data)

@@ -16,6 +16,8 @@ from Components.config import (
 )
 from Components.ActionMap import ActionMap
 from Components.Sources.StaticText import StaticText
+import gettext
+_ = gettext.gettext
 
 config.plugins.ccprio = ConfigSubsection()
 config.plugins.ccprio.autostart = ConfigEnableDisable(default=False)
@@ -42,8 +44,10 @@ CCPrioMaker_session = None
 
 
 def CCPrioMakerAutostart(session=None):
-    if config.plugins.ccprio.autostart.value and CCPrioMaker_session and session:
-        CCPrioMaker_session = CCPrioMaker(session)
+    global CCPrioMaker_session
+    if config.plugins.ccprio.autostart.value and session:
+        if CCPrioMaker_session is None:
+            CCPrioMaker_session = CCPrioMaker(session)
 
 
 def cleanup_r(val):
@@ -121,9 +125,13 @@ class CCPrioMaker(Screen):
         except:
             self.hideTimer.callback.append(self.parseEcmInfo)
         self.hideTimer.start(200, 1)
-        self.__event_tracker = ServiceEventTracker(screen=self,
-                                                   eventmap={iPlayableService.evUpdatedEventInfo: self.__evUpdatedEventInfo,
-                                                             iPlayableService.evStopped: self.__evStopped})
+        self.__event_tracker = ServiceEventTracker(
+            screen=self,
+            eventmap={
+                iPlayableService.evUpdatedEventInfo: self.__evUpdatedEventInfo,
+                iPlayableService.evStopped: self.__evStopped
+            }
+        )
         readprio()
 
     def __evStopped(self):
@@ -221,11 +229,15 @@ class Ccprio_Setup(Screen, ConfigListScreen):
         self.skinName = ["Setup"]
         self.setup_title = _("CCPrioMaker Settings")
         self.onChangedEntry = []
-
-        self["actions"] = ActionMap(["SetupActions"],
-                                    {"cancel": self.keyCancel,
-                                     "save": self.keySave,
-                                     "ok": self.keySave}, -2)
+        self["actions"] = ActionMap(
+            ["SetupActions"],
+            {
+                "cancel": self.keyCancel,
+                "save": self.keySave,
+                "ok": self.keySave
+            },
+            -2
+        )
 
         self["key_red"] = StaticText(_("Cancel"))
         self["key_green"] = StaticText(_("OK"))
