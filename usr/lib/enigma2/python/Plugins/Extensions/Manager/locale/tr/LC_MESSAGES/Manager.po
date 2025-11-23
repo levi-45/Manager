@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Levi45SoftcamManager\n"
-"POT-Creation-Date: 2025-06-09 21:48+0200\n"
-"PO-Revision-Date: 2025-06-09 21:48+0200\n"
+"POT-Creation-Date: 2022-07-03 21:08+0200\n"
+"PO-Revision-Date: 2024-07-31 21:16+0100\n"
 "Last-Translator: \n"
 "Language-Team: lululla\n"
 "Language: tr_TR\n"
@@ -10,228 +10,131 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.6\n"
+"X-Generator: Poedit 3.0.1\n"
 "X-Poedit-Basepath: ../../..\n"
 "X-Poedit-SourceCharset: iso-8859-1\n"
 "X-Poedit-SearchPath-0: plugin.py\n"
 
-#: plugin.py:205
+#: plugin.py:255
 msgid "Start"
 msgstr "Başlat"
 
-#: plugin.py:206
-#, fuzzy
-#| msgid "Download"
-msgid "Cam Download"
-msgstr "İndir"
+#: plugin.py:256
+msgid "Addons Panel"
+msgstr "Eklentiler Paneli"
 
-#: plugin.py:207
+#: plugin.py:257
 msgid "Stop"
 msgstr "Durdur"
 
-#: plugin.py:208
-msgid "Script Executor"
-msgstr ""
+#: plugin.py:258 plugin.py:305
+msgid "EmuKeys Updater"
+msgstr "EmuKeys Güncelleyici"
 
-#: plugin.py:209
+#: plugin.py:260
 msgid "Scanning and retrieval list softcam ..."
 msgstr "Softcam tarama ve alma listesi ..."
 
-#: plugin.py:384
+#: plugin.py:289
+msgid "Softcam"
+msgstr "Softcam"
+
+#: plugin.py:295
+msgid "CCcamInfo"
+msgstr "CCcam bilgi"
+
+#: plugin.py:299
+msgid "OscamInfo"
+msgstr "Oscam bilgi"
+
+#: plugin.py:302
+msgid "SOFTCAM"
+msgstr "SOFTCAM"
+
+#: plugin.py:365
 msgid "Update SoftcamKeys from google search?"
 msgstr "Google aramadan SoftcamKeys güncellensin mi?"
 
-#: plugin.py:394
-msgid ""
-"Installing Softcam Keys\n"
-"Please Wait..."
-msgstr ""
+#: plugin.py:376
+#, python-format
+msgid "Update Softcam.key: %s"
+msgstr "Softcam.key'i güncelleyin: %s"
 
-#: plugin.py:406
+#: plugin.py:390
 msgid "Select a cam to run ..."
 msgstr "Çalıştırmak için bir cam seçin..."
 
-#: plugin.py:408
-msgid "Install Cam first!!!"
-msgstr ""
+#: plugin.py:423
+msgid "RESTART CAM "
+msgstr "CAM'I YENİDEN BAŞLAT "
 
-#: plugin.py:498
-msgid ""
-"Please wait..\n"
-"RESTART CAM"
-msgstr ""
-
-#: plugin.py:503
-#, fuzzy
-#| msgid "STOP & RESTART CAM "
-msgid ""
-"Please wait..\n"
-"STOP & RESTART CAM"
+#: plugin.py:428
+msgid "STOP & RESTART CAM "
 msgstr "DURDUR & CAM'I YENİDEN BAŞLAT "
 
-#: plugin.py:511
-msgid ""
-"Please wait..\n"
-"START UP CAM"
-msgstr ""
+#: plugin.py:436
+msgid "UP CAM 2"
+msgstr "Secilen Cam 2"
 
-#: plugin.py:567
-#, fuzzy
-#| msgid "Please wait, %s."
-msgid ""
-"Please wait..\n"
-"STOP CAM"
+#: plugin.py:449
+msgid "and"
+msgstr "ve"
+
+#: plugin.py:450
+#, python-format
+msgid "Please wait, %s."
 msgstr "Lütfen bekleyin, %s."
 
-#: plugin.py:727
+#: plugin.py:573
+msgid "Autocam assigned to the current channel"
+msgstr "Geçerli kanala atanan otomatik cam"
+
+#: plugin.py:619
 msgid "Getting the list, please wait ..."
 msgstr "Liste alınıyor, lütfen bekleyin.."
 
-#: plugin.py:728 plugin.py:854 plugin.py:1024
+#: plugin.py:620 plugin.py:699 plugin.py:819
 msgid "Back"
 msgstr "Geri"
 
-#: plugin.py:729
-msgid "Load"
-msgstr ""
-
-#: plugin.py:810
-msgid "Please select ..."
-msgstr "Lütfen seçin ..."
-
-#: plugin.py:815
-msgid "Error processing server addons data"
-msgstr ""
-
-#: plugin.py:819
+#: plugin.py:649 plugin.py:666
 msgid "Try again later ..."
 msgstr "Daha sonra tekrar deneyin ..."
 
-#: plugin.py:853
+#: plugin.py:662
+msgid "Please select ..."
+msgstr "Lütfen seçin ..."
+
+#: plugin.py:698
 msgid "Select and Install"
 msgstr "Seç ve Yükle"
 
-#: plugin.py:880
-msgid "Do you install this plugin ?"
-msgstr ""
+#: plugin.py:739
+msgid "Do you want to install?"
+msgstr "Yuklemek istiyor musunuz?"
 
-#: plugin.py:896 plugin.py:903 plugin.py:963 plugin.py:972
+#: plugin.py:781
 msgid "Unknow Image!"
 msgstr "Imaj Bilinmiyor!"
 
-#: plugin.py:942
-#, python-format
-msgid ""
-"Installing %s\n"
-"Please Wait..."
-msgstr ""
+#: plugin.py:784
+msgid "Download failur!"
+msgstr "İndirme hatası!"
 
-#: plugin.py:946
-#, fuzzy
-#| msgid "Do you want to install?"
-msgid "Do you want to remove?"
-msgstr "Yuklemek istiyor musunuz?"
+#: plugin.py:796
+msgid "All file Download are removed!"
+msgstr "İndirilen tüm dosyalar kaldırıldı!"
 
-#: plugin.py:980
-#, python-format
-msgid "Removing %s"
-msgstr ""
-
-#: plugin.py:984
-#, fuzzy
-#| msgid "Do you want to install?"
-msgid "Do you want to restart Gui Interface?"
-msgstr "Yuklemek istiyor musunuz?"
-
-#: plugin.py:1025
-msgid "Force Update"
-msgstr ""
-
-#: plugin.py:1026
-msgid "Update"
-msgstr ""
-
-#: plugin.py:1040
+#: plugin.py:828
 msgid "Path Configuration Folder"
 msgstr "Dosya Duzenleme Yolu"
 
-#: plugin.py:1067
-#, python-format
-msgid ""
-"New version %s is available\n"
-"\n"
-"Changelog: %s\n"
-"\n"
-"Press info_long or yellow_long button to start force updating."
-msgstr ""
-
-#: plugin.py:1072
-#, python-format
-msgid ""
-"New version %s is available.\n"
-"\n"
-"Changelog: %s \n"
-"\n"
-"Do you want to install it now?"
-msgstr ""
-
-#: plugin.py:1074
-msgid "Congrats! You already have the latest version..."
-msgstr ""
-
-#: plugin.py:1083
-#, fuzzy, python-format
-#| msgid "Do you want to install?"
-msgid "Do you want to install update ( %s ) now?"
-msgstr "Yuklemek istiyor musunuz?"
-
-#: plugin.py:1089
-msgid "Update Aborted!"
-msgstr ""
-
-#: plugin.py:1148
+#: plugin.py:1008
 msgid "Levi45 Softcam Manager"
 msgstr "Levi45 Softcam Yöneticisi"
 
-#~ msgid "Addons Panel"
-#~ msgstr "Eklentiler Paneli"
-
-#~ msgid "EmuKeys Updater"
-#~ msgstr "EmuKeys Güncelleyici"
-
-#~ msgid "Softcam"
-#~ msgstr "Softcam"
-
-#~ msgid "CCcamInfo"
-#~ msgstr "CCcam bilgi"
-
-#~ msgid "OscamInfo"
-#~ msgstr "Oscam bilgi"
-
-#~ msgid "SOFTCAM"
-#~ msgstr "SOFTCAM"
-
-#, python-format
-#~ msgid "Update Softcam.key: %s"
-#~ msgstr "Softcam.key'i güncelleyin: %s"
-
-#~ msgid "RESTART CAM "
-#~ msgstr "CAM'I YENİDEN BAŞLAT "
-
-#~ msgid "UP CAM 2"
-#~ msgstr "Secilen Cam 2"
-
-#~ msgid "and"
-#~ msgstr "ve"
-
-#~ msgid "Autocam assigned to the current channel"
-#~ msgstr "Geçerli kanala atanan otomatik cam"
-
-#~ msgid "Download failur!"
-#~ msgstr "İndirme hatası!"
-
-#~ msgid "All file Download are removed!"
-#~ msgstr "İndirilen tüm dosyalar kaldırıldı!"
+#~ msgid "Download"
+#~ msgstr "İndir"
 
 #~ msgid "Softcam Manager"
 #~ msgstr "Softcam Yöneticisi"

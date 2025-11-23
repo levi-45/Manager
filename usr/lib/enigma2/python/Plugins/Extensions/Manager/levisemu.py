@@ -1,69 +1,32 @@
-# #!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 
-from __future__ import print_function
-"""
-===============================================================================
-
-Enigma2 SoftCam Manager Plugin
-------------------------------
-
-Author: [Lululla] [Levi45]
-Version: 10.2-r2
-Platform: Enigma2 (OE-A / OpenPLi compatible)
-
-Description:
-This plugin provides a simple and unified interface to manage various SoftCams
-(e.g., OSCam, CCcam, Ncam, GCam, etc.) directly from the Enigma2 GUI.
-
-Features:
-- Detects installed emulators automatically
-- Start, stop, restart or switch between SoftCams
-- Display current emulator and its status
-- Show active ECM info and reader details (if available)
-- Compatible with most E2 images (OE-A, PLi, OpenATV, etc.)
-- Clean and responsive GUI interface
-- Custom handling of common SoftCam script locations and binary paths
-- Built-in fallback detection in case of missing scripts
-- Fully localized (language support ready)
-
-Credits:
-- Based on various open-source CAM controller examples
-- Inspired by community projects and code from forums (e.g., SatUniverse, OpenATV)
-- GUI layout and workflow refined for user-friendliness on all resolutions
-
-Note:
-Ensure your emu scripts are located under /etc/init.d/ or /usr/bin/ with proper permissions.
-This manager assumes standard naming (e.g., "oscam", "ncam", "cccam", "gcam").
-
- Credits: by Lululla
- Date: May 2025
-===============================================================================
-"""
-import codecs
-import os
-import sys
-from os import mkdir
-from random import choice
-
-from requests import get, exceptions
-
-from enigma import getDesktop
-
+# -------------------#
+#  coded by Lululla  #
+#   skin by MMark    #
+#     update to      #
+#       Levi45       #
+#     08/01/2025     #
+#      No Coppy      #
+# -------------------#
+from . import _
 from Components.ActionMap import ActionMap
-from Components.Label import Label
 from Components.Sources.List import List
-
+from Components.Label import Label
 from Plugins.Plugin import PluginDescriptor
-
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
-
-from . import _
+from enigma import getDesktop
+from os import mkdir
+import os
+import sys
+import codecs
+from random import choice
+from requests import get, exceptions
 
 
 plugin_foo = os.path.dirname(sys.modules[__name__].__file__)
-currversion = 'V.10.2-r1'
+currversion = 'V.10.2-r3'
 # emu_script = str(plugin_foo) + '/emu/'
 emu_script = os.path.join(plugin_foo, "emu") + "/"
 
@@ -94,15 +57,6 @@ if not os.path.exists('/etc/clist.list'):
 	with open('/etc/clist.list', 'w'):
 		print('/etc/clist.list as been create')
 		os.system('chmod 755 /etc/clist.list &')
-
-
-
-if sys.version_info[0] == 2:
-    import codecs
-    open_file = lambda path: codecs.open(path, "r", encoding="utf-8")
-else:
-    open_file = lambda path: open(path, "r", encoding="utf-8")
-
 
 
 class Levi45EmuKeysUpdater(Screen):
@@ -152,7 +106,7 @@ class Levi45EmuKeysUpdater(Screen):
 		self.mlist = []
 		self.populateScript()
 		self['list'] = List(self.mlist)
-		self['list'].onSelectionChanged.append(self.changed)
+		self['list'].onSelectionChanged.append(self.changed)		
 		self['line1'] = Label(_('Available Scripts'))
 		self['key_red'] = Label(_('Close'))
 		self['key_green'] = Label(_('Select'))
@@ -193,16 +147,16 @@ class Levi45EmuKeysUpdater(Screen):
 				desc = ''
 				myfil = emu_script + '/' + fil
 				print('myfil: ', myfil)
-				with open_file(myfil) as f:
-					for line in f:
-						if "#DESCRIPTION=" in line:
+				with codecs.open(myfil, "rb", encoding="latin-1") as f:
+					for line in f.readlines():
+						if line.find('#DESCRIPTION=') != -1:
 							line = line.strip()
 							desc = line[14:]
 
 				if not desc:
 					desc = fil2  # Fallback to the filename without extension if no description found
 				desc = desc.replace("_", " ").replace("-", " ").capitalize()  # Format description
-				res = (str(fil2), str(desc))
+				res = (fil2, desc)
 				self.mlist.append(res)
 		self.mlist = sorted(self.mlist, key=lambda x: x[0].lower())
 

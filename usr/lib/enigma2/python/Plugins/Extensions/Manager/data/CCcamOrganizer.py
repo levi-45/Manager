@@ -8,8 +8,6 @@ from Components.MenuList import MenuList
 from Components.ActionMap import ActionMap
 from Screens.MessageBox import MessageBox
 from Tools.Directories import fileExists
-import gettext
-_ = gettext.gettext
 
 
 class OrganizerMenu(Screen):
@@ -22,6 +20,7 @@ class OrganizerMenu(Screen):
         Screen.__init__(self, session)
         self.session = session
         listx = []
+        # if fileExists("/etc/CCcam.cfg"):
         listx.append((_("Delete Peer"), "two"))
         listx.append((_("Recover Peer"), "tree"))
         listx.append((_("Find Fakes"), "four"))
@@ -59,6 +58,7 @@ class OrganizerMenu(Screen):
         with open("/etc/CCcam.cfg", 'w') as f:
             for line in lines:
                 f.write(line)
+
         self.session.open(MessageBox, _("\nSTOPPED FINDING FAKES \n\nREVERTED BACK TO INITIAL STATUS"), MessageBox.TYPE_INFO)
 
 
@@ -72,14 +72,17 @@ class OrganizerNewmenu(Screen):
         Screen.__init__(self, session)
         self.session = session
         self.CFG = "/etc/CCcam.cfg"
+
         if not fileExists(self.CFG):
             self.close()
             return
+
         self.find = ""
         self.replace = ""
         self.selected = ""
 
         menu_list = []
+
         if returnValue == "two" or returnValue == "four":
             with open(self.CFG, 'r') as f:
                 for line in f:
@@ -126,10 +129,14 @@ class OrganizerNewmenu(Screen):
             self.message(self.selected, _("PRESS RETURN"))
 
     def FindFakes(self):
-        self.selected = self["Newmenu"].l.getCurrentSelection() and self["Newmenu"].l.getCurrentSelection()[1]
+        self.selected = self["Newmenu"].l.getCurrentSelection()
+        self.selected = self.selected and self.selected[1]
+
         if not self.selected:
             return
+
         lines = []
+
         with open(self.CFG, 'r') as f:
             for line in f:
                 if line.startswith("C:") and line.strip() != self.selected.strip():
@@ -138,10 +145,12 @@ class OrganizerNewmenu(Screen):
 
         with open(self.CFG, 'w') as f:
             f.writelines(lines)
+
         self.message(self.selected, _("Set as UNIQUE PEER"))
 
     def findReplace(self, find, replace, selected):
         lines = []
+
         with open(self.CFG, 'r') as f:
             for line in f:
                 if line.startswith(find) and selected in line:
