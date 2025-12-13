@@ -8,9 +8,11 @@
     <widget backgroundColor="#101010" font="Regular; 36" foregroundColor="#60cefe" halign="right" position="735,735" render="Label" size="200,40" source="global.CurrentTime" transparent="1" valign="center" zPosition="3">
         <convert type="ClockToText">Format:%A</convert>
     </widget>
-    <ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/Manager/res/pics/mcmaneger.png" position="10,795" size="256,256" scale="stretch" alphatest="blend" zPosition="5"/>
+    <ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/Manager/res/pics/mcmanegerr.png" position="10,795" size="256,256" scale="stretch" alphatest="blend" zPosition="5"/>
     <ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/Manager/res/pics/sep.png" position="0,1055" size="1920,8" alphatest="blend" zPosition="5"/>
     <ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/Manager/res/pics/sep.png" position="0,785" size="1920,8" alphatest="blend" zPosition="5"/>
+    <ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/Manager/res/pics/hd/kofi.png" position="80,800" size="100,100" scale="stretch" alphatest="blend" zPosition="5"/>
+    <ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/Manager/res/pics/hd/paypal.png" position="80,950" size="100,100" scale="stretch" alphatest="blend" zPosition="5"/>    
     <!-- Colors -->
     <widget name="key_red" position="1590,845" size="300,40" font="Regular;30" halign="left" valign="center" backgroundColor="black" transparent="1" zPosition="5"/>
     <widget name="key_green" position="1590,895" size="300,40" font="Regular;30" halign="left" valign="center" backgroundColor="black" transparent="1" zPosition="5"/>

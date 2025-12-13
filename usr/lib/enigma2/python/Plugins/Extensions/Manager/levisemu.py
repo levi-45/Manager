@@ -26,7 +26,7 @@ from requests import get, exceptions
 
 
 plugin_foo = os.path.dirname(sys.modules[__name__].__file__)
-currversion = 'V.10.2-r3'
+currversion = 'V.10.2-r4'
 # emu_script = str(plugin_foo) + '/emu/'
 emu_script = os.path.join(plugin_foo, "emu") + "/"
 
