@@ -1,6 +1,6 @@
 #!/bin/bash
 
-## setup command=wget -q https://raw.githubusercontent.com/levi-45/MulticamManager/main/installer.sh -O - | /bin/sh -O - | /bin/sh
+## setup command=wget -q https://raw.githubusercontent.com/levi-45/Manager/main/installer.sh -O - | /bin/sh -O - | /bin/sh
 ## Only This 2 lines to edit with new version ######
 version='10.2-r4'
 changelog='All Updated'
