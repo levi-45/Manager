@@ -12,6 +12,15 @@
     <ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/Manager/res/pics/sep.png" position="0,1055" size="1920,8" alphatest="blend" zPosition="5"/>
     <ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/Manager/res/pics/sep.png" position="0,785" size="1920,8" alphatest="blend" zPosition="5"/>
     <ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/Manager/res/pics/hd/kofi.png" position="80,800" size="100,100" scale="stretch" alphatest="blend" zPosition="5"/>
+    
+    <!-- Added Support Widget -->
+    <widget name="support" position="50,700" size="540,40" font="Regular; 30" 
+        valign="center" halign="left" 
+        transparent="0" 
+        foregroundColor="#ffcc00" 
+        backgroundColor="#000000" 
+        zPosition="10" />
+            
     <ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/Manager/res/pics/hd/paypal.png" position="80,950" size="100,100" scale="stretch" alphatest="blend" zPosition="5"/>    
     <!-- Colors -->
     <widget name="key_red" position="1590,845" size="300,40" font="Regular;30" halign="left" valign="center" backgroundColor="black" transparent="1" zPosition="5"/>
